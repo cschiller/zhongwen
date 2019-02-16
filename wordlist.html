@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zhongwen Word List</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="css/options.css">
+    <script src="js/jquery-3.3.1.min.js" type="text/javascript"></script>
+    <script src="js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
+    <script src="js/wordlist.js" type="text/javascript"></script>
+
+</head>
+<body>
+<h1>Zhongwen Word List</h1>
+
+<p>You can select individual rows by clicking on them.
+    Selected rows are highlighted. Selected rows can be saved to a file by clicking on the save button
+    below the table. Selected rows can also be deleted by clicking on the delete button below the table.
+</p>
+<p>
+    By clicking on the column headers you can sort the rows
+    in ascending or descending order.
+</p>
+<p>
+    For technical reasons the Zhongwen pop-up doesn't work on this page.
+</p>
+
+<table id="words" class="table table-hover table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Simplified</th>
+        <th>Traditional</th>
+        <th>Pinyin</th>
+        <th>Definition</th>
+    </tr>
+    </thead>
+</table>
+<p>
+<div id="nodata" class="alert alert-primary">
+    You haven't saved any words yet. You can save words by using the "r" key on the keyboard when the pop-up translation
+    is being displayed.
+</div>
+
+<a hidden id="savelink" download="Zhongwen-Words.txt"></a>
+<button id="savebutton">Save selected rows</button>
+<button id="delete">Delete selected rows</button>
+<button id="selectall">Select all rows</button>
+<button id="deselectall">Deselect all rows</button>
+
+</body>
+</html>

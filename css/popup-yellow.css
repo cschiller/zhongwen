@@ -1,0 +1,97 @@
+#zhongwen-window, #zhongwen-window * {
+  width: auto;
+  height: auto;
+  background: transparent;
+  color: #000000;
+  border: none !important;
+  border-spacing: 0px;
+  margin: 0px;
+  padding: 0px;
+  letter-spacing: normal;
+  text-align: left;
+  text-decoration: none;
+  text-indent: 0px;
+  text-transform: none;
+  white-space: normal;
+  word-spacing: normal;
+  font-weight: normal;
+  font-size: 12px;
+  font-family: Tahoma, Geneva, sans-serif;
+  visibility: visible;
+}
+
+#zhongwen-window {
+  position: absolute;
+  z-index: 999999999;
+  border: 1px solid #D0D0D0 !important;
+  padding: 4px;
+  background: #FFFFBF;
+  top: 5px;
+  left: 5px;
+  min-width: 100px;
+  border-radius: 5px;
+  box-shadow: 10px 10px 5px -5px #999;
+}
+
+#zhongwen-window .w-hanzi {
+  font-size: 32px;
+  color: #7070E0;
+  margin-right: 0.7em;
+}
+
+#zhongwen-window .w-pinyin {
+  font-size: 18px;
+}
+
+#zhongwen-window .w-def {
+  font-size: 16px;
+}
+
+#zhongwen-window .w-zhuyin {
+  font-family: PMingLiU, 'Apple LiGothic', sans-serif;
+  font-size: 16px;
+}
+
+#zhongwen-window .w-hanzi-small {
+  font-size: 18px;
+  color: #7070E0;
+  margin-right: 0.7em;
+}
+
+#zhongwen-window .w-pinyin-small {
+  font-size: 16px;
+}
+
+#zhongwen-window .w-def-small {
+  font-size: 12px;
+}
+
+#zhongwen-window .w-zhuyin-small {
+  font-family: PMingLiU, 'Apple LiGothic', sans-serif;
+  font-size: 12px;
+}
+
+#zhongwen-window .tone1 {
+  color: #EE363E;
+}
+
+#zhongwen-window .tone2 {
+  color: #F47C36;
+}
+
+#zhongwen-window .tone3 {
+  color: #73BB4F;
+}
+
+#zhongwen-window .tone4 {
+  color: #649CD3;
+}
+
+#zhongwen-window .tone5 {
+  color: #A0A0A0;
+}
+
+#zhongwen-window .grammar {
+  font-weight: bold;
+  color: darkblue;
+}

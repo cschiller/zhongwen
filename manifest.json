@@ -1,0 +1,49 @@
+{
+  "manifest_version": 2,
+  "name": "Zhongwen: Chinese-English Dictionary",
+  "short_name": "Zhongwen",
+  "version": "5.0.0",
+  "author": "Christian Schiller",
+  "homepage_url": "https://github.com/cschiller/zhongwen",
+  "description": "Great tool for learning Chinese. Includes links to Chinese Grammar Wiki. Supports adding words to Skritter.",
+  "icons": {
+    "16": "images/zhongwen16.png",
+    "48": "images/zhongwen48.png",
+    "128": "images/zhongwen.png"
+  },
+  "browser_action": {
+    "default_icon": "images/zhongwen48.png",
+    "default_title": "Zhongwen Chinese Popup Dictionary"
+  },
+  "background": {
+    "scripts": [
+      "dict.js",
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/jquery-3.3.1.min.js",
+        "content.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "http://*/*",
+    "contextMenus"
+  ],
+  "web_accessible_resources": [
+    "css/*",
+    "js/*",
+    "images/*"
+  ]
+}

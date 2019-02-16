@@ -1,0 +1,3 @@
+* auto
+*.u8 text eol=crlf
+*.idx text eol=lf

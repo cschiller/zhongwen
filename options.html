@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/options.css">
+    <script src="js/jquery-3.3.1.min.js" type="text/javascript"></script>
+    <script src="js/options.js" type="text/javascript"></script>
+</head>
+<body>
+<h2>Options for the Zhongwen Chrome Extension</h2>
+
+On this page you can set your personal preferences for the Zhongwen
+Chinese Pop-up Dictionary Chrome extension.
+
+<p>
+    <input id="save" style="margin-top: 1em;" type="submit" value="Save these settings"/>
+    <span style="margin-left: 1em" class="important">Save your changes here</span>
+</p>
+<hr>
+<form id="optform" name="optform">
+
+    <p>
+        The <b>Tone colors</b> setting allows you to turn colors for the
+        pinyin syllables on and off. If tone colors are turned on, you will
+        see colors corresponding to the tones of the characters:
+        red = first tone, orange = second tone, green = third tone,
+        blue = fourth tone.
+    </p>
+    <p>
+        <label for="tonecolors">Tone colors:</label>
+        <select id="tonecolors" name="tonecolors">
+            <option value="yes">Show tone colors</option>
+            <option value="no">Don't show tone colors</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <p>
+        The <b>Font size</b> setting allows you to change the size of the
+        characters in the pop-up window.
+    </p>
+    <p>
+        <label for="fontSize">Font size:</label>
+        <select id="fontSize" name="fontSize">
+            <option value="small">Use a smaller font size</option>
+            <option value="large">Use a large font size</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <p>
+        The <b>Simplified and Traditional characters</b> setting allows you to choose whether to display both
+        simplified and traditional characters; or to automatically detect the character style used on the page and only
+        display those characters in the pop-up window.
+    </p>
+    <p>
+        <label for="simpTrad">Simplified and traditional characters:</label>
+        <select id="simpTrad" name="simpTrad">
+            <option value="classic">show both</option>
+            <option value="auto">automatic</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <p>
+        The <b>Show Zhuyin</b> setting allows you to turn on Zhuyin (Bopomofo)
+        phonetic symbols.
+    </p>
+    <p>
+        <label for="zhuyin">Show Zhuyin (Bopomofo):</label>
+        <select id="zhuyin" name="zhuyin">
+            <option value="no">no</option>
+            <option value="yes">yes</option>
+        </select>
+    <p>
+
+    <hr>
+
+    <p>
+        The <b>Pop-up color</b> setting allows you to change the background
+        color of the window showing the dictionary entries. (Changing this setting requires reloading the page
+        with the pop-up to take effect.)
+    </p>
+    <p>
+        <label for="popupcolor">Pop-up color:</label>
+        <select id="popupcolor" name="popupcolor">
+            <option value="yellow">Yellow</option>
+            <option value="blue">Blue</option>
+            <option value="lightblue">Light Blue</option>
+            <option value="black">Black</option>
+        </select>
+    </p>
+
+    <hr>
+    <p>
+        The <b>Skritter domain</b> setting allows you to change the URL that is
+        used for adding words to your Skritter queue (Skritter login required).
+        By default, <code>skritter.com</code> is being used, but for some users
+        <code>skritter.cn</code> might work better.
+    </p>
+    <p>
+        <label for="skritterTLD">Skritter domain:</label>
+        <select id="skritterTLD" name="skritterTLD">
+            <option value="com">skritter.com</option>
+            <option value="cn">skritter.cn</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <p>
+        The <b>Show grammar and usage notes</b> setting allows you to turn on grammar
+        and usage notes.
+    </p>
+    <p>
+        <label for="grammar">Show grammar and usage notes:</label>
+        <select id="grammar" name="grammar">
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <span class="important">Don't forget to save your changes by clicking on the botton at the top of this page.</span>
+</form>
+
+</body>
+</html>
