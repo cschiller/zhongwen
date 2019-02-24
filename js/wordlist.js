@@ -19,10 +19,10 @@ $(document).ready(function () {
     let table = wordsElement.DataTable({
         data: entries,
         columns: [
-            {data: 'simplified'},
-            {data: 'traditional'},
-            {data: 'pinyin'},
-            {data: 'definition'},
+            { data: 'simplified' },
+            { data: 'traditional' },
+            { data: 'pinyin' },
+            { data: 'definition' },
         ]
     });
 
@@ -50,7 +50,7 @@ $(document).ready(function () {
             content += '\r\n';
         }
 
-        let saveBlob = new Blob([content], {"type": "text/plain"});
+        let saveBlob = new Blob([content], { "type": "text/plain" });
         let a = document.getElementById('savelink');
         // Handle Chrome and Firefox
         a.href = (window.webkitURL || window.URL).createObjectURL(saveBlob);

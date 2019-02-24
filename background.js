@@ -46,6 +46,8 @@
 
 'use strict';
 
+import { ZhongwenDictionary } from './dict.js';
+
 let enabled;
 
 let tabIDs = {};
@@ -58,7 +60,7 @@ if (localStorage['enabled'] === 1) {
     enabled = 0;
 }
 
-window.zhongwenOptions = {
+let zhongwenOptions = {
     css: localStorage['popupcolor'] || 'yellow',
     tonecolors: localStorage['tonecolors'] || 'yes',
     fontSize: localStorage['fontSize'] || 'small',
@@ -118,7 +120,7 @@ function activateExtension(currentTab) {
                     });
                 } else {
                     chrome.tabs.create(
-                        {url: url},
+                        { url: url },
                         function (tab) {
                             tabIDs['wordlist'] = tab.id;
                             chrome.tabs.reload(tab.id);
@@ -152,7 +154,7 @@ function activateExtension(currentTab) {
                     });
                 } else {
                     chrome.tabs.create(
-                        {url: url},
+                        { url: url },
                         function (tab) {
                             tabIDs['help'] = tab.id;
                             chrome.tabs.reload(tab.id);
@@ -198,7 +200,7 @@ function deactivateExtension() {
 
     // Send a disable message to all tabs in all windows.
     chrome.windows.getAll(
-        {'populate': true},
+        { 'populate': true },
         function (windows) {
             for (let i = 0; i < windows.length; ++i) {
                 let tabs = windows[i].tabs;
@@ -245,7 +247,7 @@ function search(text) {
             let word = entry.data[i][1];
             if (dict.hasKeyword(word) && (entry.matchLen === word.length)) {
                 // the final index should be the last one with the maximum length
-                entry.grammar = {keyword: word, index: i};
+                entry.grammar = { keyword: word, index: i };
             }
         }
     }
@@ -269,12 +271,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
     switch (request.type) {
 
         case 'search':
-            let e = search(request.text);
-            response(e);
+            {
+                let e = search(request.text);
+                response(e);
+            }
             break;
 
         case 'open':
-
             tabID = tabIDs[request.tabType];
             if (tabID) {
                 chrome.tabs.get(tabID, function (tab) {
@@ -306,52 +309,55 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
                     }
                 });
             }
-
             break;
 
         case 'copy':
-            let txt = document.createElement('textarea');
-            txt.style.position = "absolute";
-            txt.style.left = "-100%";
-            txt.value = request.data;
-            document.body.appendChild(txt);
-            txt.select();
-            document.execCommand('copy');
-            document.body.removeChild(txt);
+            {
+                let txt = document.createElement('textarea');
+                txt.style.position = "absolute";
+                txt.style.left = "-100%";
+                txt.value = request.data;
+                document.body.appendChild(txt);
+                txt.select();
+                document.execCommand('copy');
+                document.body.removeChild(txt);
+            }
             break;
 
         case 'add':
-            let json = localStorage['wordlist'];
+            {
+                let json = localStorage['wordlist'];
 
-            let wordlist;
-            if (json) {
-                wordlist = JSON.parse(json);
-            } else {
-                wordlist = []
-            }
+                let wordlist;
+                if (json) {
+                    wordlist = JSON.parse(json);
+                } else {
+                    wordlist = []
+                }
 
-            for (let i in request.entries) {
+                for (let i in request.entries) {
 
-                let entry = {};
-                entry.simplified = request.entries[i].simplified;
-                entry.traditional = request.entries[i].traditional;
-                entry.pinyin = request.entries[i].pinyin;
-                entry.definition = request.entries[i].definition;
+                    let entry = {};
+                    entry.simplified = request.entries[i].simplified;
+                    entry.traditional = request.entries[i].traditional;
+                    entry.pinyin = request.entries[i].pinyin;
+                    entry.definition = request.entries[i].definition;
 
-                wordlist.push(entry);
-            }
-            localStorage['wordlist'] = JSON.stringify(wordlist);
+                    wordlist.push(entry);
+                }
+                localStorage['wordlist'] = JSON.stringify(wordlist);
 
-            tabID = tabIDs['wordlist'];
-            if (tabID) {
-                chrome.tabs.get(tabID, function (tab) {
-                    if (tab) {
-                        chrome.tabs.reload(tabID);
-                    }
-                });
+                tabID = tabIDs['wordlist'];
+                if (tabID) {
+                    chrome.tabs.get(tabID, function (tab) {
+                        if (tab) {
+                            chrome.tabs.reload(tabID);
+                        }
+                    });
+                }
             }
             break;
-
+            
         default:
         // ignore
     }

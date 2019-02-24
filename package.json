@@ -1,0 +1,22 @@
+{
+  "name": "zhongwen",
+  "version": "5.1.0",
+  "description": "Chinese Pop-Up Dictionary",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschiller/zhongwen.git"
+  },
+  "keywords": [
+    "Chinese",
+    "Dictionary"
+  ],
+  "author": "Christian Schiller",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/cschiller/zhongwen/issues"
+  },
+  "homepage": "https://github.com/cschiller/zhongwen#readme",
+  "devDependencies": {
+    "eslint": "^5.14.1"
+  }
+}

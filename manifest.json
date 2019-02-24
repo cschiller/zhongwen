@@ -16,10 +16,7 @@
     "default_title": "Zhongwen Chinese Popup Dictionary"
   },
   "background": {
-    "scripts": [
-      "dict.js",
-      "background.js"
-    ]
+    "page": "background.html"
   },
   "content_scripts": [
     {

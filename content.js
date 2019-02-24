@@ -136,16 +136,18 @@ function onKeyDown(keyDown) {
             break;
 
         case "b":
-            let offset = selStartDelta;
-            for (let i = 0; i < 10; i++) {
-                selStartDelta = --offset;
-                let ret = triggerSearch();
-                if (ret === 0) {
-                    break;
-                } else if (ret === 2) {
-                    savedRangeNode = findPreviousTextNode(savedRangeNode.parentNode, savedRangeNode);
-                    savedRangeOffset = 0;
-                    offset = savedRangeNode.data.length;
+            {
+                let offset = selStartDelta;
+                for (let i = 0; i < 10; i++) {
+                    selStartDelta = --offset;
+                    let ret = triggerSearch();
+                    if (ret === 0) {
+                        break;
+                    } else if (ret === 2) {
+                        savedRangeNode = findPreviousTextNode(savedRangeNode.parentNode, savedRangeNode);
+                        savedRangeOffset = 0;
+                        offset = savedRangeNode.data.length;
+                    }
                 }
             }
             break;
@@ -183,23 +185,25 @@ function onKeyDown(keyDown) {
             break;
 
         case "r":
-            let entries = [];
-            for (let j = 0; j < savedSearchResults.length; j++) {
-                let entry = {
-                    simplified: savedSearchResults[j][0],
-                    traditional: savedSearchResults[j][1],
-                    pinyin: savedSearchResults[j][2],
-                    definition: savedSearchResults[j][3]
-                };
-                entries.push(entry);
+            {
+                let entries = [];
+                for (let j = 0; j < savedSearchResults.length; j++) {
+                    let entry = {
+                        simplified: savedSearchResults[j][0],
+                        traditional: savedSearchResults[j][1],
+                        pinyin: savedSearchResults[j][2],
+                        definition: savedSearchResults[j][3]
+                    };
+                    entries.push(entry);
+                }
+
+                chrome.runtime.sendMessage({
+                    'type': 'add',
+                    'entries': entries
+                });
+
+                showPopup('Added to word list.<p>Press Alt+W to open word list.', null, -1, -1);
             }
-
-            chrome.runtime.sendMessage({
-                'type': 'add',
-                'entries': entries
-            });
-
-            showPopup('Added to word list.<p>Press Alt+W to open word list.', null, -1, -1);
             break;
 
         case "s":
@@ -471,10 +475,10 @@ function triggerSearch() {
     // not a Chinese character
     if (isNaN(u) ||
         (u !== 0x25CB &&
-        (u < 0x3400 || 0x9FFF < u) &&
-        (u < 0xF900 || 0xFAFF < u) &&
-        (u < 0xFF21 || 0xFF3A < u) &&
-        (u < 0xFF41 || 0xFF5A < u))) {
+            (u < 0x3400 || 0x9FFF < u) &&
+            (u < 0xF900 || 0xFAFF < u) &&
+            (u < 0xFF21 || 0xFF3A < u) &&
+            (u < 0xFF41 || 0xFF5A < u))) {
         clearHighlight();
         hidePopup();
         return 3;
@@ -487,9 +491,9 @@ function triggerSearch() {
     savedSelEndList = selEndList;
 
     chrome.runtime.sendMessage({
-            'type': 'search',
-            'text': text
-        },
+        'type': 'search',
+        'text': text
+    },
         processSearchResult
     );
 
