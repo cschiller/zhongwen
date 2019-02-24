@@ -95,39 +95,39 @@ export class ZhongwenDictionary {
         let maxLen = 0;
 
         WHILE:
-        while (word.length > 0) {
+            while (word.length > 0) {
 
-            let ix = cache[word];
-            if (!ix) {
-                ix = ZhongwenDictionary.find(word + ',', index);
+                let ix = cache[word];
                 if (!ix) {
-                    cache[word] = [];
-                    continue;
+                    ix = ZhongwenDictionary.find(word + ',', index);
+                    if (!ix) {
+                        cache[word] = [];
+                        continue;
+                    }
+                    ix = ix.split(',');
+                    cache[word] = ix;
                 }
-                ix = ix.split(',');
-                cache[word] = ix;
+
+                for (let j = 1; j < ix.length; ++j) {
+                    let offset = ix[j];
+
+                    let dentry = dict.substring(offset, dict.indexOf('\n', offset));
+
+                    if (count >= maxTrim) {
+                        entry.more = 1;
+                        break WHILE;
+                    }
+
+                    ++count;
+                    if (maxLen === 0) {
+                        maxLen = word.length;
+                    }
+
+                    entry.data.push([dentry, word]);
+                }
+
+                word = word.substr(0, word.length - 1);
             }
-
-            for (let j = 1; j < ix.length; ++j) {
-                let offset = ix[j];
-
-                let dentry = dict.substring(offset, dict.indexOf('\n', offset));
-
-                if (count >= maxTrim) {
-                    entry.more = 1;
-                    break WHILE;
-                }
-
-                ++count;
-                if (maxLen === 0) {
-                    maxLen = word.length;
-                }
-
-                entry.data.push([dentry, word]);
-            }
-
-            word = word.substr(0, word.length - 1);
-        }
 
         if (entry.data.length === 0) {
             return null;

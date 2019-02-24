@@ -270,11 +270,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
 
     switch (request.type) {
 
-        case 'search':
-            {
-                let e = search(request.text);
-                response(e);
-            }
+        case 'search': {
+            let e = search(request.text);
+            response(e);
+        }
             break;
 
         case 'open':
@@ -311,51 +310,49 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
             }
             break;
 
-        case 'copy':
-            {
-                let txt = document.createElement('textarea');
-                txt.style.position = "absolute";
-                txt.style.left = "-100%";
-                txt.value = request.data;
-                document.body.appendChild(txt);
-                txt.select();
-                document.execCommand('copy');
-                document.body.removeChild(txt);
-            }
+        case 'copy': {
+            let txt = document.createElement('textarea');
+            txt.style.position = "absolute";
+            txt.style.left = "-100%";
+            txt.value = request.data;
+            document.body.appendChild(txt);
+            txt.select();
+            document.execCommand('copy');
+            document.body.removeChild(txt);
+        }
             break;
 
-        case 'add':
-            {
-                let json = localStorage['wordlist'];
+        case 'add': {
+            let json = localStorage['wordlist'];
 
-                let wordlist;
-                if (json) {
-                    wordlist = JSON.parse(json);
-                } else {
-                    wordlist = []
-                }
-
-                for (let i in request.entries) {
-
-                    let entry = {};
-                    entry.simplified = request.entries[i].simplified;
-                    entry.traditional = request.entries[i].traditional;
-                    entry.pinyin = request.entries[i].pinyin;
-                    entry.definition = request.entries[i].definition;
-
-                    wordlist.push(entry);
-                }
-                localStorage['wordlist'] = JSON.stringify(wordlist);
-
-                tabID = tabIDs['wordlist'];
-                if (tabID) {
-                    chrome.tabs.get(tabID, function (tab) {
-                        if (tab) {
-                            chrome.tabs.reload(tabID);
-                        }
-                    });
-                }
+            let wordlist;
+            if (json) {
+                wordlist = JSON.parse(json);
+            } else {
+                wordlist = []
             }
+
+            for (let i in request.entries) {
+
+                let entry = {};
+                entry.simplified = request.entries[i].simplified;
+                entry.traditional = request.entries[i].traditional;
+                entry.pinyin = request.entries[i].pinyin;
+                entry.definition = request.entries[i].definition;
+
+                wordlist.push(entry);
+            }
+            localStorage['wordlist'] = JSON.stringify(wordlist);
+
+            tabID = tabIDs['wordlist'];
+            if (tabID) {
+                chrome.tabs.get(tabID, function (tab) {
+                    if (tab) {
+                        chrome.tabs.reload(tabID);
+                    }
+                });
+            }
+        }
             break;
 
         default:
