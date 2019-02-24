@@ -105,7 +105,7 @@ function onKeyDown(keyDown) {
         return;
     }
 
-    if (keyDown.altKey && keyDown.key === 'w') {
+    if (keyDown.altKey && keyDown.keyCode === 87) {
         chrome.runtime.sendMessage({
             type: 'open',
             tabType: 'wordlist',
@@ -120,37 +120,39 @@ function onKeyDown(keyDown) {
         }
     }
 
-    switch (keyDown.key) {
+    switch (keyDown.keyCode) {
 
-        case "Escape":
+        case 27: // esc
             hidePopup();
             break;
 
-        case "a":
+        case 65: // 'a'
             altView = (altView + 1) % 3;
             triggerSearch();
             break;
 
-        case "c":
+        case 67: // 'c'
             copyToClipboard(getTextForClipboard());
             break;
 
-        case "b":
-            let offset = selStartDelta;
-            for (let i = 0; i < 10; i++) {
-                selStartDelta = --offset;
-                let ret = triggerSearch();
-                if (ret === 0) {
-                    break;
-                } else if (ret === 2) {
-                    savedRangeNode = findPreviousTextNode(savedRangeNode.parentNode, savedRangeNode);
-                    savedRangeOffset = 0;
-                    offset = savedRangeNode.data.length;
+        case 66: // 'b'
+            {
+                let offset = selStartDelta;
+                for (let i = 0; i < 10; i++) {
+                    selStartDelta = --offset;
+                    let ret = triggerSearch();
+                    if (ret === 0) {
+                        break;
+                    } else if (ret === 2) {
+                        savedRangeNode = findPreviousTextNode(savedRangeNode.parentNode, savedRangeNode);
+                        savedRangeOffset = 0;
+                        offset = savedRangeNode.data.length;
+                    }
                 }
             }
             break;
 
-        case "g":
+        case 71: // 'g'
             if (config.grammar !== 'no' && isVisible() && savedSearchResults.grammar) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
@@ -164,10 +166,10 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "m":
+        case 77: // 'm'
             selStartIncrement = 1;
         // falls through
-        case "n":
+        case 78: // 'n'
             for (let i = 0; i < 10; i++) {
                 selStartDelta += selStartIncrement;
                 let ret = triggerSearch();
@@ -182,27 +184,29 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "r":
-            let entries = [];
-            for (let j = 0; j < savedSearchResults.length; j++) {
-                let entry = {
-                    simplified: savedSearchResults[j][0],
-                    traditional: savedSearchResults[j][1],
-                    pinyin: savedSearchResults[j][2],
-                    definition: savedSearchResults[j][3]
-                };
-                entries.push(entry);
+        case 82: // 'r'
+            {
+                let entries = [];
+                for (let j = 0; j < savedSearchResults.length; j++) {
+                    let entry = {
+                        simplified: savedSearchResults[j][0],
+                        traditional: savedSearchResults[j][1],
+                        pinyin: savedSearchResults[j][2],
+                        definition: savedSearchResults[j][3]
+                    };
+                    entries.push(entry);
+                }
+
+                chrome.runtime.sendMessage({
+                    'type': 'add',
+                    'entries': entries
+                });
+
+                showPopup('Added to word list.<p>Press Alt+W to open word list.', null, -1, -1);
             }
-
-            chrome.runtime.sendMessage({
-                'type': 'add',
-                'entries': entries
-            });
-
-            showPopup('Added to word list.<p>Press Alt+W to open word list.', null, -1, -1);
             break;
 
-        case "s":
+        case 83: // 's'
             if (isVisible()) {
 
                 // http://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
@@ -227,7 +231,7 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "t":
+        case 84: // 't'
             if (isVisible()) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -242,19 +246,19 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "x":
+        case 88: // 'x'
             altView = 0;
             popY -= 20;
             triggerSearch();
             break;
 
-        case "y":
+        case 89: // 'y'
             altView = 0;
             popY += 20;
             triggerSearch();
             break;
 
-        case "1":
+        case 49: // '1'
             if (keyDown.altKey) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -269,9 +273,9 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        // "2" is currenty unused
+        // '2' is currenty unused
 
-        case "3":
+        case 51: // '3'
             if (keyDown.altKey) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -286,7 +290,7 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "4":
+        case 52: // '4'
             if (keyDown.altKey) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -301,7 +305,7 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "5":
+        case 53: // '5'
             if (keyDown.altKey) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -316,7 +320,7 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "6":
+        case 54: // '6'
             if (keyDown.altKey) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -331,7 +335,7 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        case "7":
+        case 55: // '7'
             if (keyDown.altKey) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
@@ -471,10 +475,10 @@ function triggerSearch() {
     // not a Chinese character
     if (isNaN(u) ||
         (u !== 0x25CB &&
-        (u < 0x3400 || 0x9FFF < u) &&
-        (u < 0xF900 || 0xFAFF < u) &&
-        (u < 0xFF21 || 0xFF3A < u) &&
-        (u < 0xFF41 || 0xFF5A < u))) {
+            (u < 0x3400 || 0x9FFF < u) &&
+            (u < 0xF900 || 0xFAFF < u) &&
+            (u < 0xFF21 || 0xFF3A < u) &&
+            (u < 0xFF41 || 0xFF5A < u))) {
         clearHighlight();
         hidePopup();
         return 3;
@@ -487,9 +491,9 @@ function triggerSearch() {
     savedSelEndList = selEndList;
 
     chrome.runtime.sendMessage({
-            'type': 'search',
-            'text': text
-        },
+        'type': 'search',
+        'text': text
+    },
         processSearchResult
     );
 
