@@ -60,7 +60,7 @@ if (localStorage['enabled'] === 1) {
     enabled = 0;
 }
 
-let zhongwenOptions = {
+let zhongwenOptions = window.zhongwenOptions = {
     css: localStorage['popupcolor'] || 'yellow',
     tonecolors: localStorage['tonecolors'] || 'yes',
     fontSize: localStorage['fontSize'] || 'small',
