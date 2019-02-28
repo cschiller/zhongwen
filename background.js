@@ -48,17 +48,13 @@
 
 import { ZhongwenDictionary } from './dict.js';
 
-let enabled;
+let isEnabled = localStorage['enabled'] === '1';
+
+let isActivated = false;
 
 let tabIDs = {};
 
 let dict;
-
-if (localStorage['enabled'] === 1) {
-    enabled = 1;
-} else {
-    enabled = 0;
-}
 
 let zhongwenOptions = window.zhongwenOptions = {
     css: localStorage['popupcolor'] || 'yellow',
@@ -70,21 +66,22 @@ let zhongwenOptions = window.zhongwenOptions = {
     simpTrad: localStorage['simpTrad'] || 'classic'
 };
 
-function activateExtension(currentTab) {
+function activateExtension(tabId) {
 
-    enabled = 1;
-    localStorage['enabled'] = enabled;
+    isEnabled = true;
+    // values in localStorage are always strings
+    localStorage['enabled'] = '1';
 
     if (!dict) {
         loadDictionary().then(r => dict = r);
     }
 
-    chrome.tabs.sendMessage(currentTab.id, {
+    chrome.tabs.sendMessage(tabId, {
         'type': 'enable',
         'config': zhongwenOptions
     });
 
-    chrome.tabs.sendMessage(currentTab.id, {
+    chrome.tabs.sendMessage(tabId, {
         'type': 'showHelp'
     });
 
@@ -164,6 +161,8 @@ function activateExtension(currentTab) {
             }
         }
     );
+
+    isActivated = true;
 }
 
 async function loadDictData() {
@@ -185,8 +184,9 @@ async function loadDictionary() {
 
 function deactivateExtension() {
 
-    enabled = 0;
-    localStorage['enabled'] = enabled;
+    isEnabled = false;
+    // values in localStorage are always strings
+    localStorage['enabled'] = '0';
 
     dict = undefined;
 
@@ -214,18 +214,25 @@ function deactivateExtension() {
     );
 
     chrome.contextMenus.removeAll();
+
+    isActivated = false;
 }
 
-function activateExtensionToggle(tab) {
-    if (enabled) {
+function activateExtensionToggle(currentTab) {
+    if (isActivated) {
         deactivateExtension();
     } else {
-        activateExtension(tab);
+        activateExtension(currentTab.id);
     }
 }
 
 function enableTab(tabId) {
-    if (enabled === 1) {
+    if (isEnabled) {
+
+        if (!isActivated) {
+            activateExtension(tabId);
+        }
+
         chrome.tabs.sendMessage(tabId, {
             'type': 'enable',
             'config': zhongwenOptions
