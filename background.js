@@ -66,7 +66,7 @@ let zhongwenOptions = window.zhongwenOptions = {
     simpTrad: localStorage['simpTrad'] || 'classic'
 };
 
-function activateExtension(tabId) {
+function activateExtension(tabId, showHelp) {
 
     isEnabled = true;
     // values in localStorage are always strings
@@ -81,9 +81,11 @@ function activateExtension(tabId) {
         'config': zhongwenOptions
     });
 
-    chrome.tabs.sendMessage(tabId, {
-        'type': 'showHelp'
-    });
+    if (showHelp) {
+        chrome.tabs.sendMessage(tabId, {
+            'type': 'showHelp'
+        });
+    }
 
     chrome.browserAction.setBadgeBackgroundColor({
         'color': [255, 0, 0, 255]
@@ -222,7 +224,7 @@ function activateExtensionToggle(currentTab) {
     if (isActivated) {
         deactivateExtension();
     } else {
-        activateExtension(currentTab.id);
+        activateExtension(currentTab.id, true);
     }
 }
 
@@ -230,7 +232,7 @@ function enableTab(tabId) {
     if (isEnabled) {
 
         if (!isActivated) {
-            activateExtension(tabId);
+            activateExtension(tabId, false);
         }
 
         chrome.tabs.sendMessage(tabId, {
