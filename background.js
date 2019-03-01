@@ -63,7 +63,8 @@ let zhongwenOptions = window.zhongwenOptions = {
     skritterTLD: localStorage['skritterTLD'] || 'com',
     zhuyin: localStorage['zhuyin'] || 'no',
     grammar: localStorage['grammar'] || 'yes',
-    simpTrad: localStorage['simpTrad'] || 'classic'
+    simpTrad: localStorage['simpTrad'] || 'classic',
+    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
 };
 
 function activateExtension(tabId, showHelp) {

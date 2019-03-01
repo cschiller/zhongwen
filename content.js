@@ -91,6 +91,10 @@ function disableTab() {
     if (zhongwenCSS) {
         zhongwenCSS.parentNode.removeChild(zhongwenCSS);
     }
+    let zhongwenToneColors = document.getElementById('zhongwen-toneColors');
+    if (zhongwenToneColors) {
+        zhongwenToneColors.parentNode.removeChild(zhongwenToneColors);
+    }
     let zhongwenWindow = document.getElementById('zhongwen-window');
     if (zhongwenWindow) {
         zhongwenWindow.parentNode.removeChild(zhongwenWindow);
@@ -589,7 +593,18 @@ function showPopup(html, elem, x, y, looseWidth) {
         let theme = config.css;
         css.setAttribute('href', chrome.runtime.getURL('css/popup-' +
             theme + '.css'));
-        document.getElementsByTagName('head')[0].appendChild(css);
+
+        let head = document.getElementsByTagName('head')[0];
+        head.appendChild(css);
+
+        let tc = document.createElement('link');
+        tc.setAttribute('id', 'zhongwen-toneColors');
+        tc.setAttribute('rel', 'stylesheet');
+        tc.setAttribute('type', 'text/css');
+        let tcScheme = config.toneColorScheme;
+        tc.setAttribute('href', chrome.runtime.getURL('css/toneColors-' +
+            tcScheme + '.css'));
+        head.appendChild(tc);
 
         popup = document.createElement('div');
         popup.setAttribute('id', 'zhongwen-window');
