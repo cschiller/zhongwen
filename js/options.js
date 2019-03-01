@@ -55,7 +55,7 @@ function loadVals() {
     if (localStorage['toneColorScheme'] === 'pleco') {
         document.optform.toneColorScheme[1].selected = true;
     } else if (localStorage['toneColorScheme'] === 'hanpin') {
-        document.optform.toneColorScheme[2].selected =  true;
+        document.optform.toneColorScheme[2].selected = true;
     } else {
         document.optform.toneColorScheme[0].selected = true;
     }
