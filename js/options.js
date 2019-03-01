@@ -51,6 +51,14 @@ function loadVals() {
     } else {
         document.optform.simpTrad[0].selected = true;
     }
+
+    if (localStorage['toneColorScheme'] === 'pleco') {
+        document.optform.toneColorScheme[1].selected = true;
+    } else if (localStorage['toneColorScheme'] === 'hanping') {
+        document.optform.toneColorScheme[2].selected = true;
+    } else {
+        document.optform.toneColorScheme[0].selected = true;
+    }
 }
 
 function storeVals() {
@@ -77,6 +85,9 @@ function storeVals() {
 
     localStorage['simpTrad'] = document.optform.simpTrad.value;
     backgroundPage.zhongwenOptions.simpTrad = localStorage['simpTrad'];
+
+    localStorage['toneColorScheme'] = document.optform.toneColorScheme.value;
+    backgroundPage.zhongwenOptions.toneColorScheme = localStorage['toneColorScheme'];
 }
 
 $(function () {
