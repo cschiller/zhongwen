@@ -1,6 +1,13 @@
-* text=lf
+*		text=auto
 
-*.json text
+*.js		text
+*.min.js	text eol=lf
 
-*.u8 text eol=crlf
-*.idx text eol=lf
+*.html		text
+*.css		text
+*.json		text
+
+*.u8		text eol=crlf
+*.idx		text eol=lf
+
+*.md		text
