@@ -1,10 +1,16 @@
-# 中文 Zhongwen - A Chinese-English Pop-Up Dictionary
+# 中文 Zhongwen
+## A Chinese Pop-Up Dictionary and Learning Tool
 
 This browser extension allows you to translate Chinese characters and words
 by simply hovering over them with the mouse.
 
+It also contains useful features for learners of the Chinese language.
+
 **Chrome extension:**
 https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
+
+**Firefox extension:**
+https://addons.mozilla.org/en-US/firefox/addon/zhongwen/
 
 **Github:**
 https://github.com/cschiller/zhongwen
@@ -34,15 +40,21 @@ https://github.com/cschiller/zhongwen
 
 ## Installation
 
+### Chrome
 The Zhongwen Chrome extension is available via the Chrome Web Store:
 https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
 
 Simply click on the "Add to Chrome" button to start the installation.
 
+###Firefox
+The Zhongwen Firefox extension is available via the Firefox Add-Ons site:
+https://addons.mozilla.org/en-US/firefox/addon/zhongwen/
+
+Simlpy click on the "Add to Firefox" button to start the installation.
 
 ## How Does It Work?
 Once Zhongwen is installed on your computer you'll see a little icon showing
-the Zhongwen logo near the upper right-hand corner of your Chrome browser. By
+the Zhongwen logo near the upper right-hand corner of your browser. By
 clicking on this icon you can turn the extension on and off. Click on it and
 wait until you see the word "On" displayed in red and white on top of the icon.
 This tells you that the dictionary is active. If you want to turn it off again,
@@ -166,7 +178,7 @@ lets you quickly do that by some simple keyboard shortcuts.
 * "Alt + 6" takes you to JuKuu.
 * "t" is for looking up example sentences at Tatoeba.org
 
-Chrome will open a new tab and the word that was shown in the pop-up window
+Your browser will open a new tab and the word that was shown in the pop-up window
 will be looked up in the corresponding online dictionary listed above.
 
 
