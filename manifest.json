@@ -35,8 +35,8 @@
     "open_in_tab": true
   },
   "permissions": [
-    "activeTab",
-    "contextMenus"
+    "contextMenus",
+    "tabs"
   ],
   "web_accessible_resources": [
     "css/*",
