@@ -290,8 +290,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
             tabID = tabIDs[request.tabType];
             if (tabID) {
                 chrome.tabs.get(tabID, function (tab) {
+                    if (chrome.runtime.lastError) {
+                        tab = undefined;
+                    }
                     if (tab && tab.url && (tab.url.substr(-13) === 'wordlist.html')) {
-                        chrome.tabs.reload(tabID);
+                        // open existing word list
                         chrome.tabs.update(tabID, {
                             active: true
                         });
@@ -300,10 +303,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
                             url: request.url
                         }, function (tab) {
                             tabIDs[request.tabType] = tab.id;
-                            if (request.tabType === 'wordlist') {
-                                // make sure the table is sized correctly
-                                chrome.tabs.reload(tab.id);
-                            }
                         });
                     }
                 });
