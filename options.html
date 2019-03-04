@@ -95,7 +95,35 @@ Chinese Pop-up Dictionary Chrome extension.
     <hr>
 
     <p>
-        The <b>Pop-up color</b> setting allows you to change the background
+        The <b>Show Grammar and Usage Notes</b> setting allows you to turn on grammar
+        and usage notes.
+    </p>
+    <p>
+        <label for="grammar">Show grammar and usage notes:</label>
+        <select id="grammar" name="grammar">
+            <option value="yes">yes</option>
+            <option value="no">no</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <p>
+        The <b>Save to Word List</b> setting allows you to specify what
+        to save to the internal word list.
+    </p>
+    <p>
+        <label for="saveToWordList">Save to word list:</label>
+        <select id="saveToWordList" name="saveToWordList">
+            <option value="allEntries">all entries</option>
+            <option value="firstEntryOnly">only the first entry</option>
+        </select>
+    </p>
+
+    <hr>
+
+    <p>
+        The <b>Pop-Up Color</b> setting allows you to change the background
         color of the window showing the dictionary entries. (Changing this setting requires reloading the page
         with the pop-up to take effect.)
     </p>
@@ -110,8 +138,9 @@ Chinese Pop-up Dictionary Chrome extension.
     </p>
 
     <hr>
+
     <p>
-        The <b>Skritter domain</b> setting allows you to change the URL that is
+        The <b>Skritter Domain</b> setting allows you to change the URL that is
         used for adding words to your Skritter queue (Skritter login required).
         By default, <code>skritter.com</code> is being used, but for some users
         <code>skritter.cn</code> might work better.
@@ -121,20 +150,6 @@ Chinese Pop-up Dictionary Chrome extension.
         <select id="skritterTLD" name="skritterTLD">
             <option value="com">skritter.com</option>
             <option value="cn">skritter.cn</option>
-        </select>
-    </p>
-
-    <hr>
-
-    <p>
-        The <b>Show grammar and usage notes</b> setting allows you to turn on grammar
-        and usage notes.
-    </p>
-    <p>
-        <label for="grammar">Show grammar and usage notes:</label>
-        <select id="grammar" name="grammar">
-            <option value="yes">yes</option>
-            <option value="no">no</option>
         </select>
     </p>
 
