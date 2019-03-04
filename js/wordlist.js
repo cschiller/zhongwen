@@ -39,7 +39,7 @@ $(document).ready(function () {
 
         let content = '';
         for (let i = 0; i < selected.length; i++) {
-            let entry = selected[i]
+            let entry = selected[i];
             content += entry.simplified;
             content += '\t';
             content += entry.traditional;
