@@ -396,14 +396,14 @@ function onMouseMove(mouseMove) {
     // Handle Chrome and Firefox
     if (document.caretRangeFromPoint) {
         range = document.caretRangeFromPoint(mouseMove.clientX, mouseMove.clientY);
-        if (range == null) {
+        if (range === null) {
             return;
         }
         rangeNode = range.startContainer;
         rangeOffset = range.startOffset;
     } else if (document.caretPositionFromPoint) {
         range = document.caretPositionFromPoint(mouseMove.clientX, mouseMove.clientY);
-        if (range == null) {
+        if (range === null) {
             return;
         }
         rangeNode = range.offsetNode;
@@ -908,7 +908,7 @@ function makeHtml(result, showToneColors) {
 
         // Grammar
         if (config.grammar !== 'no' && result.grammar && result.grammar.index === i) {
-            html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br><br>'
+            html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br><br>';
         }
 
         texts[i] = [entry[2], entry[1], p[1], translation, entry[3]];
@@ -949,7 +949,7 @@ function tonify(vowels, tone) {
 
     if (vowels === 'ou') {
         html = 'o' + tones[tone] + 'u';
-        text = 'o' + utones[tone] + 'u'
+        text = 'o' + utones[tone] + 'u';
     } else {
         let tonified = false;
         for (let i = 0; i < vowels.length; i++) {
@@ -991,7 +991,7 @@ function pinyinAndZhuyin(syllables, showToneColors, pinyinClass) {
         if (i > 0) {
             html += '&nbsp;';
             text += ' ';
-            zhuyin += '&nbsp;'
+            zhuyin += '&nbsp;';
         }
         if (syllable === 'r5') {
             if (showToneColors) {
@@ -1029,9 +1029,9 @@ function pinyinAndZhuyin(syllables, showToneColors, pinyinClass) {
 
         zhuyin += '<span class="tone' + m[4] + ' ' + zhuyinClass + '">'
             + zhuyinMap[syllable.substring(0, syllable.length - 1).toLowerCase()]
-            + zhuyinTones[syllable[syllable.length - 1]] + '</span>'
+            + zhuyinTones[syllable[syllable.length - 1]] + '</span>';
     }
-    return [html, text, zhuyin]
+    return [html, text, zhuyin];
 }
 
 let zhuyinTones = ['?', '', '\u02CA', '\u02C7', '\u02CB', '\u30FB'];
