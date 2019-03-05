@@ -334,11 +334,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
         case 'add': {
             let json = localStorage['wordlist'];
 
+            let saveFirstEntryOnly = localStorage['saveToWordList'] === 'firstEntryOnly';
+
             let wordlist;
             if (json) {
                 wordlist = JSON.parse(json);
             } else {
-                wordlist = []
+                wordlist = [];
             }
 
             for (let i in request.entries) {
@@ -350,6 +352,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, response) {
                 entry.definition = request.entries[i].definition;
 
                 wordlist.push(entry);
+
+                if (saveFirstEntryOnly) {
+                    break;
+                }
             }
             localStorage['wordlist'] = JSON.stringify(wordlist);
 

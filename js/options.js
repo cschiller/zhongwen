@@ -59,6 +59,12 @@ function loadVals() {
     } else {
         document.optform.toneColorScheme[0].selected = true;
     }
+
+    if (localStorage['saveToWordList'] === 'firstEntryOnly') {
+        document.optform.saveToWordList[1].selected = true;
+    } else {
+        document.optform.saveToWordList[0].selected = true;
+    }
 }
 
 function storeVals() {
@@ -88,6 +94,8 @@ function storeVals() {
 
     localStorage['toneColorScheme'] = document.optform.toneColorScheme.value;
     backgroundPage.zhongwenOptions.toneColorScheme = localStorage['toneColorScheme'];
+
+    localStorage['saveToWordList'] = document.optform.saveToWordList.value;
 }
 
 $(function () {
