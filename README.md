@@ -46,7 +46,7 @@ https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
 
 Simply click on the "Add to Chrome" button to start the installation.
 
-###Firefox
+### Firefox
 The Zhongwen Firefox extension is available via the Firefox Add-Ons site:
 https://addons.mozilla.org/en-US/firefox/addon/zhongwen/
 
