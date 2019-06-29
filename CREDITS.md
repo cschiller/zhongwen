@@ -1,6 +1,6 @@
 ### Contributors
 
-The Zhongwen Chrome extension was written by Christian Schiller with
+The Zhongwen browser extension was written by Christian Schiller with
 contributions from the following people:
 
 * Todd Rudick (http://rikaixul.mozdev.org/)
