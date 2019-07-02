@@ -160,8 +160,8 @@ function onKeyDown(keyDown) {
             if (config.grammar !== 'no' && isVisible() && savedSearchResults.grammar) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
-                // http://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
-                let allset = 'http://resources.allsetlearning.com/chinese/grammar/' + sel;
+                // https://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
+                let allset = 'https://resources.allsetlearning.com/chinese/grammar/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -213,11 +213,11 @@ function onKeyDown(keyDown) {
         case 83: // 's'
             if (isVisible()) {
 
-                // http://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
+                // https://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
 
-                let skritter = 'http://legacy.skritter.com';
+                let skritter = 'https://legacy.skritter.com';
                 if (config.skritterTLD === 'cn') {
-                    skritter = 'http://legacy.skritter.cn';
+                    skritter = 'https://legacy.skritter.cn';
                 }
 
                 skritter +=
@@ -240,8 +240,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=%E8%BF%9B%E8%A1%8C
-                let tatoeba = 'http://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=' + sel;
+                // https://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=%E8%BF%9B%E8%A1%8C
+                let tatoeba = 'https://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -284,8 +284,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://dict.cn/%E7%BF%BB%E8%AF%91
-                let dictcn = 'http://dict.cn/' + sel;
+                // https://dict.cn/%E7%BF%BB%E8%AF%91
+                let dictcn = 'https://dict.cn/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -299,8 +299,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://www.iciba.com/%E4%B8%AD%E9%A4%90
-                let iciba = 'http://www.iciba.com/' + sel;
+                // https://www.iciba.com/%E4%B8%AD%E9%A4%90
+                let iciba = 'https://www.iciba.com/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -314,8 +314,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=%E6%B0%B4
-                let mdbg = 'http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=' + sel;
+                // https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=%E6%B0%B4
+                let mdbg = 'https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -330,6 +330,7 @@ function onKeyDown(keyDown) {
                     window.getSelection().toString());
 
                 // http://jukuu.com/show-%E8%AF%8D%E5%85%B8-0.html
+                // https returns 403 errors
                 let jukuu = 'http://jukuu.com/show-' + sel + '-0.html';
 
                 chrome.runtime.sendMessage({
