@@ -96,7 +96,7 @@ Zhongwen also allows you to learn more about Chinese grammar and usage. If
 Zhongwen knows that there's an entry at the Chinese Grammar Wiki for the entry
 you're just looking at, it will show you the following text at the bottom
 of the pop-up window: 'Press "g" for grammar and usage notes.' If you then
-press <kbd>g</kbd> on your keyboard, a new tab will open in your browser and it 
+press <kbd>G</kbd> on your keyboard, a new tab will open in your browser and it 
 will take you directly to the corresponding page in the Chinese Grammar Wiki.
 
 
@@ -118,14 +118,14 @@ the words with the mouse, you can use Zhongwen's built-in keyboard navigation
 support: You can move from character to character or from word to word by
 pressing keys on your keyboard:
 
-- Pressing <kbd>n</kbd> on the keyboard takes you to the next word.
-- Pressing <kbd>b</kbd> takes you back one character.
-- Pressing <kbd>m</kbd> moves to the next character. (This is different from 
-  pressing <kbd>n</kbd> if you're currently over a word that consists of two or 
+- Pressing <kbd>N</kbd> on the keyboard takes you to the next word.
+- Pressing <kbd>B</kbd> takes you back one character.
+- Pressing <kbd>M</kbd> moves to the next character. (This is different from 
+  pressing <kbd>N</kbd> if you're currently over a word that consists of two or 
   more characters.)
 - Sometimes the pop-up window is hiding the text you're looking at. You can move
-  it out of the way using <kbd>x</kbd> and <kbd>y</kbd> on the keyboard (this 
-  moves the pop-up window up or down), or hit <kbd>a</kbd> once or twice to move
+  it out of the way using <kbd>X</kbd> and <kbd>Y</kbd> on the keyboard (this 
+  moves the pop-up window up or down), or hit <kbd>A</kbd> once or twice to move
   it to an altogether different location.
 
 
@@ -133,15 +133,15 @@ pressing keys on your keyboard:
 So now that you can look up all those words when reading Chinese web sites, wouldn't
 it be nice to add the new words you want to remember to some list that you can use for
 studying? Zhongwen let's you do that, too! It has a built- in word list feature. You just
-need to press <kbd>r</kbd> (short for "remember") on your keyboard and the entries you're looking
+need to press <kbd>R</kbd> (short for "remember") on your keyboard and the entries you're looking
 at in the currently opened pop-up window will be added to the built-in word list. How
-do you get to see this list? It's easy, you need to use press the <kbd>Alt</kbd> and the <kbd>w</kbd> key
-on your keyboard (<kbd>Alt</kbd> + <kbd>w</kbd>). The word list will then open in a new tab.
+do you get to see this list? It's easy, you need to use press the <kbd>Alt</kbd> and the <kbd>W</kbd> key
+on your keyboard (<kbd>Alt</kbd> + <kbd>W</kbd>). The word list will then open in a new tab.
 
 
 ## Can I export the dictionary entries into a spreadsheet or import them into Anki?
 Yes, if you want to copy the current dictionary entry, including the Chinese characters,
-Pinyin, and the English translation, to the clipboard, just hit <kbd>c</kbd> on the keyboard to
+Pinyin, and the English translation, to the clipboard, just hit <kbd>C</kbd> on the keyboard to
 copy to the clipboard. (Note: This is different from using <kbd>Ctrl</kbd> + <kbd>C</kbd> on a PC or
 <kbd>⌘ Command</kbd> + <kbd>C</kbd> on a Mac, which only copies the Chinese characters without the translation.)
 When you paste the clipboard into Excel or an OpenOffice spreadsheet, the individual
@@ -151,7 +151,7 @@ also import them into Anki. (See the Anki manual for further details.)
 
 ## Skritter Support
 If you're studying Chinese characters using Skritter you can easily add Chinese words
-to your vocabulary queue: just hit <kbd>s</kbd> on the keyboard. This opens up a new tab that
+to your vocabulary queue: just hit <kbd>S</kbd> on the keyboard. This opens up a new tab that
 takes you to the Skritter web site. If you're not logged into Skritter you'll see the
 login page. After you're logged in, the word is automatically added to your study queue.
 
@@ -161,7 +161,7 @@ When Zhongwen is enabled, you can right-click on a page to open the browser's
 context menu. There will be a menu item for Zhongwen which you can use to access
 a new tab showing a helpful summary of all the keyboard shortcuts. Another
 menu item can be used for opening the word list as an alternative to the
-<kbd>Alt</kbd> + <kbd>w</kbd> keyboard shortcut.
+<kbd>Alt</kbd> + <kbd>W</kbd> keyboard shortcut.
 
 
 ## What Built-In Dictionary Does It Use?
@@ -181,7 +181,7 @@ lets you quickly do that by some simple keyboard shortcuts.
 * <kbd>Alt</kbd> + <kbd>5</kbd> looks up the word in the [MDBG dictionary](https://mdbg.net).
 * <kbd>Alt</kbd> + <kbd>6</kbd> takes you to [JuKuu](https://jukuu.com).
 * <kbd>Alt</kbd> + <kbd>7</kbd> takes you to [MoeDict](https://moedict.tw).
-* <kbd>t</kbd> is for looking up example sentences at [Tatoeba](https://tatoeba.org)
+* <kbd>T</kbd> is for looking up example sentences at [Tatoeba](https://tatoeba.org).
 
 Your browser will open a new tab and the word that was shown in the pop-up window
 will be looked up in the corresponding online dictionary listed above.
