@@ -143,7 +143,7 @@ on your keyboard (<kbd>Alt</kbd> + <kbd>w</kbd>). The word list will then open i
 Yes, if you want to copy the current dictionary entry, including the Chinese characters,
 Pinyin, and the English translation, to the clipboard, just hit <kbd>c</kbd> on the keyboard to
 copy to the clipboard. (Note: This is different from using <kbd>Ctrl</kbd> + <kbd>C</kbd> on a PC or
-<kbd>⌘ Command</kbd> + <kbd></kbd> on a Mac, which only copies the Chinese characters without the translation.)
+<kbd>⌘ Command</kbd> + <kbd>C</kbd> on a Mac, which only copies the Chinese characters without the translation.)
 When you paste the clipboard into Excel or an OpenOffice spreadsheet, the individual
 components of the entry are nicely put in different columns and rows. From there you can
 also import them into Anki. (See the Anki manual for further details.)
