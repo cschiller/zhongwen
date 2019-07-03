@@ -4,7 +4,7 @@
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
  */
 
-let wordList = localStorage['wordlist'];
+const wordList = localStorage['wordlist'];
 
 let entries;
 if (wordList) {
@@ -13,25 +13,40 @@ if (wordList) {
     entries = [];
 }
 
-$(document).ready(function () {
+function disableButtons(table) {
+    if (table.rows({ selected: true }).data().length === 0) {
+        $('.selection-only').prop('disabled', true);
+    }
+}
 
-    let wordsElement = $('#words');
-    let table = wordsElement.DataTable({
+$(document).ready(function () {
+    const table = $('#words').DataTable({
         data: entries,
         columns: [
             { data: 'simplified' },
             { data: 'traditional' },
             { data: 'pinyin' },
             { data: 'definition' },
-        ]
+        ],
+        language: {
+            emptyTable: 'You haven\'t saved any words yet. <br /> <small>You can save words by using the <kbd>R</kbd> key on the keyboard when the pop-up translation is being displayed.</small>'
+        },
+        select: {
+            style: 'multi+shift'
+        }
+    });
+    disableButtons(table);
+
+    table.on('select', () => {
+        $('.selection-only').prop('disabled', false);
     });
 
-    wordsElement.find('tbody').on('click', 'tr', function () {
-        $(this).toggleClass('bg-info');
+    table.on('deselect', () => {
+        disableButtons(table);
     });
 
     $('#savebutton').click(function () {
-        let selected = table.rows('.bg-info').data();
+        const selected = table.rows({ selected: true }).data();
 
         if (!selected) {
             return;
@@ -39,7 +54,7 @@ $(document).ready(function () {
 
         let content = '';
         for (let i = 0; i < selected.length; i++) {
-            let entry = selected[i];
+            const entry = selected[i];
             content += entry.simplified;
             content += '\t';
             content += entry.traditional;
@@ -50,44 +65,29 @@ $(document).ready(function () {
             content += '\r\n';
         }
 
-        let saveBlob = new Blob([content], { "type": "text/plain" });
-        let a = document.getElementById('savelink');
+        const saveBlob = new Blob([content], { "type": "text/plain" });
+        const a = document.getElementById('savelink');
         // Handle Chrome and Firefox
         a.href = (window.webkitURL || window.URL).createObjectURL(saveBlob);
         a.click();
     });
 
-    let deleteButton = $('#delete');
-    deleteButton.click(function () {
-        table.rows('.bg-info').remove();
-
-        let entries = table.rows().data().draw(true);
-
-        let toKeep = [];
-        for (let i = 0; i < entries.length; i++) {
-            toKeep.push(entries[i]);
-        }
-
-        localStorage['wordlist'] = JSON.stringify(toKeep);
-
-        // location.reload(true);
+    $('#delete').click(function () {
+        table.rows({ selected: true }).remove().draw();
+        const entries = table.rows().data().toArray();
+        localStorage['wordlist'] = JSON.stringify(entries);
+        disableButtons(table);
     });
 
     $('#selectall').click(function () {
-        $('#words').find('tbody tr').addClass('bg-info');
+        table.rows({
+            search: 'applied'
+        }).select();
     });
 
     $('#deselectall').click(function () {
-        $('#words').find('tbody tr').removeClass('bg-info');
+        table.rows({
+            search: 'applied'
+        }).deselect();
     });
-
-    if (entries.length > 0) {
-        $('#nodata').hide();
-        $('#save').show();
-        deleteButton.show();
-    } else {
-        $('#nodata').show();
-        $('#save').hide();
-        deleteButton.hide();
-    }
 });

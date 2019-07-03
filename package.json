@@ -26,6 +26,6 @@
   },
   "scripts": {
     "lint": "eslint --fix *.js js/options.js js/wordlist.js",
-    "csslint": "stylelint css/options.css css/popup*.css css/toneColors*.css css/wordlist.css"
+    "csslint": "stylelint css/options.css css/popup*.css css/toneColors*.css"
   }
 }
