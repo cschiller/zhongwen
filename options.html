@@ -1,162 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/options.css">
-    <script src="js/jquery-3.3.1.min.js" type="text/javascript"></script>
-    <script src="js/options.js" type="text/javascript"></script>
+    <title>Zhongwen Options</title>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="images/zhongwen.png" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
 </head>
 <body>
-<h2>Options for the Zhongwen Chrome Extension</h2>
+    <div class="container">
+        <h1 class="my-3">Options for the Zhongwen Browser Extension</h1>
 
-On this page you can set your personal preferences for the Zhongwen
-Chinese Pop-up Dictionary Chrome extension.
+        <h2 class="mb-3">Appearance of the Pop-up Window</h2>
 
-<p>
-    <input id="save" style="margin-top: 1em;" type="submit" value="Save these settings"/>
-    <span style="margin-left: 1em" class="important">Save your changes here</span>
-</p>
-<hr>
-<form id="optform" name="optform">
+        <div class="form-group mb-4">
+            <label>
+                Background color of the pop-up window.
+                <small class="form-text text-muted">Changing this setting requires reloading the page with the pop-up to take effect.</small>
+            </label>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="popupColorYellow" name="popupColor" class="custom-control-input">
+                <label class="custom-control-label" for="popupColorYellow">Yellow pop-up background</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="popupColorBlue" name="popupColor" class="custom-control-input">
+                <label class="custom-control-label" for="popupColorBlue">Blue pop-up background</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="popupColorLightblue" name="popupColor" class="custom-control-input">
+                <label class="custom-control-label" for="popupColorLightblue">Light blue pop-up background</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="popupColorBlack" name="popupColor" class="custom-control-input">
+                <label class="custom-control-label" for="popupColorBlack">Black pop-up background</label>
+            </div>
+        </div>
 
-    <p>
-        The <b>Tone colors</b> setting allows you to turn colors for the
-        pinyin syllables on and off. If tone colors are turned on, you will
-        see colors corresponding to the tones of the characters:
-        red = first tone, orange = second tone, green = third tone,
-        blue = fourth tone.
-    </p>
-    <p>
-        <label for="tonecolors">Tone colors:</label>
-        <select id="tonecolors" name="tonecolors">
-            <option value="yes">Show tone colors</option>
-            <option value="no">Don't show tone colors</option>
-        </select>
-    </p>
+        <div class="form-group mb-4">
+            <label>
+                Coloring pinyin syllables based on the tone of the character.
+                <small class="form-text text-muted">Changing this setting requires reloading the page with the pop-up to take effect.</small>
+            </label>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="toneColorsStandard" name="toneColors" class="custom-control-input">
+                <label class="custom-control-label" for="toneColorsStandard">Use default color scheme.</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="toneColorsPleco" name="toneColors" class="custom-control-input">
+                <label class="custom-control-label" for="toneColorsPleco">Use <a href="https://pleco.com" target="_blank">Pleco</a> color scheme.</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="toneColorsHanping" name="toneColors" class="custom-control-input">
+                <label class="custom-control-label" for="toneColorsHanping">Use <a href="https://hanpingchinese.com/" target="_blank">Hanping</a> color scheme.</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="toneColorsNone" name="toneColors" class="custom-control-input">
+                <label class="custom-control-label" for="toneColorsNone">Don't show tone colors.</label>
+            </div>
+        </div>
 
-    <hr>
+        <div class="form-group mb-4">
+            <label>Font size of characters in the pop-up window.</label>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="fontSizeSmall" name="fontSize" class="custom-control-input">
+                <label class="custom-control-label" for="fontSizeSmall">Display characters in a smaller font size.</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="fontSizeLarge" name="fontSize" class="custom-control-input">
+                <label class="custom-control-label" for="fontSizeLarge">Display characters in a larger font size.</label>
+            </div>
+        </div>
 
-    <p>
-        The <b>Tone Color Scheme</b> setting allows you to choose which color
-        scheme to use for the tone colors.
-    </p>
-    <p>
-        <label for="toneColorScheme">Tone color scheme:</label>
-        <select id="toneColorScheme" name="toneColorScheme">
-            <option value="standard">default color scheme</option>
-            <option value="pleco">Pleco color scheme</option>
-            <option value="hanping">Hanping color scheme</option>
-        </select>
-    </p>
+        <div class="form-group mb-4">
+            <label>Simplified and traditional characters.</label>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="simpTradClassic" name="simpTrad" class="custom-control-input">
+                <label class="custom-control-label" for="simpTradClassic">Display both simplified and traditional characters.</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="simpTradAuto" name="simpTrad" class="custom-control-input">
+                <label class="custom-control-label" for="simpTradAuto">Display character style automatically detected on the page.</label>
+            </div>
+        </div>
 
-    <hr>
+        <div class="form-group mb-4">
+            <label>Additional Chinese transliterations.</label>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="zhuyin">
+                <label class="custom-control-label" for="zhuyin">Show <a href="https://wikipedia.org/wiki/Bopomofo" target="_blank">Zhuyin (Bopomofo)</a> phonetic symbols.</label>
+            </div>
+        </div>
 
-    <p>
-        The <b>Font Size</b> setting allows you to change the size of the
-        characters in the pop-up window.
-    </p>
-    <p>
-        <label for="fontSize">Font size:</label>
-        <select id="fontSize" name="fontSize">
-            <option value="small">Use a smaller font size</option>
-            <option value="large">Use a large font size</option>
-        </select>
-    </p>
+        <div class="form-group mb-4">
+            <label>Grammar and usage notes from the <a href="https://resources.allsetlearning.com/chinese/grammar" target="_blank">Chinese Grammar Wiki</a>.</label>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="grammar">
+                <label class="custom-control-label" for="grammar">Show grammar and usage notes.</label>
+            </div>
+        </div>
 
-    <hr>
+        <h2 class="mb-3">Other Options</h2>
 
-    <p>
-        The <b>Simplified and Traditional Characters</b> setting allows you to choose whether to display both
-        simplified and traditional characters; or to automatically detect the character style used on the page and only
-        display those characters in the pop-up window.
-    </p>
-    <p>
-        <label for="simpTrad">Simplified and traditional characters:</label>
-        <select id="simpTrad" name="simpTrad">
-            <option value="classic">show both</option>
-            <option value="auto">automatic</option>
-        </select>
-    </p>
+        <div class="form-group mb-4">
+            <label>Saving entries to <a href="https://github.com/cschiller/zhongwen/#built-in-word-list" target="_blank">Built-in Word List</a>.</label>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="saveToWordListAllEntries" name="saveToWordList" class="custom-control-input">
+                <label class="custom-control-label" for="saveToWordListAllEntries">Save all entries.</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="saveToWordListFirstEntryOnly" name="saveToWordList" class="custom-control-input">
+                <label class="custom-control-label" for="saveToWordListFirstEntryOnly">Save only the first entry.</label>
+            </div>
+        </div>
 
-    <hr>
-
-    <p>
-        The <b>Show Zhuyin</b> setting allows you to turn on Zhuyin (Bopomofo)
-        phonetic symbols.
-    </p>
-    <p>
-        <label for="zhuyin">Show Zhuyin (Bopomofo):</label>
-        <select id="zhuyin" name="zhuyin">
-            <option value="no">no</option>
-            <option value="yes">yes</option>
-        </select>
-    <p>
-
-    <hr>
-
-    <p>
-        The <b>Show Grammar and Usage Notes</b> setting allows you to turn on grammar
-        and usage notes.
-    </p>
-    <p>
-        <label for="grammar">Show grammar and usage notes:</label>
-        <select id="grammar" name="grammar">
-            <option value="yes">yes</option>
-            <option value="no">no</option>
-        </select>
-    </p>
-
-    <hr>
-
-    <p>
-        The <b>Save to Word List</b> setting allows you to specify what
-        to save to the internal word list.
-    </p>
-    <p>
-        <label for="saveToWordList">Save to word list:</label>
-        <select id="saveToWordList" name="saveToWordList">
-            <option value="allEntries">all entries</option>
-            <option value="firstEntryOnly">only the first entry</option>
-        </select>
-    </p>
-
-    <hr>
-
-    <p>
-        The <b>Pop-Up Color</b> setting allows you to change the background
-        color of the window showing the dictionary entries. (Changing this setting requires reloading the page
-        with the pop-up to take effect.)
-    </p>
-    <p>
-        <label for="popupcolor">Pop-up color:</label>
-        <select id="popupcolor" name="popupcolor">
-            <option value="yellow">Yellow</option>
-            <option value="blue">Blue</option>
-            <option value="lightblue">Light Blue</option>
-            <option value="black">Black</option>
-        </select>
-    </p>
-
-    <hr>
-
-    <p>
-        The <b>Skritter Domain</b> setting allows you to change the URL that is
-        used for adding words to your Skritter queue (Skritter login required).
-        By default, <code>skritter.com</code> is being used, but for some users
-        <code>skritter.cn</code> might work better.
-    </p>
-    <p>
-        <label for="skritterTLD">Skritter domain:</label>
-        <select id="skritterTLD" name="skritterTLD">
-            <option value="com">skritter.com</option>
-            <option value="cn">skritter.cn</option>
-        </select>
-    </p>
-
-    <hr>
-
-    <span class="important">Don't forget to save your changes by clicking on the botton at the top of this page.</span>
-</form>
-
+        <div class="form-group mb-4">
+            <label>URL used for adding words to your Skritter queue (Skritter subscription required).</label>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="skritterTLDcom" name="skritterTLD" class="custom-control-input">
+                <label class="custom-control-label" for="skritterTLDcom">skritter.com</label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" id="skritterTLDcn" name="skritterTLD" class="custom-control-input">
+                <label class="custom-control-label" for="skritterTLDcn">scritter.cn</label>
+            </div>
+        </div>
+    </div>
+    <script src="js/options.js" type="text/javascript"></script>
 </body>
 </html>
