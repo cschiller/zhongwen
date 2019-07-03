@@ -12,7 +12,7 @@ function loadVals() {
             document.querySelector('#popupColorBlue').checked = true;
             break;
         case 'lightblue':
-            document.querySelector('#popupColorLightBlue').checked = true;
+            document.querySelector('#popupColorLightblue').checked = true;
             break;
         case 'black':
             document.querySelector('#popupColorBlack').checked = true;
