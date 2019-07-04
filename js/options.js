@@ -7,84 +7,35 @@
 'use strict';
 
 function loadVals() {
-    switch (localStorage['popupcolor']) {
-        case 'blue':
-            document.querySelector('#popupColorBlue').checked = true;
-            break;
-        case 'lightblue':
-            document.querySelector('#popupColorLightblue').checked = true;
-            break;
-        case 'black':
-            document.querySelector('#popupColorBlack').checked = true;
-            break;
-        case 'yellow':
-        // Yellow is the default value
-        // eslint-disable-next-line no-fallthrough
-        default:
-            document.querySelector('#popupColorYellow').checked = true;
-            break;
-    }
 
-    if (localStorage['tonecolors'] === 'no') {
+    const popupColor = localStorage['popupcolor'] || 'yellow';
+    document.querySelector(`input[name="popupColor"][value="${popupColor}"]`).checked = true;
+
+    const toneColors = localStorage['tonecolors'] || 'yes';
+    if (toneColors === 'no') {
         document.querySelector('#toneColorsNone').checked = true;
     } else {
-        switch (localStorage['toneColorScheme']) {
-            case 'pleco':
-                document.querySelector('#toneColorsPleco').checked = true;
-                break;
-            case 'hanping':
-                document.querySelector('#toneColorsHanping').checked = true;
-                break;
-            case 'standard':
-            // Standard is the default value
-            // eslint-disable-next-line no-fallthrough
-            default:
-                document.querySelector('#toneColorsStandard').checked = true;
-                break;
-        }
+        const toneColorScheme = localStorage['toneColorScheme'] || 'standard';
+        document.querySelector(`input[name="toneColors"][value="${toneColorScheme}"]`).checked = true;
     }
 
-    if (localStorage['fontSize'] === 'large') {
-        document.querySelector('#fontSizeLarge').checked = true;
-    } else {
-        document.querySelector('#fontSizeSmall').checked = true;
-    }
+    const fontSize = localStorage['fontSize'] || 'small';
+    document.querySelector(`input[name="fontSize"][value="${fontSize}"]`).checked = true;
 
-    if (localStorage['simpTrad'] === 'auto') {
-        document.querySelector('#simpTradAuto').checked = true;
-    } else {
-        document.querySelector('#simpTradClassic').checked = true;
-    }
+    const simpTrad = localStorage['simpTrad'] || 'classic';
+    document.querySelector(`input[name="simpTrad"][value="${simpTrad}"]`).checked = true;
 
-    if (localStorage['zhuyin'] === 'yes') {
-        document.querySelector('#zhuyin').checked = true;
-    }
+    const zhuyin = localStorage['zhuyin'] || 'yes';
+    document.querySelector('#zhuyin').checked = zhuyin === 'yes';
 
-    if (localStorage['grammar'] !== 'no') {
-        document.querySelector('#grammar').checked = true;
-    }
+    const grammar = localStorage['grammar'] || 'no';
+    document.querySelector('#grammar').checked = grammar !== 'no';
 
-    if (localStorage['saveToWordList'] === 'firstEntryOnly') {
-        document.querySelector('#saveToWordListFirstEntryOnly').checked = true;
-    } else {
-        document.querySelector('#saveToWordListAllEntries').checked = true;
-    }
+    const saveToWordList = localStorage['saveToWordList'] || 'allEntries';
+    document.querySelector(`input[name="saveToWordList"][value="${saveToWordList}"]`).checked = true;
 
-    if (localStorage['skritterTLD'] === 'cn') {
-        document.querySelector('#skritterTLDcn').checked = true;
-    } else {
-        document.querySelector('#skritterTLDcom').checked = true;
-    }
-}
-
-function setOption(option, value) {
-    localStorage[option] = value;
-    chrome.extension.getBackgroundPage().zhongwenOptions[option] = value;
-}
-
-function setOptionCheck(option, checked) {
-    const value = checked ? 'yes' : 'no';
-    setOption(option, value);
+    const skritterTLD = localStorage['skritterTLD'] || 'com';
+    document.querySelector(`input[name="skritterTLD"][value="${skritterTLD}"]`).checked = true;
 }
 
 function setPopupColor(popupColor) {
@@ -101,39 +52,54 @@ function setToneColorScheme(toneColorScheme) {
     }
 }
 
-const setters = {
-    'popupColorYellow': () => setPopupColor('yellow'),
-    'popupColorBlue': () => setPopupColor('blue'),
-    'popupColorLightblue': () => setPopupColor('lightblue'),
-    'popupColorBlack': () => setPopupColor('black'),
-    'toneColorsStandard': () => setToneColorScheme('standard'),
-    'toneColorsPleco': () => setToneColorScheme('pleco'),
-    'toneColorsHanping': () => setToneColorScheme('hanping'),
-    'toneColorsNone': () => setToneColorScheme('none'),
-    'fontSizeSmall': () => setOption('fontSize', 'small'),
-    'fontSizeLarge': () => setOption('fontSize', 'large'),
-    'simpTradClassic': () => setOption('simpTrad', 'classic'),
-    'simpTradAuto': () => setOption('simpTrad', 'auto'),
-    'zhuyin': (checked) => setOptionCheck('zhuyin', checked),
-    'grammar': (checked) => setOptionCheck('grammar', checked),
-    'saveToWordListAllEntries': () => setOption('saveToWordList', 'AllEntries'),
-    'saveToWordListFirstEntryOnly': () => setOption('saveToWordList', 'FirstEntryOnly'),
-    'skritterTLDcom': () => setOption('skritterTLD', 'com'),
-    'skritterTLDcn': () => setOption('skritterTLD', 'cn'),
-};
+function setOption(option, value) {
+    localStorage[option] = value;
+    chrome.extension.getBackgroundPage().zhongwenOptions[option] = value;
+}
 
-function onChange(changeEvent) {
-    const input = changeEvent.target;
-    const inputId = input.getAttribute('id');
-    const setter = setters[inputId];
-    if (setter) {
-        setter(input.checked);
-    }
+function setBooleanOption(option, value) {
+    let yesNo = value ? 'yes' : 'no';
+    setOption(option, yesNo);
 }
 
 window.addEventListener('load', () => {
-    document.querySelectorAll('input').forEach((input) => {
-        input.addEventListener('change', onChange);
+
+    document.querySelectorAll('input[name="popupColor"]').forEach((input) => {
+        input.addEventListener('change',
+            () => setPopupColor(input.getAttribute('value')));
     });
-    loadVals();
+
+    document.querySelectorAll('input[name="toneColors"]').forEach((input) => {
+        input.addEventListener('change',
+            () => setToneColorScheme(input.getAttribute('value')));
+    });
+
+    document.querySelectorAll('input[name="fontSize"]').forEach((input) => {
+        input.addEventListener('change',
+            () => setOption('fontSize', input.getAttribute('value')));
+    });
+
+    document.querySelectorAll('input[name="simpTrad"]').forEach((input) => {
+        input.addEventListener('change',
+            () => setOption('simpTrad', input.getAttribute('value')));
+    });
+
+    document.querySelector('#zhuyin').addEventListener('change',
+        (event) => setBooleanOption('zhuyin', event.target.checked));
+
+    document.querySelector('#grammar').addEventListener('change',
+        (event) => setBooleanOption('grammar', event.target.checked));
+
+    document.querySelectorAll('input[name="saveToWordList"]').forEach((input) => {
+        input.addEventListener('change',
+            () => setOption('saveToWordList', input.getAttribute('value')));
+    });
+
+    document.querySelectorAll('input[name="skritterTLD"]').forEach((input) => {
+        input.addEventListener('change',
+            () => setOption('skritterTLD', input.getAttribute('value')));
+    });
 });
+
+loadVals();
+
