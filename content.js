@@ -109,7 +109,14 @@ function onKeyDown(keyDown) {
         return;
     }
 
+    if (keyDown.keyCode === 27) {
+        // esc key pressed
+        hidePopup();
+        return;
+    }
+
     if (keyDown.altKey && keyDown.keyCode === 87) {
+        // Alt + w
         chrome.runtime.sendMessage({
             type: 'open',
             tabType: 'wordlist',
@@ -119,16 +126,10 @@ function onKeyDown(keyDown) {
     }
 
     if (!isVisible()) {
-        if (window.getSelection() && window.getSelection().isCollapsed) {
-            return;
-        }
+        return;
     }
 
     switch (keyDown.keyCode) {
-
-        case 27: // esc
-            hidePopup();
-            break;
 
         case 65: // 'a'
             altView = (altView + 1) % 3;
@@ -157,7 +158,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 71: // 'g'
-            if (config.grammar !== 'no' && isVisible() && savedSearchResults.grammar) {
+            if (config.grammar !== 'no' && savedSearchResults.grammar) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
                 // https://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
@@ -211,7 +212,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 83: // 's'
-            if (isVisible()) {
+            {
 
                 // https://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
 
@@ -236,7 +237,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 84: // 't'
-            if (isVisible()) {
+            {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
@@ -689,8 +690,9 @@ function showPopup(html, elem, x, y, looseWidth) {
                 if (t >= 0) {
                     y = t;
                 }
+            } else  {
+                y += v;
             }
-            else y += v;
 
             x += window.scrollX;
             y += window.scrollY;
