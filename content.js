@@ -1481,6 +1481,7 @@ let miniHelp = `
     <tr><td><b>Alt + 4&nbsp;:</b></td><td>&nbsp;iCIBA</td></tr>
     <tr><td><b>Alt + 5&nbsp;:</b></td><td>&nbsp;MDBG</td></tr>
     <tr><td><b>Alt + 6&nbsp;:</b></td><td>&nbsp;JuKuu</td></tr>
+    <tr><td><b>Alt + 7&nbsp;:</b></td><td>&nbsp;MoE Dict</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>t&nbsp;:</b></td><td>&nbsp;Tatoeba</td></tr>
     </table>`;
