@@ -587,27 +587,6 @@ function showPopup(html, elem, x, y, looseWidth) {
     let popup = document.getElementById('zhongwen-window');
 
     if (!popup) {
-
-        let css = document.createElement('link');
-        css.setAttribute('id', 'zhongwen-css');
-        css.setAttribute('rel', 'stylesheet');
-        css.setAttribute('type', 'text/css');
-        let theme = config.css;
-        css.setAttribute('href', chrome.runtime.getURL('css/popup-' +
-            theme + '.css'));
-
-        let head = document.getElementsByTagName('head')[0];
-        head.appendChild(css);
-
-        let tc = document.createElement('link');
-        tc.setAttribute('id', 'zhongwen-toneColors');
-        tc.setAttribute('rel', 'stylesheet');
-        tc.setAttribute('type', 'text/css');
-        let tcScheme = config.toneColorScheme;
-        tc.setAttribute('href', chrome.runtime.getURL('css/toneColors-' +
-            tcScheme + '.css'));
-        head.appendChild(tc);
-
         popup = document.createElement('div');
         popup.setAttribute('id', 'zhongwen-window');
         document.documentElement.appendChild(popup);
@@ -616,6 +595,7 @@ function showPopup(html, elem, x, y, looseWidth) {
     popup.style.width = 'auto';
     popup.style.height = 'auto';
     popup.style.maxWidth = (looseWidth ? '' : '600px');
+    popup.className = `background-${config.css} tonecolor-${config.toneColorScheme}`;
 
     $(popup).html(html);
 
