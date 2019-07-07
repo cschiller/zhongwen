@@ -109,7 +109,14 @@ function onKeyDown(keyDown) {
         return;
     }
 
+    if (keyDown.keyCode === 27) {
+        // esc key pressed
+        hidePopup();
+        return;
+    }
+
     if (keyDown.altKey && keyDown.keyCode === 87) {
+        // Alt + w
         chrome.runtime.sendMessage({
             type: 'open',
             tabType: 'wordlist',
@@ -119,16 +126,10 @@ function onKeyDown(keyDown) {
     }
 
     if (!isVisible()) {
-        if (window.getSelection() && window.getSelection().isCollapsed) {
-            return;
-        }
+        return;
     }
 
     switch (keyDown.keyCode) {
-
-        case 27: // esc
-            hidePopup();
-            break;
 
         case 65: // 'a'
             altView = (altView + 1) % 3;
@@ -157,11 +158,11 @@ function onKeyDown(keyDown) {
             break;
 
         case 71: // 'g'
-            if (config.grammar !== 'no' && isVisible() && savedSearchResults.grammar) {
+            if (config.grammar !== 'no' && savedSearchResults.grammar) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
-                // http://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
-                let allset = 'http://resources.allsetlearning.com/chinese/grammar/' + sel;
+                // https://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
+                let allset = 'https://resources.allsetlearning.com/chinese/grammar/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -211,13 +212,13 @@ function onKeyDown(keyDown) {
             break;
 
         case 83: // 's'
-            if (isVisible()) {
+            {
 
-                // http://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
+                // https://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
 
-                let skritter = 'http://legacy.skritter.com';
+                let skritter = 'https://legacy.skritter.com';
                 if (config.skritterTLD === 'cn') {
-                    skritter = 'http://legacy.skritter.cn';
+                    skritter = 'https://legacy.skritter.cn';
                 }
 
                 skritter +=
@@ -236,12 +237,12 @@ function onKeyDown(keyDown) {
             break;
 
         case 84: // 't'
-            if (isVisible()) {
+            {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=%E8%BF%9B%E8%A1%8C
-                let tatoeba = 'http://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=' + sel;
+                // https://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=%E8%BF%9B%E8%A1%8C
+                let tatoeba = 'https://tatoeba.org/eng/sentences/search?from=cmn&to=eng&query=' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -284,8 +285,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://dict.cn/%E7%BF%BB%E8%AF%91
-                let dictcn = 'http://dict.cn/' + sel;
+                // https://dict.cn/%E7%BF%BB%E8%AF%91
+                let dictcn = 'https://dict.cn/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -299,8 +300,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://www.iciba.com/%E4%B8%AD%E9%A4%90
-                let iciba = 'http://www.iciba.com/' + sel;
+                // https://www.iciba.com/%E4%B8%AD%E9%A4%90
+                let iciba = 'https://www.iciba.com/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -314,8 +315,8 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=%E6%B0%B4
-                let mdbg = 'http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=' + sel;
+                // https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=%E6%B0%B4
+                let mdbg = 'https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -330,6 +331,7 @@ function onKeyDown(keyDown) {
                     window.getSelection().toString());
 
                 // http://jukuu.com/show-%E8%AF%8D%E5%85%B8-0.html
+                // https returns 403 errors
                 let jukuu = 'http://jukuu.com/show-' + sel + '-0.html';
 
                 chrome.runtime.sendMessage({
@@ -585,27 +587,6 @@ function showPopup(html, elem, x, y, looseWidth) {
     let popup = document.getElementById('zhongwen-window');
 
     if (!popup) {
-
-        let css = document.createElement('link');
-        css.setAttribute('id', 'zhongwen-css');
-        css.setAttribute('rel', 'stylesheet');
-        css.setAttribute('type', 'text/css');
-        let theme = config.css;
-        css.setAttribute('href', chrome.runtime.getURL('css/popup-' +
-            theme + '.css'));
-
-        let head = document.getElementsByTagName('head')[0];
-        head.appendChild(css);
-
-        let tc = document.createElement('link');
-        tc.setAttribute('id', 'zhongwen-toneColors');
-        tc.setAttribute('rel', 'stylesheet');
-        tc.setAttribute('type', 'text/css');
-        let tcScheme = config.toneColorScheme;
-        tc.setAttribute('href', chrome.runtime.getURL('css/toneColors-' +
-            tcScheme + '.css'));
-        head.appendChild(tc);
-
         popup = document.createElement('div');
         popup.setAttribute('id', 'zhongwen-window');
         document.documentElement.appendChild(popup);
@@ -614,6 +595,7 @@ function showPopup(html, elem, x, y, looseWidth) {
     popup.style.width = 'auto';
     popup.style.height = 'auto';
     popup.style.maxWidth = (looseWidth ? '' : '600px');
+    popup.className = `background-${config.css} tonecolor-${config.toneColorScheme}`;
 
     $(popup).html(html);
 
@@ -688,8 +670,9 @@ function showPopup(html, elem, x, y, looseWidth) {
                 if (t >= 0) {
                     y = t;
                 }
+            } else  {
+                y += v;
             }
-            else y += v;
 
             x += window.scrollX;
             y += window.scrollY;
@@ -1478,6 +1461,7 @@ let miniHelp = `
     <tr><td><b>Alt + 4&nbsp;:</b></td><td>&nbsp;iCIBA</td></tr>
     <tr><td><b>Alt + 5&nbsp;:</b></td><td>&nbsp;MDBG</td></tr>
     <tr><td><b>Alt + 6&nbsp;:</b></td><td>&nbsp;JuKuu</td></tr>
+    <tr><td><b>Alt + 7&nbsp;:</b></td><td>&nbsp;MoE Dict</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>t&nbsp;:</b></td><td>&nbsp;Tatoeba</td></tr>
     </table>`;
