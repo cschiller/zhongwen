@@ -25,10 +25,10 @@ function loadVals() {
     const simpTrad = localStorage['simpTrad'] || 'classic';
     document.querySelector(`input[name="simpTrad"][value="${simpTrad}"]`).checked = true;
 
-    const zhuyin = localStorage['zhuyin'] || 'yes';
+    const zhuyin = localStorage['zhuyin'] || 'no';
     document.querySelector('#zhuyin').checked = zhuyin === 'yes';
 
-    const grammar = localStorage['grammar'] || 'no';
+    const grammar = localStorage['grammar'] || 'yes';
     document.querySelector('#grammar').checked = grammar !== 'no';
 
     const saveToWordList = localStorage['saveToWordList'] || 'allEntries';
