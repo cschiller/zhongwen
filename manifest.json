@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Zhongwen: The Popular Chinese Learning Tool",
   "short_name": "Zhongwen",
-  "version": "5.4.3.1",
+  "version": "5.5",
   "author": "Christian Schiller",
   "homepage_url": "https://github.com/cschiller/zhongwen",
   "description": "Official Firefox port of the Zhongwen Chrome extension. Chinese-English dictionary and learning tool.",
