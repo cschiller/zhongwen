@@ -98,7 +98,7 @@ function activateExtension(tabId, showHelp) {
 
     chrome.contextMenus.create(
         {
-            title: 'Open word list',
+            title: 'Open Word List',
             onclick: function () {
                 let url = chrome.runtime.getURL('/wordlist.html');
                 let tabID = tabIDs['wordlist'];
@@ -132,7 +132,7 @@ function activateExtension(tabId, showHelp) {
     );
     chrome.contextMenus.create(
         {
-            title: 'Show help in new tab',
+            title: 'Show Help in New Tab',
             onclick: function () {
                 let url = chrome.runtime.getURL('/help.html');
                 let tabID = tabIDs['help'];
