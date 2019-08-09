@@ -9,8 +9,8 @@
     <script src="js/jquery-3.3.1.min.js" type="text/javascript"></script>
     <script src="js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script>
     <script src="js/wordlist.js" type="text/javascript"></script>
-
 </head>
 <body>
 <h1>Zhongwen Word List</h1>
@@ -34,6 +34,7 @@
         <th>Traditional</th>
         <th>Pinyin</th>
         <th>Definition</th>
+        <th>Notes</th>
     </tr>
     </thead>
 </table>
@@ -44,10 +45,52 @@
 </div>
 
 <a hidden id="savelink" download="Zhongwen-Words.txt"></a>
-<button id="savebutton">Save selected rows</button>
-<button id="delete">Delete selected rows</button>
-<button id="selectall">Select all rows</button>
-<button id="deselectall">Deselect all rows</button>
+<button class="btn btn-success" id="saveList">Save selected rows</button>
+
+<div class="btn-group">
+    <button class="btn btn-secondary" id="selectAll">Select all rows</button>
+    <button class="btn btn-outline-secondary" id="deselectAll">Deselect all rows</button>
+</div>
+
+<button class="btn btn-danger" id="delete">Delete selected rows</button>
+
+<div class="modal fade" id="editNotes" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Edit Notes</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="simplified" class="col-form-label">Simplified:</label>
+              <input type="text" disabled class="form-control" id="simplified">
+            </div>
+            <div class="form-group">
+                <label for="traditional" class="col-form-label">Traditional:</label>
+                <input type="text" disabled class="form-control" id="traditional">
+            </div>
+            <div class="form-group">
+                <label for="definition" class="col-form-label">Definition:</label>
+                <input type="text" disabled class="form-control" id="definition">
+            </div>
+            <div class="form-group">
+              <label for="notes" class="col-form-label">Notes:</label>
+              <textarea class="form-control" id="notes"></textarea>
+            </div>
+            <input type="hidden" id="rowIndex">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" id="saveNotes" class="btn btn-primary">Save notes</button>
+        </div>
+      </div>
+    </div>
+</div>
 
 </body>
 </html>
