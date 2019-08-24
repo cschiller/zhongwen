@@ -78,6 +78,9 @@ let savedSelStartOffset = 0;
 
 let savedSelEndList = [];
 
+// regular expression for zero-width non-joiner U+200C &zwnj;
+let zwnj = /\u200c/g;
+
 function enableTab() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('keydown', onKeyDown);
@@ -491,7 +494,10 @@ function triggerSearch() {
     }
 
     let selEndList = [];
-    let text = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
+    let originalText = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
+
+    // Workaround for Google Docs: remove zero-width non-joiner &zwnj;
+    let text = originalText.replace(zwnj, '');
 
     savedSelStartOffset = selStartOffset;
     savedSelEndList = selEndList;
