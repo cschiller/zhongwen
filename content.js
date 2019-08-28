@@ -504,7 +504,8 @@ function triggerSearch() {
 
     chrome.runtime.sendMessage({
             'type': 'search',
-            'text': text
+            'text': text,
+            'originalText': originalText
         },
         processSearchResult
     );
@@ -523,9 +524,17 @@ function processSearchResult(result) {
         return;
     }
 
-    if (!result.matchLen) {
-        result.matchLen = 1;
+    let highlightLength;
+    let index = 0;
+    for (let i = 0; i < result.matchLen; i++) {
+        // Google Docs workaround: determine the correct highlight length
+        while (result.originalText[index] === '\u200c') {
+            index++;
+        }
+        index++;
     }
+    highlightLength = index;
+
     selStartIncrement = result.matchLen;
     selStartDelta = (selStartOffset - savedRangeOffset);
 
@@ -538,7 +547,7 @@ function processSearchResult(result) {
             hidePopup();
             return;
         }
-        highlightMatch(doc, rangeNode, selStartOffset, result.matchLen, selEndList);
+        highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
     }
 
     showPopup(makeHtml(result, config.tonecolors !== 'no'), savedTarget, popX, popY, false);
