@@ -52,6 +52,7 @@ export class ZhongwenDictionary {
         this.wordDict = wordDict;
         this.wordIndex = wordIndex;
         this.grammarKeywords = grammarKeywords;
+        this.cache = {};
     }
 
     static find(needle, haystack) {
@@ -89,23 +90,21 @@ export class ZhongwenDictionary {
 
         let maxTrim = max || 7;
 
-        let cache = {};
-
         let count = 0;
         let maxLen = 0;
 
         WHILE:
             while (word.length > 0) {
 
-                let ix = cache[word];
+                let ix = this.cache[word];
                 if (!ix) {
                     ix = ZhongwenDictionary.find(word + ',', index);
                     if (!ix) {
-                        cache[word] = [];
+                        this.cache[word] = [];
                         continue;
                     }
                     ix = ix.split(',');
-                    cache[word] = ix;
+                    this.cache[word] = ix;
                 }
 
                 for (let j = 1; j < ix.length; ++j) {

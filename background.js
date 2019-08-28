@@ -274,15 +274,16 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
     }
 });
 
-chrome.runtime.onMessage.addListener(function (request, sender, response) {
+chrome.runtime.onMessage.addListener(function (request, sender, callback) {
 
     let tabID;
 
     switch (request.type) {
 
         case 'search': {
-            let e = search(request.text);
-            response(e);
+            let response = search(request.text);
+            response.originalText = request.originalText;
+            callback(response);
         }
             break;
 
