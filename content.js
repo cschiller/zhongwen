@@ -1026,10 +1026,16 @@ function pinyinAndZhuyin(syllables, showToneColors, pinyinClass) {
         }
 
         zhuyin += '<span class="tone' + m[4] + ' ' + zhuyinClass + '">'
-            + zhuyinMap[syllable.substring(0, syllable.length - 1).toLowerCase()]
-            + zhuyinTones[syllable[syllable.length - 1]] + '</span>';
+            + mapToZhuyin(syllable) + '</span>';
     }
     return [html, text, zhuyin];
+}
+
+function mapToZhuyin(syllable) {
+    let zhuyin = zhuyinMap[syllable.substring(0, syllable.length - 1).toLowerCase()]
+        + zhuyinTones[syllable[syllable.length - 1]];
+
+    return zhuyin;
 }
 
 let zhuyinTones = ['?', '', '\u02CA', '\u02C7', '\u02CB', '\u30FB'];
