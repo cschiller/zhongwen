@@ -4,7 +4,7 @@
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
  */
 
-const NOTES_COLUMN = 4;
+const NOTES_COLUMN = 5;
 
 let wordList = localStorage['wordlist'];
 let zhuyinConfig = (localStorage['zhuyin'] === 'yes');
