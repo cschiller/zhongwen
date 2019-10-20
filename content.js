@@ -196,10 +196,13 @@ function onKeyDown(keyDown) {
         {
             let entries = [];
             for (let j = 0; j < savedSearchResults.length; j++) {
+                let syllables = savedSearchResults[j][4].split(/[\s·]+/);
+                let zhuyin = syllables.reduce((zhuyin, syllable) => zhuyin + mapToZhuyin(syllable) + ' ', '').trimEnd();
                 let entry = {
                     simplified: savedSearchResults[j][0],
                     traditional: savedSearchResults[j][1],
                     pinyin: savedSearchResults[j][2],
+                    zhuyin: zhuyin,
                     definition: savedSearchResults[j][3]
                 };
                 entries.push(entry);
