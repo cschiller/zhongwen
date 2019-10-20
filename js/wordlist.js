@@ -7,6 +7,7 @@
 const NOTES_COLUMN = 4;
 
 let wordList = localStorage['wordlist'];
+let zhuyinConfig = (localStorage['zhuyin'] === 'yes');
 
 let entries;
 if (wordList) {
@@ -43,17 +44,25 @@ $(document).ready(function () {
     showListIsEmptyNotice();
     disableButtons();
 
+    let columns = [
+        { data: 'simplified' },
+        { data: 'traditional' },
+        { data: 'pinyin' },
+        { data: 'definition' },
+        { data: 'notes' },
+    ]
+    
+    if (zhuyinConfig) { 
+        columns.splice(3, 0, { data: 'zhuyin' });
+    } else {
+        $('#zhuyin-header').remove();
+    }
+    
     let wordsElement = $('#words');
     let invalidateRow;
     let table = wordsElement.DataTable({
         data: entries,
-        columns: [
-            { data: 'simplified' },
-            { data: 'traditional' },
-            { data: 'pinyin' },
-            { data: 'definition' },
-            { data: 'notes' },
-        ]
+        columns: columns
     });
 
     wordsElement.find('tbody').on('click', 'tr', function (event) {
@@ -103,6 +112,10 @@ $(document).ready(function () {
             content += '\t';
             content += entry.pinyin;
             content += '\t';
+            if (zhuyinConfig) {
+                content += entry.zhuyin;
+                content += '\t';
+            }
             content += entry.definition;
             content += '\t';
             content += entry.notes.replace('<i>Edit</i>', '').replace(/[\r\n]/gm, ' ');
