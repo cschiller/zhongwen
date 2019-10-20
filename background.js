@@ -69,6 +69,8 @@ let zhongwenOptions = window.zhongwenOptions = {
 
 function activateExtension(tabId, showHelp) {
 
+    isActivated = true;
+
     isEnabled = true;
     // values in localStorage are always strings
     localStorage['enabled'] = '1';
@@ -164,8 +166,6 @@ function activateExtension(tabId, showHelp) {
             }
         }
     );
-
-    isActivated = true;
 }
 
 async function loadDictData() {
@@ -186,6 +186,8 @@ async function loadDictionary() {
 }
 
 function deactivateExtension() {
+
+    isActivated = false;
 
     isEnabled = false;
     // values in localStorage are always strings
@@ -217,8 +219,6 @@ function deactivateExtension() {
     );
 
     chrome.contextMenus.removeAll();
-
-    isActivated = false;
 }
 
 function activateExtensionToggle(currentTab) {
