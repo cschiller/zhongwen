@@ -44,25 +44,18 @@ $(document).ready(function () {
     showListIsEmptyNotice();
     disableButtons();
 
-    let columns = [
-        { data: 'simplified' },
-        { data: 'traditional' },
-        { data: 'pinyin' },
-        { data: 'definition' },
-        { data: 'notes' },
-    ]
-    
-    if (zhuyinConfig) { 
-        columns.splice(3, 0, { data: 'zhuyin' });
-    } else {
-        $('#zhuyin-header').remove();
-    }
-    
     let wordsElement = $('#words');
     let invalidateRow;
     let table = wordsElement.DataTable({
         data: entries,
-        columns: columns
+        columns: [
+            { data: 'simplified' },
+            { data: 'traditional' },
+            { data: 'pinyin' },
+            { data: 'zhuyin', defaultContent: '-', visible: zhuyinConfig },
+            { data: 'definition' },
+            { data: 'notes' },
+        ]
     });
 
     wordsElement.find('tbody').on('click', 'tr', function (event) {
