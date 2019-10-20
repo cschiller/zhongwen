@@ -350,6 +350,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
                 entry.simplified = request.entries[i].simplified;
                 entry.traditional = request.entries[i].traditional;
                 entry.pinyin = request.entries[i].pinyin;
+                entry.zhuyin = request.entries[i].zhuyin;
                 entry.definition = request.entries[i].definition;
 
                 wordlist.push(entry);
