@@ -7,7 +7,7 @@
 const NOTES_COLUMN = 5;
 
 let wordList = localStorage['wordlist'];
-let zhuyinConfig = (localStorage['zhuyin'] === 'yes');
+let showZhuyin = (localStorage['zhuyin'] === 'yes');
 
 let entries;
 if (wordList) {
@@ -52,7 +52,7 @@ $(document).ready(function () {
             { data: 'simplified' },
             { data: 'traditional' },
             { data: 'pinyin' },
-            { data: 'zhuyin', defaultContent: '-', visible: zhuyinConfig },
+            { data: 'zhuyin', defaultContent: '-', visible: showZhuyin },
             { data: 'definition' },
             { data: 'notes' },
         ]
@@ -105,7 +105,7 @@ $(document).ready(function () {
             content += '\t';
             content += entry.pinyin;
             content += '\t';
-            if (zhuyinConfig) {
+            if (showZhuyin) {
                 content += entry.zhuyin;
                 content += '\t';
             }
