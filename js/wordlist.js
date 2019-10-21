@@ -44,6 +44,9 @@ $(document).ready(function () {
     showListIsEmptyNotice();
     disableButtons();
 
+    let missingZhuyinText = '<span class="zw-tooltip">Missing data' +
+        '<span class="tooltiptext">Zhuyin data is missing.<br/>Please re-add this entry.</span></span>';
+
     let wordsElement = $('#words');
     let invalidateRow;
     let table = wordsElement.DataTable({
@@ -52,7 +55,7 @@ $(document).ready(function () {
             { data: 'simplified' },
             { data: 'traditional' },
             { data: 'pinyin' },
-            { data: 'zhuyin', defaultContent: '-', visible: showZhuyin },
+            { data: 'zhuyin', defaultContent: missingZhuyinText, visible: showZhuyin },
             { data: 'definition' },
             { data: 'notes' },
         ]
