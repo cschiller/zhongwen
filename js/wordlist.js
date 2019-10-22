@@ -40,6 +40,7 @@ if (wordList) {
         }
     });
 
+    if (missingZhuyin) localStorage['wordlist'] = JSON.stringify(entries);
 } else {
     entries = [];
 }
