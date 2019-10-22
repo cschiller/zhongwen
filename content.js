@@ -197,7 +197,7 @@ function onKeyDown(keyDown) {
             let entries = [];
             for (let j = 0; j < savedSearchResults.length; j++) {
                 let syllables = savedSearchResults[j][4].split(/[\s·]+/);
-                let zhuyin = syllables.reduce((zhuyin, syllable) => zhuyin + mapToZhuyin(syllable) + ' ', '').trimEnd();
+                let zhuyin = syllablesToZhuyin(syllables);
                 let entry = {
                     simplified: savedSearchResults[j][0],
                     traditional: savedSearchResults[j][1],
@@ -932,13 +932,13 @@ let tones = {
     5: ''
 };
 
-let utones = {
-    1: '\u0304',
-    2: '\u0301',
-    3: '\u030C',
-    4: '\u0300',
-    5: ''
-};
+// let utones = {
+//     1: '\u0304',
+//     2: '\u0301',
+//     3: '\u030C',
+//     4: '\u0300',
+//     5: ''
+// };
 
 function parse(s) {
     return s.match(/([^AEIOU:aeiou]*)([AEIOUaeiou:]+)([^aeiou:]*)([1-5])/);

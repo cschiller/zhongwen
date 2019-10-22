@@ -7,9 +7,21 @@ function mapToZhuyin(syllable) {
   return zhuyin;
 }
 
-let zhuyinTones = ['?', '', '\u02CA', '\u02C7', '\u02CB', '\u30FB'];
+function syllablesToZhuyin(syllables) {
+  return syllables.reduce((zhuyin, syllable) => zhuyin + mapToZhuyin(syllable) + ' ', '').trimEnd();
+}
 
-let zhuyinMap = {
+const utones = {
+  1: '\u0304',
+  2: '\u0301',
+  3: '\u030C',
+  4: '\u0300',
+  5: ''
+};
+
+const zhuyinTones = ['?', '', '\u02CA', '\u02C7', '\u02CB', '\u30FB'];
+
+const zhuyinMap = {
     'a': '\u311a',
     'ai': '\u311e',
     'an': '\u3122',

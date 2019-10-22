@@ -25,7 +25,7 @@
       ],
       "js": [
         "js/jquery-3.3.1.min.js",
-        "zhuyin.js",
+        "js/zhuyin.js",
         "content.js"
       ],
       "css": [
@@ -50,7 +50,6 @@
   "web_accessible_resources": [
     "css/*",
     "js/*",
-    "images/*",
-    "zhuyin.js"
+    "images/*"
   ]
 }
