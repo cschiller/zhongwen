@@ -3,6 +3,13 @@
  Copyright (C) 2010-2019 Christian Schiller
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
  */
+const utones = {
+    1: '\u0304',
+    2: '\u0301',
+    3: '\u030C',
+    4: '\u0300',
+    5: ''
+};
 
 const NOTES_COLUMN = 5;
 
@@ -12,9 +19,42 @@ let showZhuyin = (localStorage['zhuyin'] === 'yes');
 let entries;
 if (wordList) {
     entries = JSON.parse(wordList);
-    entries.forEach(e => { e.notes = (e.notes || '<i>Edit</i>');});
+    let missingZhuyin = false;
+    entries.forEach(e => { 
+        e.notes = (e.notes || '<i>Edit</i>');
+
+        if (!e.zhuyin) {
+            missingZhuyin = true;
+            let pinyin = e.pinyin.split(/[\s·]+/);
+            let syllables = [];
+            /* search for tones */
+            pinyin.forEach(py => {
+                py = py.toLowerCase();
+                let tone = getToneNumber(py);
+                let syllable = removeToneMarker(py, tone) + tone;
+                syllables.push(syllable);
+            });
+
+            let zhuyin = syllables.reduce((zhuyin, syllable) => zhuyin + mapToZhuyin(syllable) + ' ', '').trimEnd();
+            e.zhuyin = zhuyin;
+        }
+    });
+
 } else {
     entries = [];
+}
+
+function getToneNumber(pinyin) {
+    for (let i = 1; i < 5; i++) {
+        if (pinyin.includes(utones[i])) return i;
+    }
+
+    return 5;
+}
+
+function removeToneMarker(pinyin, tone) {
+    let toneIndex = pinyin.indexOf(utones[tone]);
+    return pinyin.substring(0, toneIndex) + pinyin.substring(toneIndex + 1);
 }
 
 function showListIsEmptyNotice() {
