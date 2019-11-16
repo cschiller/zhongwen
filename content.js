@@ -1451,6 +1451,8 @@ let miniHelp = `
     <span style="font-weight: bold;">Zhongwen Chinese-English Dictionary</span><br><br>
     <p>Keyboard shortcuts:<p>
     <table style="margin: 10px;" cellspacing=5 cellpadding=5>
+    <tr><td><b>Alt z&nbsp;:</b></td><td>&nbsp;Enable/Disable Zhongwen</td></tr>
+    <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>n&nbsp;:</b></td><td>&nbsp;Next word</td></tr>
     <tr><td><b>b&nbsp;:</b></td><td>&nbsp;Previous character</td></tr>
     <tr><td><b>m&nbsp;:</b></td><td>&nbsp;Next character</td></tr>
@@ -1462,7 +1464,6 @@ let miniHelp = `
     <tr><td><b>c&nbsp;:</b></td><td>&nbsp;Copy translation to clipboard</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>r&nbsp;:</b></td><td>&nbsp;Remember word by adding it to the built-in word list</td></tr>
-    <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>Alt w&nbsp;:</b></td><td>&nbsp;Show the built-in word list in a new tab</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>s&nbsp;:</b></td><td>&nbsp;Add word to Skritter queue</td></tr>
