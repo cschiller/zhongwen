@@ -1,6 +1,6 @@
 {
   "name": "zhongwen",
-  "version": "5.5.0",
+  "version": "5.8.0",
   "description": "Chinese Pop-Up Dictionary",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "extends": "stylelint-config-recommended"
   },
   "scripts": {
-    "lint": "eslint --fix *.js js/options.js js/wordlist.js",
+    "lint": "eslint --fix *.js js/options.js js/wordlist.js js/zhuyin.js",
     "csslint": "stylelint css/content.css css/wordlist.css"
   }
 }
