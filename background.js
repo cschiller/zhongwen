@@ -347,6 +347,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             for (let i in request.entries) {
 
                 let entry = {};
+                entry.timestamp = Date.now();
                 entry.simplified = request.entries[i].simplified;
                 entry.traditional = request.entries[i].traditional;
                 entry.pinyin = request.entries[i].pinyin;
