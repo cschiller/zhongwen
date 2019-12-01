@@ -17,6 +17,7 @@
   font-size: 12px;
   font-family: Tahoma, Geneva, sans-serif;
   visibility: visible;
+  line-height: initial;
 }
 
 #zhongwen-window {
