@@ -743,7 +743,7 @@ function highlightMatch(doc, rangeStartNode, rangeStartOffset, matchLen, selEndL
 
 function clearHighlight() {
 
-    if (selText === null) {
+    if (!selText) {
         return;
     }
 
