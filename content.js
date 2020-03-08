@@ -283,7 +283,20 @@ function onKeyDown(keyDown) {
             }
             break;
 
-        // '2' is currenty unused
+        case 50: // '2'
+            if (keyDown.altKey) {
+                let sel = encodeURIComponent(
+                    window.getSelection().toString());
+
+                // https://forvo.com/search/%E4%B8%AD%E6%96%87/zh/
+                var forvo = 'https://forvo.com/search/' + sel + '/zh/';
+
+                chrome.runtime.sendMessage({
+                    type: 'open',
+                    url: forvo
+                });
+            }
+            break;
 
         case 51: // '3'
             if (keyDown.altKey) {
@@ -1057,8 +1070,9 @@ let miniHelp = `
     Look up selected text in online resources:
     <table style="margin: 10px;" cellspacing=5 cellpadding=5>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
-    <tr><td><b>Alt + 1&nbsp;:</b></td><td>&nbsp;LINE Dict</td></tr>
-    <tr><td><b>Alt + 3&nbsp;:</b></td><td>&nbsp;Dict.cn</td></tr>
+    <tr><td><b>Alt + 1 :</b></td><td>&nbsp;LINE Dict</td></tr>
+    <tr><td><b>Alt + 2 :</b></td><td>&nbsp;Forvo</td></tr>
+    <tr><td><b>Alt + 3 :</b></td><td>&nbsp;Dict.cn</td></tr>
     <tr><td><b>Alt + 4&nbsp;:</b></td><td>&nbsp;iCIBA</td></tr>
     <tr><td><b>Alt + 5&nbsp;:</b></td><td>&nbsp;MDBG</td></tr>
     <tr><td><b>Alt + 6&nbsp;:</b></td><td>&nbsp;JuKuu</td></tr>
