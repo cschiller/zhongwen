@@ -1,3 +1,9 @@
+## The Zhuyin column feature this repository provided has been implemented into the original repository that this was forked from. 
+
+You can find pull request [here](https://github.com/cschiller/zhongwen/pull/30#issuecomment-560102993).  
+You can view the original repository [here](https://github.com/cschiller/zhongwen).
+
+
 # 中文 Zhongwen
 ## A Chinese Pop-Up Dictionary and Learning Tool
 
