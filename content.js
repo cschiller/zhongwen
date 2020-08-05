@@ -917,6 +917,22 @@ function makeHtml(result, showToneColors) {
         html += '&hellip;<br/>';
     }
 
+    if (config.openInPlecoOnAndroid == 'yes') {
+        let plecoSymbol = document.createElement('span');
+            let img = document.createElement('IMG');
+            let url=browser.runtime.getURL("images/pleco25.png");
+            img.src=url;  
+            img.className='imgPleco';
+            let a = document.createElement('a');
+            a.className="surrImgPleco";
+            a.href = 'plecoapi://x-callback-url/s?q='+result.data[0][1];
+            a.appendChild(img);
+            plecoSymbol.appendChild(a);
+            html+=plecoSymbol.outerHTML;
+    }
+    
+   
+
     savedSearchResults = texts;
     savedSearchResults.grammar = result.grammar;
 

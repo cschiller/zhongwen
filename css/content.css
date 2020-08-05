@@ -221,3 +221,15 @@
 #zhongwen-window.tonecolor-hanping .tone5 {
   color: #a0a0a0;
 }
+
+#zhongwen-window .imgPleco {
+  float:right;
+  margin-left:2em;
+  margin-top:2em; 
+  margin-right:0.4em;
+  height:150%;
+}
+
+#zhongwen-window .surrImgPleco {
+  float:right;
+}
