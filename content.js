@@ -920,7 +920,7 @@ function makeHtml(result, showToneColors) {
     if (config.openInPlecoOnAndroid == 'yes') {
         let plecoSymbol = document.createElement('span');
             let img = document.createElement('IMG');
-            let url=browser.runtime.getURL("images/pleco25.png");
+            let url=chrome.runtime.getURL("images/pleco25.png");
             img.src=url;  
             img.className='imgPleco';
             let a = document.createElement('a');
@@ -932,7 +932,6 @@ function makeHtml(result, showToneColors) {
     }
     
    
-
     savedSearchResults = texts;
     savedSearchResults.grammar = result.grammar;
 

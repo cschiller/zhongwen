@@ -62,9 +62,10 @@ loadOptionsPreferences();
 
 
 function loadOptionsPreferences(){
-   browser.runtime.getPlatformInfo().then((info) => {
+   //need platform info for some features
+    chrome.runtime.getPlatformInfo(function(info){
 
-        zhongwenOptions = window.zhongwenOptions = {
+    zhongwenOptions = window.zhongwenOptions = {
         css: localStorage['popupcolor'] || 'yellow',
         tonecolors: localStorage['tonecolors'] || 'yes',
         fontSize: localStorage['fontSize'] || 'small',
@@ -74,12 +75,12 @@ function loadOptionsPreferences(){
         simpTrad: localStorage['simpTrad'] || 'classic',
         toneColorScheme: localStorage['toneColorScheme'] || 'standard',
         platform: localStorage['platform'] || info.os
-        };
-        //Open in pleco is possible
-        if(info.os=='android'){
-            zhongwenOptions.openInPlecoOnAndroid=window.zhongwenOptions.openInPlecoOnAndroid=localStorage['openInPlecoOnAndroid'] || 'yes';
-        }
-    });  
+        };  
+
+    if(info.os=='android'){
+        zhongwenOptions.openInPlecoOnAndroid=window.zhongwenOptions.openInPlecoOnAndroid=localStorage['openInPlecoOnAndroid'] || 'yes';
+    }
+    });
  }
 
 

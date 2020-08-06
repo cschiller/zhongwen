@@ -37,19 +37,14 @@ function loadVals() {
     const skritterTLD = localStorage['skritterTLD'] || 'com';
     document.querySelector(`input[name="skritterTLD"][value="${skritterTLD}"]`).checked = true;
 
-    //document.getElementById('test').innerHTML="yoyo"; 
+    //On Android display Open in Pleco feature
     if(chrome.extension.getBackgroundPage().zhongwenOptions.platform == "android"){
     const openInPlecoOnAndroid = localStorage['openInPlecoOnAndroid'] || 'yes';
     document.querySelector('#openInPlecoOnAndroid').checked = openInPlecoOnAndroid !== 'no';
     }
     else {
         document.querySelector('#openInPlecoOnAndroidContainer').style.display='none'
-    }
-     
-    
-   // document.getElementById('test').innerHTML=chrome.extension.getBackgroundPage().zhongwenOptions.openInPlecoOnAndroid; 
-
-     
+    }       
 }
 
 function setPopupColor(popupColor) {
