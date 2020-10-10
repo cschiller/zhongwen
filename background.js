@@ -64,11 +64,12 @@ let zhongwenOptions = window.zhongwenOptions = {
     zhuyin: localStorage['zhuyin'] || 'no',
     grammar: localStorage['grammar'] || 'yes',
     simpTrad: localStorage['simpTrad'] || 'classic',
-    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
+    toneColorScheme: localStorage['toneColorScheme'] || 'standard',
+    cantoneseEntriesEnabled: localStorage['cantoneseEntriesEnabled'] || 'no',
+    jyutpingEnabled: localStorage['jyutpingEnabled'] || 'no',
 };
 
 function activateExtension(tabId, showHelp) {
-
     isActivated = true;
 
     isEnabled = true;
@@ -169,20 +170,26 @@ function activateExtension(tabId, showHelp) {
 }
 
 async function loadDictData() {
-    let wordDict = fetch(chrome.runtime.getURL(
+    let mandarinDict = fetch(chrome.runtime.getURL(
         "data/cedict_ts.u8")).then(r => r.text());
-    let wordIndex = fetch(chrome.runtime.getURL(
-        "data/cedict.idx")).then(r => r.text());
+    let cantoneseDict = fetch(chrome.runtime.getURL(
+        "data/cedict_canto.u8")).then(r => r.text());
     let grammarKeywords = fetch(chrome.runtime.getURL(
         "data/grammarKeywordsMin.json")).then(r => r.json());
 
-    return Promise.all([wordDict, wordIndex, grammarKeywords]);
+    return Promise.all([mandarinDict, cantoneseDict, grammarKeywords]);
 }
 
 
 async function loadDictionary() {
-    let [wordDict, wordIndex, grammarKeywords] = await loadDictData();
-    return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords);
+    let [mandarinDict, cantoneseDict, grammarKeywords] = await loadDictData();
+    return new ZhongwenDictionary([{
+        type: "common",
+        contents: mandarinDict
+    }, {
+        type: "cantonese",
+        contents: cantoneseDict
+    }], grammarKeywords);
 }
 
 function deactivateExtension() {
@@ -244,25 +251,35 @@ function enableTab(tabId) {
 }
 
 function search(text) {
-
+    const MAX_PHRASE_LENGTH = 7;
     if (!dict) {
         // dictionary not loaded
-        return;
+        return [];
     }
 
-    let entry = dict.wordSearch(text);
+    const match = text.match(/^\p{sc=Han}+/u);
 
-    if (entry) {
-        for (let i = 0; i < entry.data.length; i++) {
-            let word = entry.data[i][1];
-            if (dict.hasKeyword(word) && (entry.matchLen === word.length)) {
-                // the final index should be the last one with the maximum length
-                entry.grammar = { keyword: word, index: i };
-            }
+    if(!match) {
+        return [];
+    }
+
+    const hanText = match[0].slice(0, MAX_PHRASE_LENGTH);
+
+    let words = [];
+    for(let i = hanText.length; i > 0; i--) {
+        const searchString = text.slice(0, i);
+        let entries = dict.wordSearch(searchString,
+            zhongwenOptions['cantoneseEntriesEnabled'] === "no" ? "common" : "cantonese");
+
+        if(entries.length > 0) {
+            words.push({
+                entries,
+                originalWord: searchString
+            });
         }
     }
 
-    return entry;
+    return words;
 }
 
 chrome.browserAction.onClicked.addListener(activateExtensionToggle);
@@ -281,8 +298,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
     switch (request.type) {
 
         case 'search': {
-            let response = search(request.text);
-            response.originalText = request.originalText;
+            const response = {
+                words: search(request.text),
+                originalText: request.originalText,
+                displayedPronunciations: [
+                    "pinyin"
+                ].concat(localStorage["jyutpingEnabled"] === "yes" ? ["jyutping"] : [])
+            };
+
             callback(response);
         }
             break;
@@ -345,13 +368,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             }
 
             for (let i in request.entries) {
-
                 let entry = {};
                 entry.timestamp = Date.now();
                 entry.simplified = request.entries[i].simplified;
                 entry.traditional = request.entries[i].traditional;
                 entry.pinyin = request.entries[i].pinyin;
                 entry.definition = request.entries[i].definition;
+                entry.jyutping = request.entries[i].jyutping;
 
                 wordlist.push(entry);
 

@@ -36,6 +36,12 @@ function loadVals() {
 
     const skritterTLD = localStorage['skritterTLD'] || 'com';
     document.querySelector(`input[name="skritterTLD"][value="${skritterTLD}"]`).checked = true;
+
+    const cantoneseEntriesEnabled = localStorage['cantoneseEntriesEnabled'] || 'no';
+    document.querySelector('#cantoneseEntriesEnabled').checked = cantoneseEntriesEnabled === 'yes';
+
+    const jyutpingEnabled = localStorage['jyutpingEnabled'] || 'no';
+    document.querySelector('#jyutpingEnabled').checked = jyutpingEnabled === 'yes';
 }
 
 function setPopupColor(popupColor) {
@@ -99,6 +105,12 @@ window.addEventListener('load', () => {
         input.addEventListener('change',
             () => setOption('skritterTLD', input.getAttribute('value')));
     });
+
+    document.querySelector('#cantoneseEntriesEnabled').addEventListener('change',
+        (event) => setBooleanOption('cantoneseEntriesEnabled', event.target.checked));
+
+    document.querySelector('#jyutpingEnabled').addEventListener('change',
+        (event) => setBooleanOption('jyutpingEnabled', event.target.checked));
 });
 
 loadVals();

@@ -199,10 +199,11 @@ function onKeyDown(keyDown) {
             let entries = [];
             for (let j = 0; j < savedSearchResults.length; j++) {
                 let entry = {
-                    simplified: savedSearchResults[j][0],
-                    traditional: savedSearchResults[j][1],
-                    pinyin: savedSearchResults[j][2],
-                    definition: savedSearchResults[j][3]
+                    simplified: savedSearchResults[j].simplified,
+                    traditional: savedSearchResults[j].traditional,
+                    pinyin: savedSearchResults[j].pronunciation.mandarin,
+                    jyutping: savedSearchResults[j].pronunciation.cantonese,
+                    definition: savedSearchResults[j].definition
                 };
                 entries.push(entry);
             }
@@ -228,10 +229,10 @@ function onKeyDown(keyDown) {
 
                 skritter +=
                     '/vocab/api/add?from=Zhongwen&siteref=Zhongwen&lang=zh&word=' +
-                    encodeURIComponent(savedSearchResults[0][0]) +
-                    '&trad=' + encodeURIComponent(savedSearchResults[0][1]) +
-                    '&rdng=' + encodeURIComponent(savedSearchResults[0][4]) +
-                    '&defn=' + encodeURIComponent(savedSearchResults[0][3]);
+                    encodeURIComponent(savedSearchResults[0].simplified) +
+                    '&trad=' + encodeURIComponent(savedSearchResults[0].traditional) +
+                    '&rdng=' + encodeURIComponent(savedSearchResults[0].pronunciation.mandarin) +
+                    '&defn=' + encodeURIComponent(savedSearchResults[0].definition);
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -533,7 +534,7 @@ function processSearchResult(result) {
     let selStartOffset = savedSelStartOffset;
     let selEndList = savedSelEndList;
 
-    if (!result) {
+    if (!result || result.words.length === 0) {
         hidePopup();
         clearHighlight();
         return;
@@ -541,16 +542,21 @@ function processSearchResult(result) {
 
     let highlightLength;
     let index = 0;
-    for (let i = 0; i < result.matchLen; i++) {
-        // Google Docs workaround: determine the correct highlight length
-        while (result.originalText[index] === '\u200c') {
-            index++;
+
+    const originalWord = result.words[0].originalWord;
+
+    for (let i = 0; i < result.originalText.length; i++) {
+        index = i + 1;
+        const currentWord = result.originalText.substring(0, index)
+                            .replace(/\u200c/g, '');
+        if(currentWord.valueOf() === originalWord.valueOf()) {
+            break;
         }
-        index++;
     }
+
     highlightLength = index;
 
-    selStartIncrement = result.matchLen;
+    selStartIncrement = result.words.length;
     selStartDelta = (selStartOffset - savedRangeOffset);
 
     let rangeNode = savedRangeNode;
@@ -562,6 +568,7 @@ function processSearchResult(result) {
             hidePopup();
             return;
         }
+
         highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
     }
 
@@ -859,79 +866,98 @@ function copyToClipboard(data) {
 
 function makeHtml(result, showToneColors) {
 
-    let entry;
     let html = '';
     let texts = [];
     let hanziClass;
 
-    if (result === null) return '';
+    if (result === null || result.words.length === 0) return '';
 
-    for (let i = 0; i < result.data.length; ++i) {
-        entry = result.data[i][0].match(/^([^\s]+?)\s+([^\s]+?)\s+\[(.*?)\]?\s*\/(.+)\//);
-        if (!entry) continue;
+    const grammarIndex = result.words.findIndex((entry) => entry.grammar === true);
 
-        // Hanzi
+    result.words.forEach((word, index) => {
+        word.entries.forEach((entry) => {
+            if (config.simpTrad === 'auto') {
+                hanziClass = 'w-hanzi';
+                if (config.fontSize === 'small') {
+                    hanziClass += '-small';
+                }
+                html += '<span class="' + hanziClass + '">' + entry.originalWord + '</span>&nbsp;';
 
-        if (config.simpTrad === 'auto') {
+            } else {
 
-            let word = result.data[i][1];
+                hanziClass = 'w-hanzi';
+                if (config.fontSize === 'small') {
+                    hanziClass += '-small';
+                }
+                html += '<span class="' + hanziClass + '">' + entry.traditional + '</span>&nbsp;';
+                if (entry.traditional !== entry.simplified) {
+                    html += '<span class="' + hanziClass + '">' + entry.simplified + '</span>&nbsp;';
+                }
 
-            hanziClass = 'w-hanzi';
+            }
+
+            // Pinyin
+
+            let pinyinClass = 'w-pinyin';
             if (config.fontSize === 'small') {
-                hanziClass += '-small';
+                pinyinClass += '-small';
             }
-            html += '<span class="' + hanziClass + '">' + word + '</span>&nbsp;';
 
-        } else {
+            const p = {
+                mandarin: pinyinAndZhuyin(entry.pronunciation.mandarin, showToneColors, pinyinClass),
+                cantonese: [`<span class="${pinyinClass}">${entry.pronunciation.cantonese}</span>`, entry.pronunciation.cantonese]
+            };
+            html += p.mandarin[0];
 
-            hanziClass = 'w-hanzi';
+            // Jyutping
+            if (result.displayedPronunciations.includes("jyutping")) {
+                html += "&nbsp;&nbsp;&nbsp;" + p.cantonese[0];
+
+            }
+
+            // Cantonese entries
+            if(entry.type === "cantonese") {
+                html += `<span style="float: right" class="${pinyinClass}">Cant.</span>`;
+            }
+
+            // Zhuyin
+
+            if (entry.type === "common" && config.zhuyin === 'yes') {
+                html += '<br>' + p.mandarin[2];
+            }
+
+            // Definition
+
+            let defClass = 'w-def';
             if (config.fontSize === 'small') {
-                hanziClass += '-small';
-            }
-            html += '<span class="' + hanziClass + '">' + entry[2] + '</span>&nbsp;';
-            if (entry[1] !== entry[2]) {
-                html += '<span class="' + hanziClass + '">' + entry[1] + '</span>&nbsp;';
+                defClass += '-small';
             }
 
-        }
+            html += '<br><span class="' + defClass + '">' + entry.definition + '</span><br>';
 
-        // Pinyin
+            // Grammar
+            if (config.grammar !== 'no' && entry.grammar && grammarIndex === index) {
+                html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br><br>';
+            }
 
-        let pinyinClass = 'w-pinyin';
-        if (config.fontSize === 'small') {
-            pinyinClass += '-small';
-        }
-        let p = pinyinAndZhuyin(entry[3], showToneColors, pinyinClass);
-        html += p[0];
+            texts[index] = {
+                simplified: entry.simplified,
+                traditional: entry.traditional,
+                pronunciation: {
+                    cantonese: entry.pronunciation.cantonese,
+                    mandarin: p.mandarin[1]
+                },
+                definition: entry.definition,
+            };
+        });
+    });
 
-        // Zhuyin
-
-        if (config.zhuyin === 'yes') {
-            html += '<br>' + p[2];
-        }
-
-        // Definition
-
-        let defClass = 'w-def';
-        if (config.fontSize === 'small') {
-            defClass += '-small';
-        }
-        let translation = entry[4].replace(/\//g, '; ');
-        html += '<br><span class="' + defClass + '">' + translation + '</span><br>';
-
-        // Grammar
-        if (config.grammar !== 'no' && result.grammar && result.grammar.index === i) {
-            html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br><br>';
-        }
-
-        texts[i] = [entry[2], entry[1], p[1], translation, entry[3]];
-    }
     if (result.more) {
         html += '&hellip;<br/>';
     }
 
-    savedSearchResults = texts;
-    savedSearchResults.grammar = result.grammar;
+    savedSearchResults = Object.assign(texts);
+    savedSearchResults.grammar = grammarIndex !== -1;
 
     return html;
 }

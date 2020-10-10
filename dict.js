@@ -48,91 +48,82 @@
 
 export class ZhongwenDictionary {
 
-    constructor(wordDict, wordIndex, grammarKeywords) {
-        this.wordDict = wordDict;
-        this.wordIndex = wordIndex;
+    constructor(dictionaries, grammarKeywords) {
         this.grammarKeywords = grammarKeywords;
-        this.cache = {};
+        this.dictionary = this.createDictionary(dictionaries);
     }
 
-    static find(needle, haystack) {
+    createDictionary(dictionaries) {
+        const dict = new Map();
 
-        let beg = 0;
-        let end = haystack.length - 1;
+        dictionaries.forEach((dictionary) => {
 
-        while (beg < end) {
-            let mi = Math.floor((beg + end) / 2);
-            let i = haystack.lastIndexOf('\n', mi) + 1;
+            const lines = dictionary.contents.split("\n").filter((line) => {
+                return !line.startsWith("#");
+            });
 
-            let mis = haystack.substr(i, needle.length);
-            if (needle < mis) {
-                end = i - 1;
-            } else if (needle > mis) {
-                beg = haystack.indexOf('\n', mi + 1) + 1;
-            } else {
-                return haystack.substring(i, haystack.indexOf('\n', mi + 1));
-            }
-        }
+            // Example line:
+            // 叢 丛 [cong2] { cung4 } /cluster/collection/collection of books/thicket/
+            lines.forEach((line) => {
+                let tokens = line.match(/(.+?) (.+?) \[(.+?)\] {(.+?)} \/(.+)\//);
 
-        return null;
+                if(tokens) {
+                    const allEntries = dict.get(tokens[1].replace("·", "")) || [];
+                    const entry = {
+                        type: dictionary.type,
+                        length: tokens[1].length,
+                        simplified: tokens[1],
+                        traditional: tokens[2],
+                        pronunciation: {
+                            // Some dictionaries might use v for u:
+                            mandarin: tokens[3].replace("v", "u:"),
+                            cantonese: tokens[4]
+                        },
+                        definition: tokens[5],
+                        grammar: !!this.grammarKeywords[tokens[1]]
+                    };
+
+                    // Merge duplicate entries
+                    const existingEdited = allEntries.some((existingEntry) => {
+                        if(existingEntry.definition === entry.definition) {
+                            const existingPronunciations = existingEntry.pronunciation.cantonese.split("/");
+                            const newPronunciations = entry.pronunciation.cantonese.
+                                                        split("/").filter(x => !existingPronunciations.includes(x));
+                            if(newPronunciations.length > 0) {
+                                existingEntry.pronunciation.cantonese += `/${newPronunciations.join("/")}`;
+                            }
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    if(existingEdited) {
+                        return;
+                    }
+
+                    allEntries.push(entry);
+                    dict.set(tokens[1].replace("·", ""), allEntries);
+                    dict.set(tokens[2].replace(".", ""), allEntries);
+                }
+            });
+        });
+
+        return dict;
     }
+
 
     hasKeyword(keyword) {
         return this.grammarKeywords[keyword];
     }
 
-    wordSearch(word, max) {
-
-        let entry = { data: [] };
-
-        let dict = this.wordDict;
-        let index = this.wordIndex;
-
-        let maxTrim = max || 7;
-
-        let count = 0;
-        let maxLen = 0;
-
-        WHILE:
-            while (word.length > 0) {
-
-                let ix = this.cache[word];
-                if (!ix) {
-                    ix = ZhongwenDictionary.find(word + ',', index);
-                    if (!ix) {
-                        this.cache[word] = [];
-                        continue;
-                    }
-                    ix = ix.split(',');
-                    this.cache[word] = ix;
-                }
-
-                for (let j = 1; j < ix.length; ++j) {
-                    let offset = ix[j];
-
-                    let dentry = dict.substring(offset, dict.indexOf('\n', offset));
-
-                    if (count >= maxTrim) {
-                        entry.more = 1;
-                        break WHILE;
-                    }
-
-                    ++count;
-                    if (maxLen === 0) {
-                        maxLen = word.length;
-                    }
-
-                    entry.data.push([dentry, word]);
-                }
-
-                word = word.substr(0, word.length - 1);
-            }
-
-        if (entry.data.length === 0) {
-            return null;
-        }
-
-        entry.matchLen = maxLen;
-        return entry;
+    wordSearch(word, type="common") {
+        const entries = this.dictionary.get(word) || [];
+        return entries.filter(
+            (entry) => entry.type === "common"
+                        || entry.type === type)
+            .map(entry => {
+                entry.originalWord = word;
+                return entry;
+            });
     }
 }
