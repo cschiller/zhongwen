@@ -423,26 +423,30 @@ const zhuyinMap = {
     'zuo': '\u3117\u3128\u311b'
 };
 
-globalThis.numericPinyin2Zhuyin = function (syllable) {
-    return zhuyinMap[syllable.substring(0, syllable.length - 1).toLowerCase()]
-        + zhuyinTones[syllable[syllable.length - 1]] + '</span>';
+function run() {
+  globalThis.numericPinyin2Zhuyin = function (syllable) {
+      return zhuyinMap[syllable.substring(0, syllable.length - 1).toLowerCase()]
+          + zhuyinTones[syllable[syllable.length - 1]] + '</span>';
 
-};
+  };
 
-globalThis.accentedPinyin2Zhuyin = function (syllable) {
-    let lowerCased = syllable.toLowerCase();
-    let key = lowerCased;
-    let tone = 5;
-    for (let i = 1; i <= 4; i++) {
-        let idx = lowerCased.indexOf(pinyinTones[i]);
-        if (idx > 0) {
-            key = lowerCased.substring(0, idx);
-            if (idx < lowerCased.length -1) {
-                key += lowerCased.substring(idx + 1);
-            }
-            tone = i;
-            break;
-        }
-    }
-    return zhuyinMap[key] + zhuyinTones[tone];
-};
+  globalThis.accentedPinyin2Zhuyin = function (syllable) {
+      let lowerCased = syllable.toLowerCase();
+      let key = lowerCased;
+      let tone = 5;
+      for (let i = 1; i <= 4; i++) {
+          let idx = lowerCased.indexOf(pinyinTones[i]);
+          if (idx > 0) {
+              key = lowerCased.substring(0, idx);
+              if (idx < lowerCased.length -1) {
+                  key += lowerCased.substring(idx + 1);
+              }
+              tone = i;
+              break;
+          }
+      }
+      return zhuyinMap[key] + zhuyinTones[tone];
+  };
+}
+
+run();
