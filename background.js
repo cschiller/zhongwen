@@ -50,8 +50,6 @@ import { ZhongwenDictionary } from './dict.js';
 
 let isEnabled = localStorage['enabled'] === '1';
 
-let isActivated = false;
-
 let tabIDs = {};
 
 let dict;
@@ -67,10 +65,9 @@ let zhongwenOptions = window.zhongwenOptions = {
     toneColorScheme: localStorage['toneColorScheme'] || 'standard'
 };
 
+let activatedTabs = new Set();
+
 function activateExtension(tabId, showHelp) {
-
-    isActivated = true;
-
     isEnabled = true;
     // values in localStorage are always strings
     localStorage['enabled'] = '1';
@@ -79,14 +76,27 @@ function activateExtension(tabId, showHelp) {
         loadDictionary().then(r => dict = r);
     }
 
-    chrome.tabs.sendMessage(tabId, {
+    const enableMsg = {
         'type': 'enable',
         'config': zhongwenOptions
-    });
+    };
+
+    let enablePromise;
+    if (activatedTabs.has(tabId) === false) {
+        enablePromise = loadScripts(tabId).then(() => {
+            activatedTabs.add(tabId);
+            return browser.tabs.sendMessage(tabId, enableMsg);
+        });
+    } else {
+        enablePromise = browser.tabs.sendMessage(tabId, enableMsg);
+    }
+    enablePromise.catch(error => console.error(`${error}`));
 
     if (showHelp) {
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'showHelp'
+        enablePromise.then(() => {
+            return browser.tabs.sendMessage(tabId, {
+                'type': 'showHelp'
+            });
         });
     }
 
@@ -185,9 +195,7 @@ async function loadDictionary() {
     return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords);
 }
 
-function deactivateExtension() {
-
-    isActivated = false;
+function deactivateExtension(tabId) {
 
     isEnabled = false;
     // values in localStorage are always strings
@@ -203,27 +211,45 @@ function deactivateExtension() {
         'text': ''
     });
 
-    // Send a disable message to all tabs in all windows.
-    chrome.windows.getAll(
-        { 'populate': true },
-        function (windows) {
-            for (let i = 0; i < windows.length; ++i) {
-                let tabs = windows[i].tabs;
-                for (let j = 0; j < tabs.length; ++j) {
-                    chrome.tabs.sendMessage(tabs[j].id, {
-                        'type': 'disable'
-                    });
-                }
-            }
-        }
-    );
+    if (activatedTabs.has(tabId) === true) {
+        browser.tabs.sendMessage(tabId, {
+            'type': 'disable'
+        }).catch(error => console.error(`${error}`));
+    }
 
     chrome.contextMenus.removeAll();
 }
 
+function loadScripts(tabId) {
+    return browser.tabs.executeScript(tabId, {
+        allFrames: true,
+        file: "/js/jquery-3.3.1.min.js",
+    }).then(() => {
+        return browser.tabs.executeScript(tabId, {
+            allFrames: true,
+            file: "/js/zhuyin.js",
+        });
+    }).then(() => {
+        return browser.tabs.executeScript(tabId, {
+            allFrames: true,
+            file: "/content.js",
+        });
+    }).then(() => {
+        return browser.tabs.insertCSS(tabId, {
+            allFrames: true,
+            file: "/css/content.css",
+        });
+    }).catch(error => {
+        console.error(`${error}`);
+    }).finally(() => {
+        // always returns success whether scripts are loaded or not
+        return Promise.resolve();
+    });
+}
+
 function activateExtensionToggle(currentTab) {
-    if (isActivated) {
-        deactivateExtension();
+    if (isEnabled) {
+        deactivateExtension(currentTab.id);
     } else {
         activateExtension(currentTab.id, true);
     }
@@ -231,15 +257,9 @@ function activateExtensionToggle(currentTab) {
 
 function enableTab(tabId) {
     if (isEnabled) {
-
-        if (!isActivated) {
-            activateExtension(tabId, false);
-        }
-
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'enable',
-            'config': zhongwenOptions
-        });
+        activateExtension(tabId, false);
+    } else {
+        deactivateExtension(tabId);
     }
 }
 

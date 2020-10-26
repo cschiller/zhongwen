@@ -18,29 +18,13 @@
   "background": {
     "page": "background.html"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "js/jquery-3.3.1.min.js",
-        "js/zhuyin.js",
-        "content.js"
-      ],
-      "css": [
-        "css/content.css"
-      ],
-      "all_frames": true
-    }
-  ],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
   },
   "permissions": [
     "contextMenus",
-    "tabs"
+    "activeTab"
   ],
   "commands": {
     "_execute_browser_action": {
