@@ -729,7 +729,7 @@ function hidePopup() {
 }
 
 function highlightMatch(doc, rangeStartNode, rangeStartOffset, matchLen, selEndList) {
-    if (!selEndList || selEndList.length === 0) return;
+    if (!selEndList || selEndList.length === 0 || config.disableHighlight === 'yes') return;
 
     let selEnd;
     let offset = rangeStartOffset + matchLen;
