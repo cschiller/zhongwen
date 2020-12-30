@@ -102,11 +102,11 @@ function activateExtension(tabId, showHelp) {
         {
             title: 'Open Word List',
             onclick: function () {
-                let url = chrome.runtime.getURL('/wordlist.html');
+                let url = '/wordlist.html';
                 let tabID = tabIDs['wordlist'];
                 if (tabID) {
                     chrome.tabs.get(tabID, function (tab) {
-                        if (tab && tab.url && (tab.url.substr(-13) === 'wordlist.html')) {
+                        if (tab && tab.url && (tab.url.endsWith('wordlist.html'))) {
                             chrome.tabs.update(tabID, {
                                 active: true
                             });
@@ -133,11 +133,11 @@ function activateExtension(tabId, showHelp) {
         {
             title: 'Show Help in New Tab',
             onclick: function () {
-                let url = chrome.runtime.getURL('/help.html');
+                let url = '/help.html';
                 let tabID = tabIDs['help'];
                 if (tabID) {
                     chrome.tabs.get(tabID, function (tab) {
-                        if (tab && (tab.url.substr(-9) === 'help.html')) {
+                        if (tab && (tab.url.endsWith('help.html'))) {
                             chrome.tabs.update(tabID, {
                                 active: true
                             });
@@ -274,6 +274,12 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
     }
 });
 
+function createTab(url, tabType) {
+    chrome.tabs.create({ url }, tab => {
+        tabIDs[tabType] = tab.id;
+    });
+}
+
 chrome.runtime.onMessage.addListener(function (request, sender, callback) {
 
     let tabID;
@@ -287,33 +293,21 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
         }
             break;
 
-        case 'open':
+        case 'open': {
             tabID = tabIDs[request.tabType];
             if (tabID) {
-                chrome.tabs.get(tabID, function (tab) {
-                    if (chrome.runtime.lastError) {
-                        tab = undefined;
-                    }
-                    if (tab && tab.url && (tab.url.substr(-13) === 'wordlist.html')) {
-                        // open existing word list
-                        chrome.tabs.update(tabID, {
-                            active: true
-                        });
+                chrome.tabs.get(tabID, () => {
+                    if (!chrome.runtime.lastError) {
+                        // activate existing tab
+                        chrome.tabs.update(tabID, { active: true });
                     } else {
-                        chrome.tabs.create({
-                            url: request.url
-                        }, function (tab) {
-                            tabIDs[request.tabType] = tab.id;
-                        });
+                        createTab(request.url, request.tabType);
                     }
                 });
             } else {
-                chrome.tabs.create({
-                    url: request.url
-                }, function (tab) {
-                    tabIDs[request.tabType] = tab.id;
-                });
+                createTab(request.url, request.tabType);
             }
+        }
             break;
 
         case 'copy': {
@@ -360,8 +354,5 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             tabID = tabIDs['wordlist'];
         }
             break;
-
-        default:
-        // ignore
     }
 });
