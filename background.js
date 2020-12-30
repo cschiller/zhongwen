@@ -107,7 +107,6 @@ function activateExtension(tabId, showHelp) {
                 if (tabID) {
                     chrome.tabs.get(tabID, function (tab) {
                         if (tab && tab.url && (tab.url.substr(-13) === 'wordlist.html')) {
-                            chrome.tabs.reload(tabID);
                             chrome.tabs.update(tabID, {
                                 active: true
                             });
@@ -116,7 +115,6 @@ function activateExtension(tabId, showHelp) {
                                 url: url
                             }, function (tab) {
                                 tabIDs['wordlist'] = tab.id;
-                                chrome.tabs.reload(tab.id);
                             });
                         }
                     });
@@ -125,7 +123,6 @@ function activateExtension(tabId, showHelp) {
                         { url: url },
                         function (tab) {
                             tabIDs['wordlist'] = tab.id;
-                            chrome.tabs.reload(tab.id);
                         }
                     );
                 }
@@ -141,7 +138,6 @@ function activateExtension(tabId, showHelp) {
                 if (tabID) {
                     chrome.tabs.get(tabID, function (tab) {
                         if (tab && (tab.url.substr(-9) === 'help.html')) {
-                            chrome.tabs.reload(tabID);
                             chrome.tabs.update(tabID, {
                                 active: true
                             });
@@ -150,7 +146,6 @@ function activateExtension(tabId, showHelp) {
                                 url: url
                             }, function (tab) {
                                 tabIDs['help'] = tab.id;
-                                chrome.tabs.reload(tab.id);
                             });
                         }
                     });
@@ -159,7 +154,6 @@ function activateExtension(tabId, showHelp) {
                         { url: url },
                         function (tab) {
                             tabIDs['help'] = tab.id;
-                            chrome.tabs.reload(tab.id);
                         }
                     );
                 }
@@ -267,9 +261,15 @@ function search(text) {
 
 chrome.browserAction.onClicked.addListener(activateExtensionToggle);
 
-chrome.tabs.onActivated.addListener(activeInfo => enableTab(activeInfo.tabId));
+chrome.tabs.onActivated.addListener(activeInfo => {
+    if (activeInfo.tabId === tabIDs['wordlist']) {
+        chrome.tabs.reload(activeInfo.tabId);
+    } else if (activeInfo.tabId !== tabIDs['help']) {
+        enableTab(activeInfo.tabId);
+    }
+});
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
-    if (changeInfo.status === 'complete') {
+    if (changeInfo.status === 'complete' && tabId !== tabIDs['help'] && tabId !== tabIDs['wordlist']) {
         enableTab(tabId);
     }
 });
@@ -312,10 +312,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
                     url: request.url
                 }, function (tab) {
                     tabIDs[request.tabType] = tab.id;
-                    if (request.tabType === 'wordlist') {
-                        // make sure the table is sized correctly
-                        chrome.tabs.reload(tab.id);
-                    }
                 });
             }
             break;
@@ -362,13 +358,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             localStorage['wordlist'] = JSON.stringify(wordlist);
 
             tabID = tabIDs['wordlist'];
-            if (tabID) {
-                chrome.tabs.get(tabID, function (tab) {
-                    if (tab) {
-                        chrome.tabs.reload(tabID);
-                    }
-                });
-            }
         }
             break;
 
