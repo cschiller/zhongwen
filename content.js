@@ -92,17 +92,9 @@ function disableTab() {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('keydown', onKeyDown);
 
-    let zhongwenCSS = document.getElementById('zhongwen-css');
-    if (zhongwenCSS) {
-        zhongwenCSS.parentNode.removeChild(zhongwenCSS);
-    }
-    let zhongwenToneColors = document.getElementById('zhongwen-toneColors');
-    if (zhongwenToneColors) {
-        zhongwenToneColors.parentNode.removeChild(zhongwenToneColors);
-    }
-    let zhongwenWindow = document.getElementById('zhongwen-window');
-    if (zhongwenWindow) {
-        zhongwenWindow.parentNode.removeChild(zhongwenWindow);
+    let popup = document.getElementById('zhongwen-window');
+    if (popup) {
+        popup.parentNode.removeChild(popup);
     }
 
     clearHighlight();
@@ -171,6 +163,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'grammar',
                     url: allset
                 });
             }
@@ -251,6 +244,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'tatoeba',
                     url: tatoeba
                 });
             }
@@ -278,6 +272,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'linedict',
                     url: linedict
                 });
             }
@@ -293,6 +288,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'forvo',
                     url: forvo
                 });
             }
@@ -308,6 +304,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'dictcn',
                     url: dictcn
                 });
             }
@@ -323,6 +320,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'iciba',
                     url: iciba
                 });
             }
@@ -338,6 +336,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'mdbg',
                     url: mdbg
                 });
             }
@@ -354,6 +353,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'jukuu',
                     url: jukuu
                 });
             }
@@ -369,6 +369,7 @@ function onKeyDown(keyDown) {
 
                 chrome.runtime.sendMessage({
                     type: 'open',
+                    tabType: 'moedict',
                     url: moedict
                 });
             }

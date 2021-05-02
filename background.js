@@ -299,7 +299,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
                 chrome.tabs.get(tabID, () => {
                     if (!chrome.runtime.lastError) {
                         // activate existing tab
-                        chrome.tabs.update(tabID, { active: true });
+                        chrome.tabs.update(tabID, { active: true, url: request.url });
                     } else {
                         createTab(request.url, request.tabType);
                     }
