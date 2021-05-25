@@ -64,7 +64,8 @@ let zhongwenOptions = window.zhongwenOptions = {
     zhuyin: localStorage['zhuyin'] || 'no',
     grammar: localStorage['grammar'] || 'yes',
     simpTrad: localStorage['simpTrad'] || 'classic',
-    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
+    toneColorScheme: localStorage['toneColorScheme'] || 'standard',
+    disableHighlight: localStorage['disableHighlight'] || 'no'
 };
 
 function activateExtension(tabId, showHelp) {
