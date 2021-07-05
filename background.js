@@ -54,18 +54,35 @@ let isActivated = false;
 
 let tabIDs = {};
 
-let dict;
+let zhongwenOptions={};
 
-let zhongwenOptions = window.zhongwenOptions = {
-    css: localStorage['popupcolor'] || 'yellow',
-    tonecolors: localStorage['tonecolors'] || 'yes',
-    fontSize: localStorage['fontSize'] || 'small',
-    skritterTLD: localStorage['skritterTLD'] || 'com',
-    zhuyin: localStorage['zhuyin'] || 'no',
-    grammar: localStorage['grammar'] || 'yes',
-    simpTrad: localStorage['simpTrad'] || 'classic',
-    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
-};
+let dict;
+ 
+loadOptionsPreferences();
+
+
+function loadOptionsPreferences(){
+   //need platform info for some features
+    chrome.runtime.getPlatformInfo(function(info){
+
+    zhongwenOptions = window.zhongwenOptions = {
+        css: localStorage['popupcolor'] || 'yellow',
+        tonecolors: localStorage['tonecolors'] || 'yes',
+        fontSize: localStorage['fontSize'] || 'small',
+        skritterTLD: localStorage['skritterTLD'] || 'com',
+        zhuyin: localStorage['zhuyin'] || 'no',
+        grammar: localStorage['grammar'] || 'yes',
+        simpTrad: localStorage['simpTrad'] || 'classic',
+        toneColorScheme: localStorage['toneColorScheme'] || 'standard',
+        platform: localStorage['platform'] || info.os
+        };  
+
+    if(info.os=='android'){
+        zhongwenOptions.openInPlecoOnAndroid=window.zhongwenOptions.openInPlecoOnAndroid=localStorage['openInPlecoOnAndroid'] || 'yes';
+    }
+    });
+ }
+
 
 function activateExtension(tabId, showHelp) {
 
