@@ -1,4 +1,10 @@
 # 中文 Zhongwen
+
+[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/kkmlkkjojmombglmlpbpapmhcaljjkde)](https://chrome.google.com/webstore/detail/zhongwen-chinese-english/kkmlkkjojmombglmlpbpapmhcaljjkde)
+[![Chrome Users](https://img.shields.io/chrome-web-store/users/kkmlkkjojmombglmlpbpapmhcaljjkde?label=chrome%20users)](https://chrome.google.com/webstore/detail/zhongwen-chinese-english/kkmlkkjojmombglmlpbpapmhcaljjkde)
+[![Mozilla Add-on Version](https://img.shields.io/amo/v/zhongwen)](https://addons.mozilla.org/en-US/firefox/addon/zhongwen/)
+[![Firefox Users](https://img.shields.io/amo/users/zhongwen?label=firefox%20users)](https://addons.mozilla.org/en-US/firefox/addon/zhongwen/)
+
 ## A Chinese Pop-Up Dictionary and Learning Tool
 
 This browser extension allows you to translate Chinese characters and words
