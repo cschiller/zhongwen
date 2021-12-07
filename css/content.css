@@ -221,3 +221,25 @@
 #zhongwen-window.tonecolor-hanping .tone5 {
   color: #a0a0a0;
 }
+
+
+/* Custom Tone Colors */
+#zhongwen-window.tonecolor-custom .tone1 {
+  color: var(--zhongwen-tonecolor-1);
+}
+
+#zhongwen-window.tonecolor-custom .tone2 {
+  color: var(--zhongwen-tonecolor-2);
+}
+
+#zhongwen-window.tonecolor-custom .tone3 {
+  color: var(--zhongwen-tonecolor-3);
+}
+
+#zhongwen-window.tonecolor-custom .tone4 {
+  color: var(--zhongwen-tonecolor-4);
+}
+
+#zhongwen-window.tonecolor-custom .tone5 {
+  color: var(--zhongwen-tonecolor-5);
+}

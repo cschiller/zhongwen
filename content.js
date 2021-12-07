@@ -628,6 +628,15 @@ function showPopup(html, elem, x, y, looseWidth) {
     popup.style.maxWidth = (looseWidth ? '' : '600px');
     popup.className = `background-${config.css} tonecolor-${config.toneColorScheme}`;
 
+    if (config.toneColorScheme === 'custom') {
+        for (let n = 1; n <= 5; ++n) {
+            popup.style.setProperty(
+                `--zhongwen-tonecolor-${n}`,
+                config.customToneColorScheme?.[`tone${n}`] ?? '#000000'
+            );
+        }
+    }
+
     $(popup).html(html);
 
     if (elem) {

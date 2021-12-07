@@ -19,6 +19,11 @@ function loadVals() {
         document.querySelector(`input[name="toneColors"][value="${toneColorScheme}"]`).checked = true;
     }
 
+    const customToneColorScheme = JSON.parse(localStorage['customToneColorScheme'] || '{}');
+    Object.entries(customToneColorScheme).forEach(([key, val]) => {
+        document.querySelector(`input[id="${key}"]`).value = val;
+    });
+
     const fontSize = localStorage['fontSize'] || 'small';
     document.querySelector(`input[name="fontSize"][value="${fontSize}"]`).checked = true;
 
@@ -52,6 +57,14 @@ function setToneColorScheme(toneColorScheme) {
     }
 }
 
+function updateCustomToneColorScheme() {
+    const toneColorEls = document.querySelectorAll('input[name="customToneColors"]');
+    const toneColors = Object.fromEntries([...toneColorEls]
+        .map(el => [el.id, el.value]));
+
+    setJsonOption('customToneColorScheme', toneColors);
+}
+
 function setOption(option, value) {
     localStorage[option] = value;
     chrome.extension.getBackgroundPage().zhongwenOptions[option] = value;
@@ -60,6 +73,11 @@ function setOption(option, value) {
 function setBooleanOption(option, value) {
     let yesNo = value ? 'yes' : 'no';
     setOption(option, yesNo);
+}
+
+function setJsonOption(option, value) {
+    localStorage[option] = JSON.stringify(value);
+    chrome.extension.getBackgroundPage().zhongwenOptions[option] = value;
 }
 
 window.addEventListener('load', () => {
@@ -72,6 +90,10 @@ window.addEventListener('load', () => {
     document.querySelectorAll('input[name="toneColors"]').forEach((input) => {
         input.addEventListener('change',
             () => setToneColorScheme(input.getAttribute('value')));
+    });
+
+    document.querySelectorAll('input[name="toneColors"], input[name="customToneColors"]').forEach((input) => {
+        input.addEventListener('change', updateCustomToneColorScheme);
     });
 
     document.querySelectorAll('input[name="fontSize"]').forEach((input) => {
@@ -103,3 +125,13 @@ window.addEventListener('load', () => {
 
 loadVals();
 
+const toggleCustomToneColorOptions = () => {
+    document.querySelector('#toneColorsCustomOptions').hidden =
+        !document.querySelector('#toneColorsCustom').checked;
+}
+
+toggleCustomToneColorOptions();
+
+document.querySelectorAll('input[name="toneColors"]').forEach((input) => {
+    input.addEventListener('change', toggleCustomToneColorOptions);
+});
