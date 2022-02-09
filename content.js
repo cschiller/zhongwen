@@ -66,6 +66,10 @@ let selStartDelta;
 
 let selStartIncrement;
 
+let observer;
+
+let iframe;
+
 let popX = 0;
 
 let popY = 0;
@@ -86,11 +90,49 @@ let zwnj = /\u200c/g;
 function enableTab() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('keydown', onKeyDown);
+
+    let iframes = document.getElementsByTagName('iframe');
+    for (let iframe of iframes) {
+        iframe.contentDocument.addEventListener('mousemove', onMouseMove);
+        iframe.contentDocument.addEventListener('keydown', onKeyDown);
+    }
+
+    observer = new MutationObserver((mutationsList, observer) => {
+        for (let mutation of mutationsList) {
+            if (mutation.addedNodes) {
+                for (let node of mutation.addedNodes) {
+                    if (node.nodeType === 1 && node.nodeName === 'IFRAME') {
+                        node.addEventListener('load', (event) => {
+                            node.contentDocument
+                                .addEventListener('mousemove', onMouseMove);
+                            node.contentDocument
+                                .addEventListener('keydown', onKeyDown);
+                        });
+                    }
+                }
+            }
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 }
 
 function disableTab() {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('keydown', onKeyDown);
+
+    if (observer) {
+        observer.disconnect();
+    }
+
+    document.getElementsByTagName('iframe')
+    .forEach(iframe => {
+        iframe.contentDocument.removeEventListener('mousemove', onMouseMove);
+        iframe.contentDocument.removeEventListener('keydown', onKeyDown);
+    });
 
     let popup = document.getElementById('zhongwen-window');
     if (popup) {
@@ -381,6 +423,10 @@ function onKeyDown(keyDown) {
 }
 
 function onMouseMove(mouseMove) {
+    let ownerDocument = mouseMove.target.ownerDocument;
+
+    iframe = ownerDocument.defaultView.frameElement;
+
     if (mouseMove.target.nodeName === 'TEXTAREA' || mouseMove.target.nodeName === 'INPUT'
         || mouseMove.target.nodeName === 'DIV') {
 
@@ -415,15 +461,15 @@ function onMouseMove(mouseMove) {
     let rangeOffset;
 
     // Handle Chrome and Firefox
-    if (document.caretRangeFromPoint) {
-        range = document.caretRangeFromPoint(mouseMove.clientX, mouseMove.clientY);
+    if (ownerDocument.caretRangeFromPoint) {
+        range = ownerDocument.caretRangeFromPoint(mouseMove.clientX, mouseMove.clientY);
         if (range === null) {
             return;
         }
         rangeNode = range.startContainer;
         rangeOffset = range.startOffset;
-    } else if (document.caretPositionFromPoint) {
-        range = document.caretPositionFromPoint(mouseMove.clientX, mouseMove.clientY);
+    } else if (ownerDocument.caretPositionFromPoint) {
+        range = ownerDocument.caretPositionFromPoint(mouseMove.clientX, mouseMove.clientY);
         if (range === null) {
             return;
         }
@@ -715,9 +761,16 @@ function showPopup(html, elem, x, y, looseWidth) {
 
     // (-1, -1) indicates: leave position unchanged
     if (x !== -1 && y !== -1) {
-        popup.style.left = x + 'px';
-        popup.style.top = y + 'px';
-        popup.style.display = '';
+        if (iframe) {
+            let rect = iframe.getBoundingClientRect();
+            popup.style.left = (x + rect.x) + 'px';
+            popup.style.top = (y + rect.y) + 'px';
+            popup.style.display = '';
+        } else {
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+            popup.style.display = '';
+        }
     }
 }
 
