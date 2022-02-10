@@ -58,6 +58,8 @@ let savedRangeOffset;
 
 let selText;
 
+let selDoc;
+
 let clientX;
 
 let clientY;
@@ -69,6 +71,8 @@ let selStartIncrement;
 let observer;
 
 let iframe;
+
+let ownerDocument;
 
 let popX = 0;
 
@@ -92,32 +96,35 @@ function enableTab() {
     document.addEventListener('keydown', onKeyDown);
 
     let iframes = document.getElementsByTagName('iframe');
-    for (let iframe of iframes) {
-        iframe.contentDocument.addEventListener('mousemove', onMouseMove);
-        iframe.contentDocument.addEventListener('keydown', onKeyDown);
-    }
+    if (iframes) {
+        for (let iframe of iframes) {
+            iframe.contentDocument.addEventListener('mousemove', onMouseMove);
+            iframe.contentDocument.addEventListener('keydown', onKeyDown);
+        }
 
-    observer = new MutationObserver((mutationsList, observer) => {
-        for (let mutation of mutationsList) {
-            if (mutation.addedNodes) {
-                for (let node of mutation.addedNodes) {
-                    if (node.nodeType === 1 && node.nodeName === 'IFRAME') {
-                        node.addEventListener('load', (event) => {
-                            node.contentDocument
-                                .addEventListener('mousemove', onMouseMove);
-                            node.contentDocument
-                                .addEventListener('keydown', onKeyDown);
-                        });
+        observer = new MutationObserver((mutationsList, observer) => {
+            for (let mutation of mutationsList) {
+                if (mutation.addedNodes) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.nodeType === 1 && node.nodeName === 'IFRAME') {
+                            node.addEventListener('load', (event) => {
+                                node.contentDocument
+                                    .addEventListener('mousemove', onMouseMove);
+                                node.contentDocument
+                                    .addEventListener('keydown', onKeyDown);
+                            });
+                        }
                     }
                 }
             }
-        }
-    });
+        });
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
 }
 
 function disableTab() {
@@ -126,13 +133,13 @@ function disableTab() {
 
     if (observer) {
         observer.disconnect();
-    }
 
-    document.getElementsByTagName('iframe')
-    .forEach(iframe => {
-        iframe.contentDocument.removeEventListener('mousemove', onMouseMove);
-        iframe.contentDocument.removeEventListener('keydown', onKeyDown);
-    });
+        document.getElementsByTagName('iframe')
+        .forEach(iframe => {
+            iframe.contentDocument.removeEventListener('mousemove', onMouseMove);
+            iframe.contentDocument.removeEventListener('keydown', onKeyDown);
+        });
+    }
 
     let popup = document.getElementById('zhongwen-window');
     if (popup) {
@@ -423,7 +430,7 @@ function onKeyDown(keyDown) {
 }
 
 function onMouseMove(mouseMove) {
-    let ownerDocument = mouseMove.target.ownerDocument;
+    ownerDocument = mouseMove.target.ownerDocument;
 
     iframe = ownerDocument.defaultView.frameElement;
 
@@ -800,12 +807,13 @@ function highlightMatch(doc, rangeStartNode, rangeStartOffset, matchLen, selEndL
     range.setStart(rangeStartNode, rangeStartOffset);
     range.setEnd(selEnd.node, offset);
 
-    let sel = window.getSelection();
+    let sel = doc.getSelection();
     if (!sel.isCollapsed && selText !== sel.toString())
         return;
     sel.empty();
     sel.addRange(range);
     selText = sel.toString();
+    selDoc = doc;
 }
 
 function clearHighlight() {
@@ -814,11 +822,12 @@ function clearHighlight() {
         return;
     }
 
-    let selection = window.getSelection();
+    let selection = selDoc.getSelection();
     if (selection.isCollapsed || selText === selection.toString()) {
         selection.empty();
     }
     selText = null;
+    selDoc = null;
 }
 
 function isVisible() {
