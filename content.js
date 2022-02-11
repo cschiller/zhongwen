@@ -663,6 +663,11 @@ function getTextFromSingleNode(node, selEndList, maxLength) {
 }
 
 function showPopup(html, elem, x, y, looseWidth) {
+    if (iframe) {
+        let rect = iframe.getBoundingClientRect();
+        x += rect.x;
+        y += rect.y;
+    }
 
     if (!x || !y) {
         x = y = 0;
@@ -768,16 +773,9 @@ function showPopup(html, elem, x, y, looseWidth) {
 
     // (-1, -1) indicates: leave position unchanged
     if (x !== -1 && y !== -1) {
-        if (iframe) {
-            let rect = iframe.getBoundingClientRect();
-            popup.style.left = (x + rect.x) + 'px';
-            popup.style.top = (y + rect.y) + 'px';
-            popup.style.display = '';
-        } else {
-            popup.style.left = x + 'px';
-            popup.style.top = y + 'px';
-            popup.style.display = '';
-        }
+        popup.style.left = x + 'px';
+        popup.style.top = y + 'px';
+        popup.style.display = '';
     }
 }
 
