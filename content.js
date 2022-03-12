@@ -331,7 +331,7 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=%E6%B0%B4
+                // https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=%E4%B8%AD%E6%96%87
                 let mdbg = 'https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=' + sel;
 
                 chrome.runtime.sendMessage({
