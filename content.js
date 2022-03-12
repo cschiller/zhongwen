@@ -214,13 +214,13 @@ function onKeyDown(keyDown) {
 
                 // https://www.skritter.com/vocab/api/add?from=Chrome&lang=zh&word=浏览&trad=瀏 覽&rdng=liú lǎn&defn=to skim over; to browse
 
-                let skritter = 'https://legacy.skritter.com';
+                let skritter = 'https://skritter.com';
                 if (config.skritterTLD === 'cn') {
-                    skritter = 'https://legacy.skritter.cn';
+                    skritter = 'https://skritter.cn';
                 }
 
                 skritter +=
-                    '/vocab/api/add?from=Zhongwen&siteref=Zhongwen&lang=zh&word=' +
+                    '/vocab/api/add?from=zhongwen&ref=zhongwen&lang=zh&word=' +
                     encodeURIComponent(savedSearchResults[0][0]) +
                     '&trad=' + encodeURIComponent(savedSearchResults[0][1]) +
                     '&rdng=' + encodeURIComponent(savedSearchResults[0][4]) +
@@ -332,7 +332,7 @@ function onKeyDown(keyDown) {
                     window.getSelection().toString());
 
                 // https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=%E6%B0%B4
-                let mdbg = 'https://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb=' + sel;
+                let mdbg = 'https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -347,14 +347,12 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                // http://jukuu.com/show-%E8%AF%8D%E5%85%B8-0.html
-                // https returns 403 errors
-                let jukuu = 'http://jukuu.com/show-' + sel + '-0.html';
+                let reverso = 'https://www.reverso.net/text-translation#sl=chi&tl=eng&text=' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
-                    tabType: 'jukuu',
-                    url: jukuu
+                    tabType: 'reverso',
+                    url: reverso
                 });
             }
             break;
@@ -1076,7 +1074,7 @@ let miniHelp = `
     <tr><td><b>Alt + 3 :</b></td><td>&nbsp;Dict.cn</td></tr>
     <tr><td><b>Alt + 4&nbsp;:</b></td><td>&nbsp;iCIBA</td></tr>
     <tr><td><b>Alt + 5&nbsp;:</b></td><td>&nbsp;MDBG</td></tr>
-    <tr><td><b>Alt + 6&nbsp;:</b></td><td>&nbsp;JuKuu</td></tr>
+    <tr><td><b>Alt + 6&nbsp;:</b></td><td>&nbsp;Reverso</td></tr>
     <tr><td><b>Alt + 7&nbsp;:</b></td><td>&nbsp;MoE Dict</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>t&nbsp;:</b></td><td>&nbsp;Tatoeba</td></tr>
