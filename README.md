@@ -179,7 +179,7 @@ lets you quickly do that by some simple keyboard shortcuts.
 * <kbd>Alt</kbd> + <kbd>3</kbd> takes you to [Dict.cn](https://dict.cn).
 * <kbd>Alt</kbd> + <kbd>4</kbd> uses [iCIBA](https://www.iciba.com).
 * <kbd>Alt</kbd> + <kbd>5</kbd> looks up the word in the [MDBG dictionary](https://mdbg.net).
-* <kbd>Alt</kbd> + <kbd>6</kbd> takes you to [JuKuu](https://jukuu.com).
+* <kbd>Alt</kbd> + <kbd>6</kbd> takes you to [Reverso](https://reverso.net).
 * <kbd>Alt</kbd> + <kbd>7</kbd> takes you to [MoeDict](https://moedict.tw).
 * <kbd>T</kbd> is for looking up example sentences at [Tatoeba](https://tatoeba.org).
 
