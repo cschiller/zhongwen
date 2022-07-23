@@ -38,6 +38,7 @@ It also contains useful features for learners of the Chinese language.
   queue.
 
 
+
 ## Installation
 
 ### Chrome
@@ -52,7 +53,7 @@ The Zhongwen Firefox extension is available via the Firefox Add-Ons site:
 https://addons.mozilla.org/en-US/firefox/addon/zhongwen
 
 Simply click on the "Add to Firefox" button to start the installation.
-
+Note that the Addon works both on the PC and Android version of Firefox.
 
 ## How Does It Work?
 Once Zhongwen is installed on your computer you'll see a little icon showing

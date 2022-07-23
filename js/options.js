@@ -36,6 +36,15 @@ function loadVals() {
 
     const skritterTLD = localStorage['skritterTLD'] || 'com';
     document.querySelector(`input[name="skritterTLD"][value="${skritterTLD}"]`).checked = true;
+
+    //On Android display Open in Pleco feature
+    if(chrome.extension.getBackgroundPage().zhongwenOptions.platform == "android"){
+    const openInPlecoOnAndroid = localStorage['openInPlecoOnAndroid'] || 'yes';
+    document.querySelector('#openInPlecoOnAndroid').checked = openInPlecoOnAndroid !== 'no';
+    }
+    else {
+        document.querySelector('#openInPlecoOnAndroidContainer').style.display='none'
+    }       
 }
 
 function setPopupColor(popupColor) {
@@ -99,6 +108,9 @@ window.addEventListener('load', () => {
         input.addEventListener('change',
             () => setOption('skritterTLD', input.getAttribute('value')));
     });
+
+    document.querySelector('#openInPlecoOnAndroid').addEventListener('change',
+        (event) => setBooleanOption('openInPlecoOnAndroid', event.target.checked));
 });
 
 loadVals();
