@@ -250,6 +250,21 @@ function onKeyDown(keyDown) {
             }
             break;
 
+        case 86: // 'v'
+            if (config.vocab !== 'no' && savedSearchResults.vocab) {
+                let sel = encodeURIComponent(window.getSelection().toString());
+
+                // https://resources.allsetlearning.com/chinese/vocabulary/%E4%B8%AA
+                let allset = 'https://resources.allsetlearning.com/chinese/vocabulary/' + sel;
+
+                chrome.runtime.sendMessage({
+                    type: 'open',
+                    tabType: 'vocab',
+                    url: allset
+                });
+            }
+            break;
+
         case 88: // 'x'
             altView = 0;
             popY -= 20;
@@ -918,9 +933,22 @@ function makeHtml(result, showToneColors) {
         let translation = entry[4].replace(/\//g, '; ');
         html += '<br><span class="' + defClass + '">' + translation + '</span><br>';
 
+        let addFinalBr = false;
+
         // Grammar
         if (config.grammar !== 'no' && result.grammar && result.grammar.index === i) {
-            html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br><br>';
+            html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br>';
+            addFinalBr = true;
+        }
+
+        // Vocab
+        if (config.vocab !== 'no' && result.vocab && result.vocab.index === i) {
+            html += '<br><span class="vocab">Press "v" for vocabulary notes.</span><br>';
+            addFinalBr = true
+        }
+
+        if (addFinalBr) {
+            html += '<br>';
         }
 
         texts[i] = [entry[2], entry[1], p[1], translation, entry[3]];
@@ -931,6 +959,7 @@ function makeHtml(result, showToneColors) {
 
     savedSearchResults = texts;
     savedSearchResults.grammar = result.grammar;
+    savedSearchResults.vocab = result.vocab;
 
     return html;
 }

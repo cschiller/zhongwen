@@ -31,6 +31,9 @@ function loadVals() {
     const grammar = localStorage['grammar'] || 'yes';
     document.querySelector('#grammar').checked = grammar !== 'no';
 
+    const vocab = localStorage['vocab'] || 'yes';
+    document.querySelector('#vocab').checked = vocab !== 'no';
+
     const saveToWordList = localStorage['saveToWordList'] || 'allEntries';
     document.querySelector(`input[name="saveToWordList"][value="${saveToWordList}"]`).checked = true;
 
