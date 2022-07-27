@@ -93,6 +93,9 @@ window.addEventListener('load', () => {
     document.querySelector('#grammar').addEventListener('change',
         (event) => setBooleanOption('grammar', event.target.checked));
 
+    document.querySelector('#vocab').addEventListener('change',
+        (event) => setBooleanOption('vocab', event.target.checked));
+
     document.querySelectorAll('input[name="saveToWordList"]').forEach((input) => {
         input.addEventListener('change',
             () => setOption('saveToWordList', input.getAttribute('value')));
