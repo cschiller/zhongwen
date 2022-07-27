@@ -944,7 +944,7 @@ function makeHtml(result, showToneColors) {
         // Vocab
         if (config.vocab !== 'no' && result.vocab && result.vocab.index === i) {
             html += '<br><span class="vocab">Press "v" for vocabulary notes.</span><br>';
-            addFinalBr = true
+            addFinalBr = true;
         }
 
         if (addFinalBr) {
