@@ -31,6 +31,9 @@ function loadVals() {
     const grammar = localStorage['grammar'] || 'yes';
     document.querySelector('#grammar').checked = grammar !== 'no';
 
+    const vocab = localStorage['vocab'] || 'yes';
+    document.querySelector('#vocab').checked = vocab !== 'no';
+
     const saveToWordList = localStorage['saveToWordList'] || 'allEntries';
     document.querySelector(`input[name="saveToWordList"][value="${saveToWordList}"]`).checked = true;
 
@@ -89,6 +92,9 @@ window.addEventListener('load', () => {
 
     document.querySelector('#grammar').addEventListener('change',
         (event) => setBooleanOption('grammar', event.target.checked));
+
+    document.querySelector('#vocab').addEventListener('change',
+        (event) => setBooleanOption('vocab', event.target.checked));
 
     document.querySelectorAll('input[name="saveToWordList"]').forEach((input) => {
         input.addEventListener('change',

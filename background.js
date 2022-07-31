@@ -63,6 +63,7 @@ let zhongwenOptions = window.zhongwenOptions = {
     skritterTLD: localStorage['skritterTLD'] || 'com',
     zhuyin: localStorage['zhuyin'] || 'no',
     grammar: localStorage['grammar'] || 'yes',
+    vocab: localStorage['vocab'] || 'yes',
     simpTrad: localStorage['simpTrad'] || 'classic',
     toneColorScheme: localStorage['toneColorScheme'] || 'standard'
 };
@@ -169,14 +170,16 @@ async function loadDictData() {
         "data/cedict.idx")).then(r => r.text());
     let grammarKeywords = fetch(chrome.runtime.getURL(
         "data/grammarKeywordsMin.json")).then(r => r.json());
+    let vocabKeywords = fetch(chrome.runtime.getURL(
+        "data/vocabularyKeywordsMin.json")).then(r => r.json());
 
-    return Promise.all([wordDict, wordIndex, grammarKeywords]);
+    return Promise.all([wordDict, wordIndex, grammarKeywords, vocabKeywords]);
 }
 
 
 async function loadDictionary() {
-    let [wordDict, wordIndex, grammarKeywords] = await loadDictData();
-    return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords);
+    let [wordDict, wordIndex, grammarKeywords, vocabKeywords] = await loadDictData();
+    return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords, vocabKeywords);
 }
 
 function deactivateExtension() {
@@ -249,9 +252,13 @@ function search(text) {
     if (entry) {
         for (let i = 0; i < entry.data.length; i++) {
             let word = entry.data[i][1];
-            if (dict.hasKeyword(word) && (entry.matchLen === word.length)) {
+            if (dict.hasGrammarKeyword(word) && (entry.matchLen === word.length)) {
                 // the final index should be the last one with the maximum length
                 entry.grammar = { keyword: word, index: i };
+            }
+            if (dict.hasVocabKeyword(word) && (entry.matchLen === word.length)) {
+                // the final index should be the last one with the maximum length
+                entry.vocab = { keyword: word, index: i };
             }
         }
     }

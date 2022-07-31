@@ -48,10 +48,11 @@
 
 export class ZhongwenDictionary {
 
-    constructor(wordDict, wordIndex, grammarKeywords) {
+    constructor(wordDict, wordIndex, grammarKeywords, vocabKeywords) {
         this.wordDict = wordDict;
         this.wordIndex = wordIndex;
         this.grammarKeywords = grammarKeywords;
+        this.vocabKeywords = vocabKeywords;
         this.cache = {};
     }
 
@@ -77,8 +78,12 @@ export class ZhongwenDictionary {
         return null;
     }
 
-    hasKeyword(keyword) {
+    hasGrammarKeyword(keyword) {
         return this.grammarKeywords[keyword];
+    }
+
+    hasVocabKeyword(keyword) {
+        return this.vocabKeywords[keyword];
     }
 
     wordSearch(word, max) {
