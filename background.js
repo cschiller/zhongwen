@@ -48,41 +48,27 @@
 
 import { ZhongwenDictionary } from './dict.js';
 
-let isEnabled = localStorage['enabled'] === '1';
+let autoActivateExtension = false;
 
-let isActivated = false;
+let isExtensionActive = false;
 
 let tabIDs = {};
 
 let dict;
 
-let zhongwenOptions = window.zhongwenOptions = {
-    css: localStorage['popupcolor'] || 'yellow',
-    tonecolors: localStorage['tonecolors'] || 'yes',
-    fontSize: localStorage['fontSize'] || 'small',
-    skritterTLD: localStorage['skritterTLD'] || 'com',
-    zhuyin: localStorage['zhuyin'] || 'no',
-    grammar: localStorage['grammar'] || 'yes',
-    vocab: localStorage['vocab'] || 'yes',
-    simpTrad: localStorage['simpTrad'] || 'classic',
-    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
-};
-
 function activateExtension(tabId, showHelp) {
 
-    isActivated = true;
+    isExtensionActive = true;
 
-    isEnabled = true;
-    // values in localStorage are always strings
-    localStorage['enabled'] = '1';
+    autoActivateExtension = true;
+    chrome.storage.local.set({autoActivateExtension});
 
     if (!dict) {
         loadDictionary().then(r => dict = r);
     }
 
     chrome.tabs.sendMessage(tabId, {
-        'type': 'enable',
-        'config': zhongwenOptions
+        'type': 'enable'
     });
 
     if (showHelp) {
@@ -130,6 +116,7 @@ function activateExtension(tabId, showHelp) {
             }
         }
     );
+
     chrome.contextMenus.create(
         {
             title: 'Show help in new tab',
@@ -184,11 +171,10 @@ async function loadDictionary() {
 
 function deactivateExtension() {
 
-    isActivated = false;
+    isExtensionActive = false;
 
-    isEnabled = false;
-    // values in localStorage are always strings
-    localStorage['enabled'] = '0';
+    autoActivateExtension = false;
+    chrome.storage.local.set({autoActivateExtension});
 
     dict = undefined;
 
@@ -219,7 +205,7 @@ function deactivateExtension() {
 }
 
 function activateExtensionToggle(currentTab) {
-    if (isActivated) {
+    if (isExtensionActive) {
         deactivateExtension();
     } else {
         activateExtension(currentTab.id, true);
@@ -227,15 +213,16 @@ function activateExtensionToggle(currentTab) {
 }
 
 function enableTab(tabId) {
-    if (isEnabled) {
 
-        if (!isActivated) {
+    if (autoActivateExtension) {
+        if (!isExtensionActive) {
             activateExtension(tabId, false);
         }
+    }
 
+    if (isExtensionActive) {
         chrome.tabs.sendMessage(tabId, {
             'type': 'enable',
-            'config': zhongwenOptions
         });
     }
 }
@@ -275,6 +262,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
         enableTab(activeInfo.tabId);
     }
 });
+
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
     if (changeInfo.status === 'complete' && tabId !== tabIDs['help'] && tabId !== tabIDs['wordlist']) {
         enableTab(tabId);

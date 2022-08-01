@@ -1,6 +1,6 @@
 {
   "name": "zhongwen",
-  "version": "5.12.0",
+  "version": "6.0.0",
   "description": "Chinese Pop-Up Dictionary",
   "repository": {
     "type": "git",
@@ -19,7 +19,8 @@
   "devDependencies": {
     "eslint": "^8.10.0",
     "stylelint": "^14.5.3",
-    "stylelint-config-recommended": "^7.0.0"
+    "stylelint-config-recommended": "^7.0.0",
+    "@types/chrome": "^0.0.193"
   },
   "stylelint": {
     "extends": "stylelint-config-recommended"

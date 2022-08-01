@@ -48,7 +48,21 @@
 
 'use strict';
 
-let config;
+let config = globalThis.defaultConfig;
+
+chrome.storage.local.get(null, storedConfig => {
+    if (storedConfig) {
+        Object.entries(storedConfig).forEach(e => config[e[0]] = e[1]);
+    }
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+
+    if (areaName !== 'local') return;
+
+    // format: {"background":{"newValue":"lightblue","oldValue":"blue"}, "toneColors":{"newValue":false,"oldValue":true}}
+    Object.entries(changes).forEach(e => config[e[0]] = e[1].newValue);
+});
 
 let savedTarget;
 
@@ -155,7 +169,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 71: // 'g'
-            if (config.grammar !== 'no' && savedSearchResults.grammar) {
+            if (config.grammar && savedSearchResults.grammar) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
                 // https://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
@@ -251,7 +265,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 86: // 'v'
-            if (config.vocab !== 'no' && savedSearchResults.vocab) {
+            if (config.vocab && savedSearchResults.vocab) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
                 // https://resources.allsetlearning.com/chinese/vocabulary/%E4%B8%AA
@@ -579,7 +593,7 @@ function processSearchResult(result) {
         highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
     }
 
-    showPopup(makeHtml(result, config.tonecolors !== 'no'), savedTarget, popX, popY, false);
+    showPopup(makeHtml(result, config.toneColors), savedTarget, popX, popY, false);
 }
 
 // modifies selEndList as a side-effect
@@ -639,7 +653,7 @@ function showPopup(html, elem, x, y, looseWidth) {
     popup.style.width = 'auto';
     popup.style.height = 'auto';
     popup.style.maxWidth = (looseWidth ? '' : '600px');
-    popup.className = `background-${config.css} tonecolor-${config.toneColorScheme}`;
+    popup.className = `background-${config.background} tonecolor-${config.toneColorScheme}`;
 
     $(popup).html(html);
 
@@ -920,7 +934,7 @@ function makeHtml(result, showToneColors) {
 
         // Zhuyin
 
-        if (config.zhuyin === 'yes') {
+        if (config.zhuyin) {
             html += '<br>' + p[2];
         }
 
@@ -936,13 +950,13 @@ function makeHtml(result, showToneColors) {
         let addFinalBr = false;
 
         // Grammar
-        if (config.grammar !== 'no' && result.grammar && result.grammar.index === i) {
+        if (config.grammar && result.grammar && result.grammar.index === i) {
             html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br>';
             addFinalBr = true;
         }
 
         // Vocab
-        if (config.vocab !== 'no' && result.vocab && result.vocab.index === i) {
+        if (config.vocab && result.vocab && result.vocab.index === i) {
             html += '<br><span class="vocab">Press "v" for vocabulary notes.</span><br>';
             addFinalBr = true;
         }
@@ -1115,7 +1129,6 @@ chrome.runtime.onMessage.addListener(
         switch (request.type) {
             case 'enable':
                 enableTab();
-                config = request.config;
                 break;
             case 'disable':
                 disableTab();

@@ -4,70 +4,65 @@
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
  */
 
+/* global globalThis */
+
 'use strict';
+
+let config = globalThis.defaultConfig;
+
+chrome.storage.local.get(null, storedConfig => {
+    if (storedConfig) {
+        Object.entries(storedConfig).forEach(e => config[e[0]] = e[1]);
+    }
+
+    loadVals();
+});
 
 function loadVals() {
 
-    const popupColor = localStorage['popupcolor'] || 'yellow';
-    document.querySelector(`input[name="popupColor"][value="${popupColor}"]`).checked = true;
+    document.querySelector(`input[name="background"][value="${config.background}"]`).checked = true;
 
-    const toneColors = localStorage['tonecolors'] || 'yes';
-    if (toneColors === 'no') {
+    if (!config.toneColors) {
         document.querySelector('#toneColorsNone').checked = true;
     } else {
-        const toneColorScheme = localStorage['toneColorScheme'] || 'standard';
-        document.querySelector(`input[name="toneColors"][value="${toneColorScheme}"]`).checked = true;
+        document.querySelector(`input[name="toneColors"][value="${config.toneColorScheme}"]`).checked = true;
     }
 
-    const fontSize = localStorage['fontSize'] || 'small';
-    document.querySelector(`input[name="fontSize"][value="${fontSize}"]`).checked = true;
+    document.querySelector(`input[name="fontSize"][value="${config.fontSize}"]`).checked = true;
 
-    const simpTrad = localStorage['simpTrad'] || 'classic';
-    document.querySelector(`input[name="simpTrad"][value="${simpTrad}"]`).checked = true;
+    document.querySelector(`input[name="simpTrad"][value="${config.simpTrad}"]`).checked = true;
 
-    const zhuyin = localStorage['zhuyin'] || 'no';
-    document.querySelector('#zhuyin').checked = zhuyin === 'yes';
+    document.querySelector('#zhuyin').checked = config.zhuyin;
 
-    const grammar = localStorage['grammar'] || 'yes';
-    document.querySelector('#grammar').checked = grammar !== 'no';
+    document.querySelector('#grammar').checked = config.grammar;
 
-    const vocab = localStorage['vocab'] || 'yes';
-    document.querySelector('#vocab').checked = vocab !== 'no';
+    document.querySelector('#vocab').checked = config.vocab;
 
-    const saveToWordList = localStorage['saveToWordList'] || 'allEntries';
-    document.querySelector(`input[name="saveToWordList"][value="${saveToWordList}"]`).checked = true;
+    document.querySelector(`input[name="saveToWordList"][value="${config.saveToWordList}"]`).checked = true;
 
-    const skritterTLD = localStorage['skritterTLD'] || 'com';
-    document.querySelector(`input[name="skritterTLD"][value="${skritterTLD}"]`).checked = true;
+    document.querySelector(`input[name="skritterTLD"][value="${config.skritterTLD}"]`).checked = true;
 }
 
 function setPopupColor(popupColor) {
-    localStorage['popupcolor'] = popupColor;
-    chrome.extension.getBackgroundPage().zhongwenOptions.css = popupColor;
+    setOption('background', popupColor);
 }
 
 function setToneColorScheme(toneColorScheme) {
     if (toneColorScheme === 'none') {
-        setOption('tonecolors', 'no');
+        setOption('toneColors', false);
     } else {
-        setOption('tonecolors', 'yes');
+        setOption('toneColors', true);
         setOption('toneColorScheme', toneColorScheme);
     }
 }
 
 function setOption(option, value) {
-    localStorage[option] = value;
-    chrome.extension.getBackgroundPage().zhongwenOptions[option] = value;
-}
-
-function setBooleanOption(option, value) {
-    let yesNo = value ? 'yes' : 'no';
-    setOption(option, yesNo);
+    chrome.storage.local.set({[option]: value});
 }
 
 window.addEventListener('load', () => {
 
-    document.querySelectorAll('input[name="popupColor"]').forEach((input) => {
+    document.querySelectorAll('input[name="background"]').forEach((input) => {
         input.addEventListener('change',
             () => setPopupColor(input.getAttribute('value')));
     });
@@ -88,13 +83,13 @@ window.addEventListener('load', () => {
     });
 
     document.querySelector('#zhuyin').addEventListener('change',
-        (event) => setBooleanOption('zhuyin', event.target.checked));
+        (event) => setOption('zhuyin', event.target.checked));
 
     document.querySelector('#grammar').addEventListener('change',
-        (event) => setBooleanOption('grammar', event.target.checked));
+        (event) => setOption('grammar', event.target.checked));
 
     document.querySelector('#vocab').addEventListener('change',
-        (event) => setBooleanOption('vocab', event.target.checked));
+        (event) => setOption('vocab', event.target.checked));
 
     document.querySelectorAll('input[name="saveToWordList"]').forEach((input) => {
         input.addEventListener('change',
@@ -106,6 +101,4 @@ window.addEventListener('load', () => {
             () => setOption('skritterTLD', input.getAttribute('value')));
     });
 });
-
-loadVals();
 
