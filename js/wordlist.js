@@ -6,26 +6,33 @@
 
 /* global globalThis */
 
-let wordList = localStorage['wordlist'];
-
-let showZhuyin = localStorage['zhuyin'] === 'yes';
-
 const NOTES_COLUMN = 6;
 
+let wordList;
+
+let showZhuyin;
+
 let entries;
-if (wordList) {
-    entries = JSON.parse(wordList);
-    entries.forEach(e => {
-        e.timestamp = e.timestamp || 0;
-        e.notes = (e.notes || '<i>Edit</i>');
-        e.zhuyin = convert2Zhuyin(e.pinyin);
-    });
-    // show new entries first
-    entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
-    entries.forEach((e, i) => e.id = i);
-} else {
-    entries = [];
-}
+
+chrome.storage.local.get(['wordlist', 'zhuyin'], data => {
+    wordList = data.wordlist;
+    showZhuyin = data.zhuyin;
+
+    if (wordList) {
+        entries = JSON.parse(wordList);
+        entries.forEach(e => {
+            e.timestamp = e.timestamp || 0;
+            e.notes = (e.notes || '<i>Edit</i>');
+            e.zhuyin = convert2Zhuyin(e.pinyin);
+        });
+        // show new entries first
+        entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
+        entries.forEach((e, i) => e.id = i);
+    } else {
+        entries = [];
+    }
+});
+
 
 function showListIsEmptyNotice() {
     if (entries.length === 0) {
@@ -128,7 +135,7 @@ $(document).ready(function () {
 
         $('#editNotes').modal('hide');
         invalidateRow().draw();
-        localStorage['wordlist'] = JSON.stringify(copyEntriesForSaving(entries));
+        chrome.storage.local.set({wordlist: JSON.stringify(copyEntriesForSaving(entries))});
     });
 
     $('#saveList').click(function () {
@@ -169,7 +176,7 @@ $(document).ready(function () {
 
         entries = table.rows().data().draw(true);
 
-        localStorage['wordlist'] = JSON.stringify(copyEntriesForSaving(entries));
+        chrome.storage.local.set({wordlist: JSON.stringify(copyEntriesForSaving(entries))});
 
         showListIsEmptyNotice();
         disableButtons();

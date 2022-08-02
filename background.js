@@ -318,35 +318,35 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             break;
 
         case 'add': {
-            let json = localStorage['wordlist'];
+            chrome.storage.local.get(['wordlist', 'saveToWordList'], data => {
 
-            let saveFirstEntryOnly = localStorage['saveToWordList'] === 'firstEntryOnly';
+                let wordlistJson = data.wordlist;
 
-            let wordlist;
-            if (json) {
-                wordlist = JSON.parse(json);
-            } else {
-                wordlist = [];
-            }
-
-            for (let i in request.entries) {
-
-                let entry = {};
-                entry.timestamp = Date.now();
-                entry.simplified = request.entries[i].simplified;
-                entry.traditional = request.entries[i].traditional;
-                entry.pinyin = request.entries[i].pinyin;
-                entry.definition = request.entries[i].definition;
-
-                wordlist.push(entry);
-
-                if (saveFirstEntryOnly) {
-                    break;
+                let wordlist;
+                if (wordlistJson) {
+                    wordlist = JSON.parse(wordlistJson);
+                } else {
+                    wordlist = [];
                 }
-            }
-            localStorage['wordlist'] = JSON.stringify(wordlist);
 
-            tabID = tabIDs['wordlist'];
+                for (let i in request.entries) {
+
+                    let entry = {};
+                    entry.timestamp = Date.now();
+                    entry.simplified = request.entries[i].simplified;
+                    entry.traditional = request.entries[i].traditional;
+                    entry.pinyin = request.entries[i].pinyin;
+                    entry.definition = request.entries[i].definition;
+
+                    wordlist.push(entry);
+
+                    if (data.saveToWordList === 'firstEntryOnly') {
+                        break;
+                    }
+                }
+
+                chrome.storage.local.set({wordlist: JSON.stringify(wordlist)});
+            });
         }
             break;
     }
