@@ -227,19 +227,25 @@ function activateExtensionToggle(currentTab) {
 
 function enableTab(tabId) {
 
-    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
-        if (autoActivateExtension) {
-            if (!isActivated) {
-                activateExtension(tabId, false);
+    chrome.tabs.get(tabId, tab => {
+
+        // Internal Chrome URLs don't have a content script.
+        if (tab.url && !tab.url.startsWith('chrome')) {
+            chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
+                if (autoActivateExtension) {
+                    if (!isActivated) {
+                        activateExtension(tabId, false);
+                    }
+                }
+            });
+
+            if (isActivated) {
+                chrome.tabs.sendMessage(tabId, {
+                    'type': 'enable',
+                });
             }
         }
     });
-
-    if (isActivated) {
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'enable',
-        });
-    }
 }
 
 function search(text) {
