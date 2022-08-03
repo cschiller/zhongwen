@@ -94,9 +94,6 @@ let savedSelStartOffset = 0;
 
 let savedSelEndList = [];
 
-// regular expression for zero-width non-joiner U+200C &zwnj;
-let zwnj = /\u200c/g;
-
 function enableTab() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('keydown', onKeyDown);
@@ -537,18 +534,14 @@ function triggerSearch() {
     }
 
     let selEndList = [];
-    let originalText = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
-
-    // Workaround for Google Docs: remove zero-width non-joiner &zwnj;
-    let text = originalText.replace(zwnj, '');
+    let text = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
 
     savedSelStartOffset = selStartOffset;
     savedSelEndList = selEndList;
 
     chrome.runtime.sendMessage({
             'type': 'search',
-            'text': text,
-            'originalText': originalText
+            'text': text
         },
         processSearchResult
     );
@@ -567,17 +560,6 @@ function processSearchResult(result) {
         return;
     }
 
-    let highlightLength;
-    let index = 0;
-    for (let i = 0; i < result.matchLen; i++) {
-        // Google Docs workaround: determine the correct highlight length
-        while (result.originalText[index] === '\u200c') {
-            index++;
-        }
-        index++;
-    }
-    highlightLength = index;
-
     selStartIncrement = result.matchLen;
     selStartDelta = (selStartOffset - savedRangeOffset);
 
@@ -590,7 +572,7 @@ function processSearchResult(result) {
             hidePopup();
             return;
         }
-        highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
+        highlightMatch(doc, rangeNode, selStartOffset, result.matchLen, selEndList);
     }
 
     showPopup(makeHtml(result, config.toneColors), savedTarget, popX, popY, false);

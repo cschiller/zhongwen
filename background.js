@@ -48,20 +48,15 @@
 
 import { ZhongwenDictionary } from './dict.js';
 
-let autoActivateExtension = false;
-
-let isExtensionActive = false;
-
-let tabIDs = {};
+let isActivated = false;
 
 let dict;
 
 function activateExtension(tabId, showHelp) {
 
-    isExtensionActive = true;
+    isActivated = true;
 
-    autoActivateExtension = true;
-    chrome.storage.local.set({autoActivateExtension});
+    chrome.storage.local.set({autoActivateExtension: true});
 
     if (!dict) {
         loadDictionary().then(r => dict = r);
@@ -77,77 +72,98 @@ function activateExtension(tabId, showHelp) {
         });
     }
 
-    chrome.browserAction.setBadgeBackgroundColor({
+    chrome.action.setBadgeBackgroundColor({
         'color': [255, 0, 0, 255]
     });
 
-    chrome.browserAction.setBadgeText({
+    chrome.action.setBadgeText({
         'text': 'On'
     });
 
-    chrome.contextMenus.create(
-        {
-            title: 'Open word list',
-            onclick: function () {
-                let url = '/wordlist.html';
-                let tabID = tabIDs['wordlist'];
-                if (tabID) {
-                    chrome.tabs.get(tabID, function (tab) {
-                        if (tab && tab.url && (tab.url.endsWith('wordlist.html'))) {
-                            chrome.tabs.update(tabID, {
-                                active: true
-                            });
-                        } else {
-                            chrome.tabs.create({
-                                url: url
-                            }, function (tab) {
-                                tabIDs['wordlist'] = tab.id;
-                            });
-                        }
-                    });
-                } else {
-                    chrome.tabs.create(
-                        { url: url },
-                        function (tab) {
-                            tabIDs['wordlist'] = tab.id;
-                        }
-                    );
-                }
+    chrome.contextMenus.removeAll(() => {
+        chrome.contextMenus.create(
+            {
+                id: 'wordlistMenuItem',
+                title: 'Open word list'
             }
-        }
-    );
+        );
 
-    chrome.contextMenus.create(
-        {
-            title: 'Show help in new tab',
-            onclick: function () {
-                let url = '/help.html';
-                let tabID = tabIDs['help'];
-                if (tabID) {
-                    chrome.tabs.get(tabID, function (tab) {
-                        if (tab && (tab.url.endsWith('help.html'))) {
-                            chrome.tabs.update(tabID, {
-                                active: true
-                            });
-                        } else {
-                            chrome.tabs.create({
-                                url: url
-                            }, function (tab) {
-                                tabIDs['help'] = tab.id;
-                            });
-                        }
-                    });
-                } else {
-                    chrome.tabs.create(
-                        { url: url },
-                        function (tab) {
-                            tabIDs['help'] = tab.id;
-                        }
-                    );
-                }
+        chrome.contextMenus.create(
+            {
+                id: 'helpMenuItem',
+                title: 'Show help in new tab'
             }
-        }
-    );
+        );
+
+        chrome.contextMenus.onClicked.addListener(({menuItemId}) => {
+
+            chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+                if (menuItemId === 'wordlistMenuItem') {
+                    let url = '/wordlist.html';
+                    let tabID = tabIDs['wordlist'];
+                    if (tabID) {
+                        chrome.tabs.get(tabID, function (tab) {
+                            if (tab && tab.url && (tab.url.endsWith('wordlist.html'))) {
+                                chrome.tabs.update(tabID, {
+                                    active: true
+                                });
+                            } else {
+                                chrome.tabs.create({
+                                    url: url
+                                }, function (tab) {
+                                    tabIDs['wordlist'] = tab.id;
+                                    chrome.storage.session.set({tabIDs});
+                                });
+                            }
+                        });
+                    } else {
+                        chrome.tabs.create(
+                            {url: url},
+                            function (tab) {
+                                tabIDs['wordlist'] = tab.id;
+                                chrome.storage.session.set({tabIDs});
+                            }
+                        );
+                    }
+                }
+
+            });
+        });
+
+        chrome.contextMenus.onClicked.addListener(({menuItemId}) => {
+
+            chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+                if (menuItemId === 'helpMenuItem') {
+                    let url = '/help.html';
+                    let tabID = tabIDs['help'];
+                    if (tabID) {
+                        chrome.tabs.get(tabID, function (tab) {
+                            if (tab && (tab.url.endsWith('help.html'))) {
+                                chrome.tabs.update(tabID, {
+                                    active: true
+                                });
+                            } else {
+                                chrome.tabs.create({
+                                    url: url
+                                }, function (tab) {
+                                    tabIDs['help'] = tab.id;
+                                    chrome.storage.session.set({tabIDs});
+                                });
+                            }
+                        });
+                    } else {
+                        chrome.tabs.create(
+                            {url: url},
+                            function (tab) {
+                                tabIDs['help'] = tab.id;
+                                chrome.storage.session.set({tabIDs});
+                            }
+                        );
+                    }
+                }
+            });
+        });
+    });
 }
 
 async function loadDictData() {
@@ -171,18 +187,17 @@ async function loadDictionary() {
 
 function deactivateExtension() {
 
-    isExtensionActive = false;
+    isActivated = false;
 
-    autoActivateExtension = false;
-    chrome.storage.local.set({autoActivateExtension});
+    chrome.storage.local.set({autoActivateExtension: false});
 
     dict = undefined;
 
-    chrome.browserAction.setBadgeBackgroundColor({
+    chrome.action.setBadgeBackgroundColor({
         'color': [0, 0, 0, 0]
     });
 
-    chrome.browserAction.setBadgeText({
+    chrome.action.setBadgeText({
         'text': ''
     });
 
@@ -205,22 +220,22 @@ function deactivateExtension() {
 }
 
 function activateExtensionToggle(currentTab) {
-    if (isExtensionActive) {
-        deactivateExtension();
-    } else {
-        activateExtension(currentTab.id, true);
-    }
+    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
+        autoActivateExtension ? deactivateExtension() : activateExtension(currentTab.id, true);
+    });
 }
 
 function enableTab(tabId) {
 
-    if (autoActivateExtension) {
-        if (!isExtensionActive) {
-            activateExtension(tabId, false);
+    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
+        if (autoActivateExtension) {
+            if (!isActivated) {
+                activateExtension(tabId, false);
+            }
         }
-    }
+    });
 
-    if (isExtensionActive) {
+    if (isActivated) {
         chrome.tabs.sendMessage(tabId, {
             'type': 'enable',
         });
@@ -253,101 +268,117 @@ function search(text) {
     return entry;
 }
 
-chrome.browserAction.onClicked.addListener(activateExtensionToggle);
+chrome.action.onClicked.addListener(activateExtensionToggle);
 
 chrome.tabs.onActivated.addListener(activeInfo => {
-    if (activeInfo.tabId === tabIDs['wordlist']) {
-        chrome.tabs.reload(activeInfo.tabId);
-    } else if (activeInfo.tabId !== tabIDs['help']) {
-        enableTab(activeInfo.tabId);
-    }
+
+    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+        if (activeInfo.tabId === tabIDs['wordlist']) {
+            chrome.tabs.reload(activeInfo.tabId);
+        } else if (activeInfo.tabId !== tabIDs['help']) {
+            enableTab(activeInfo.tabId);
+        }
+    });
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
-    if (changeInfo.status === 'complete' && tabId !== tabIDs['help'] && tabId !== tabIDs['wordlist']) {
-        enableTab(tabId);
-    }
+
+    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+        if (changeInfo.status === 'complete' && tabId !== tabIDs['help'] && tabId !== tabIDs['wordlist']) {
+            enableTab(tabId);
+        }
+    });
 });
 
 function createTab(url, tabType) {
-    chrome.tabs.create({ url }, tab => {
-        tabIDs[tabType] = tab.id;
+
+    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+        chrome.tabs.create({url}, tab => {
+            tabIDs[tabType] = tab.id;
+            chrome.storage.session.set({tabIDs});
+        });
     });
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
-    let tabID;
+    if (message.type === 'search') {
 
-    switch (request.type) {
+        let response = search(message.text);
 
-        case 'search': {
-            let response = search(request.text);
-            response.originalText = request.originalText;
-            callback(response);
-        }
-            break;
+        sendResponse(response);
 
-        case 'open': {
-            tabID = tabIDs[request.tabType];
+        return true;
+    }
+});
+
+chrome.runtime.onMessage.addListener(function (message) {
+
+    if (message.type === 'open') {
+        chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+            let tabID = tabIDs[message.tabType];
             if (tabID) {
                 chrome.tabs.get(tabID, () => {
                     if (!chrome.runtime.lastError) {
                         // activate existing tab
-                        chrome.tabs.update(tabID, { active: true, url: request.url });
+                        chrome.tabs.update(tabID, {active: true, url: message.url});
                     } else {
-                        createTab(request.url, request.tabType);
+                        createTab(message.url, message.tabType);
                     }
                 });
             } else {
-                createTab(request.url, request.tabType);
+                createTab(message.url, message.tabType);
             }
-        }
-            break;
-
-        case 'copy': {
-            let txt = document.createElement('textarea');
-            txt.style.position = "absolute";
-            txt.style.left = "-100%";
-            txt.value = request.data;
-            document.body.appendChild(txt);
-            txt.select();
-            document.execCommand('copy');
-            document.body.removeChild(txt);
-        }
-            break;
-
-        case 'add': {
-            chrome.storage.local.get(['wordlist', 'saveToWordList'], data => {
-
-                let wordlistJson = data.wordlist;
-
-                let wordlist;
-                if (wordlistJson) {
-                    wordlist = JSON.parse(wordlistJson);
-                } else {
-                    wordlist = [];
-                }
-
-                for (let i in request.entries) {
-
-                    let entry = {};
-                    entry.timestamp = Date.now();
-                    entry.simplified = request.entries[i].simplified;
-                    entry.traditional = request.entries[i].traditional;
-                    entry.pinyin = request.entries[i].pinyin;
-                    entry.definition = request.entries[i].definition;
-
-                    wordlist.push(entry);
-
-                    if (data.saveToWordList === 'firstEntryOnly') {
-                        break;
-                    }
-                }
-
-                chrome.storage.local.set({wordlist: JSON.stringify(wordlist)});
-            });
-        }
-            break;
+        });
     }
 });
+
+chrome.runtime.onMessage.addListener(function (message) {
+
+    if (message.type === 'copy') {
+        let txt = document.createElement('textarea');
+        txt.style.position = "absolute";
+        txt.style.left = "-100%";
+        txt.value = message.data;
+        document.body.appendChild(txt);
+        txt.select();
+        document.execCommand('copy');
+        document.body.removeChild(txt);
+    }
+});
+
+chrome.runtime.onMessage.addListener(function (message) {
+
+    if (message.type === 'add') {
+        chrome.storage.local.get(['wordlist', 'saveToWordList'], data => {
+
+            let wordlistJson = data.wordlist;
+
+            let wordlist;
+            if (wordlistJson) {
+                wordlist = JSON.parse(wordlistJson);
+            } else {
+                wordlist = [];
+            }
+
+            for (let i in message.entries) {
+
+                let entry = {};
+                entry.timestamp = Date.now();
+                entry.simplified = message.entries[i].simplified;
+                entry.traditional = message.entries[i].traditional;
+                entry.pinyin = message.entries[i].pinyin;
+                entry.definition = message.entries[i].definition;
+
+                wordlist.push(entry);
+
+                if (data.saveToWordList === 'firstEntryOnly') {
+                    break;
+                }
+            }
+
+            chrome.storage.local.set({wordlist: JSON.stringify(wordlist)});
+        });
+    }
+});
+
