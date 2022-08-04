@@ -44,9 +44,12 @@
 
  */
 
+/* global globalThis */
+
 'use strict';
 
 import { ZhongwenDictionary } from './dict.js';
+import './js/config.js';
 
 let isActivated = false;
 
@@ -64,11 +67,19 @@ function activateExtension(tabId, showHelp) {
 
     chrome.tabs.sendMessage(tabId, {
         'type': 'enable'
+    }, () => {
+        if (chrome.runtime.lastError) {
+            // ignore
+        }
     });
 
     if (showHelp) {
         chrome.tabs.sendMessage(tabId, {
             'type': 'showHelp'
+        }, () => {
+            if (chrome.runtime.lastError) {
+                // ignore
+            }
         });
     }
 
@@ -80,89 +91,97 @@ function activateExtension(tabId, showHelp) {
         'text': 'On'
     });
 
-    chrome.contextMenus.removeAll(() => {
-        chrome.contextMenus.create(
-            {
-                id: 'wordlistMenuItem',
-                title: 'Open word list'
+    chrome.contextMenus.create(
+        {
+            id: 'wordlistMenuItem',
+            title: 'Open word list'
+        }, () => {
+            if (!chrome.runtime.lastError) {
+
+                chrome.contextMenus.onClicked.addListener(wordlistMenuItemListener);
             }
-        );
+        }
+    );
 
-        chrome.contextMenus.create(
-            {
-                id: 'helpMenuItem',
-                title: 'Show help in new tab'
+    chrome.contextMenus.create(
+        {
+            id: 'helpMenuItem',
+            title: 'Show help in new tab'
+        }, () => {
+            if (!chrome.runtime.lastError) {
+
+                chrome.contextMenus.onClicked.addListener(helpMenuItemListener);
             }
-        );
+        }
+    );
+}
 
-        chrome.contextMenus.onClicked.addListener(({menuItemId}) => {
+function wordlistMenuItemListener({menuItemId}) {
 
-            chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
-                if (menuItemId === 'wordlistMenuItem') {
-                    let url = '/wordlist.html';
-                    let tabID = tabIDs['wordlist'];
-                    if (tabID) {
-                        chrome.tabs.get(tabID, function (tab) {
-                            if (tab && tab.url && (tab.url.endsWith('wordlist.html'))) {
-                                chrome.tabs.update(tabID, {
-                                    active: true
-                                });
-                            } else {
-                                chrome.tabs.create({
-                                    url: url
-                                }, function (tab) {
-                                    tabIDs['wordlist'] = tab.id;
-                                    chrome.storage.session.set({tabIDs});
-                                });
-                            }
+    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+        if (menuItemId === 'wordlistMenuItem') {
+            let url = '/wordlist.html';
+            let tabID = tabIDs['wordlist'];
+            if (tabID) {
+                chrome.tabs.get(tabID, function (tab) {
+                    if (!chrome.runtime.lastError && tab && tab.url && (tab.url.endsWith('wordlist.html'))) {
+                        chrome.tabs.update(tabID, {
+                            active: true
                         });
                     } else {
-                        chrome.tabs.create(
-                            {url: url},
-                            function (tab) {
-                                tabIDs['wordlist'] = tab.id;
-                                chrome.storage.session.set({tabIDs});
-                            }
-                        );
+                        chrome.tabs.create({
+                            url: url
+                        }, function (tab) {
+                            tabIDs['wordlist'] = tab.id;
+                            chrome.storage.session.set({tabIDs});
+                        });
                     }
-                }
+                });
+            } else {
+                chrome.tabs.create(
+                    {url: url},
+                    function (tab) {
+                        tabIDs['wordlist'] = tab.id;
+                        chrome.storage.session.set({tabIDs});
+                    }
+                );
+            }
+        }
 
-            });
-        });
+    });
+}
 
-        chrome.contextMenus.onClicked.addListener(({menuItemId}) => {
+function helpMenuItemListener({menuItemId}) {
 
-            chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
-                if (menuItemId === 'helpMenuItem') {
-                    let url = '/help.html';
-                    let tabID = tabIDs['help'];
-                    if (tabID) {
-                        chrome.tabs.get(tabID, function (tab) {
-                            if (tab && (tab.url.endsWith('help.html'))) {
-                                chrome.tabs.update(tabID, {
-                                    active: true
-                                });
-                            } else {
-                                chrome.tabs.create({
-                                    url: url
-                                }, function (tab) {
-                                    tabIDs['help'] = tab.id;
-                                    chrome.storage.session.set({tabIDs});
-                                });
-                            }
+    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+        if (menuItemId === 'helpMenuItem') {
+            let url = '/help.html';
+            let tabID = tabIDs['help'];
+            if (tabID) {
+                chrome.tabs.get(tabID, function (tab) {
+                    if (!chrome.runtime.lastError && tab && (tab.url.endsWith('help.html'))) {
+                        chrome.tabs.update(tabID, {
+                            active: true
                         });
                     } else {
-                        chrome.tabs.create(
-                            {url: url},
-                            function (tab) {
-                                tabIDs['help'] = tab.id;
-                                chrome.storage.session.set({tabIDs});
-                            }
-                        );
+                        chrome.tabs.create({
+                            url: url
+                        }, function (tab) {
+                            tabIDs['help'] = tab.id;
+                            chrome.storage.session.set({tabIDs});
+                        });
                     }
-                }
-            });
-        });
+                });
+            } else {
+                chrome.tabs.create(
+                    {url: url},
+                    function (tab) {
+                        tabIDs['help'] = tab.id;
+                        chrome.storage.session.set({tabIDs});
+                    }
+                );
+            }
+        }
     });
 }
 
@@ -210,6 +229,10 @@ function deactivateExtension() {
                 for (let j = 0; j < tabs.length; ++j) {
                     chrome.tabs.sendMessage(tabs[j].id, {
                         'type': 'disable'
+                    }, () => {
+                        if (chrome.runtime.lastError) {
+                            // ignore
+                        }
                     });
                 }
             }
@@ -230,7 +253,7 @@ function enableTab(tabId) {
     chrome.tabs.get(tabId, tab => {
 
         // Internal Chrome URLs don't have a content script.
-        if (tab.url && !tab.url.startsWith('chrome')) {
+        if (!chrome.runtime.lastError && tab.url && !tab.url.startsWith('chrome')) {
             chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
                 if (autoActivateExtension) {
                     if (!isActivated) {
@@ -242,6 +265,10 @@ function enableTab(tabId) {
             if (isActivated) {
                 chrome.tabs.sendMessage(tabId, {
                     'type': 'enable',
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        // ignore
+                    }
                 });
             }
         }
@@ -367,6 +394,8 @@ chrome.runtime.onMessage.addListener(function (message) {
                 wordlist = [];
             }
 
+            let saveToWordList = data.saveToWordList || globalThis.defaultConfig.saveToWordList;
+
             for (let i in message.entries) {
 
                 let entry = {};
@@ -378,7 +407,7 @@ chrome.runtime.onMessage.addListener(function (message) {
 
                 wordlist.push(entry);
 
-                if (data.saveToWordList === 'firstEntryOnly') {
+                if (saveToWordList === 'firstEntryOnly') {
                     break;
                 }
             }

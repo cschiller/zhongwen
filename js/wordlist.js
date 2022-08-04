@@ -6,6 +6,8 @@
 
 /* global globalThis */
 
+'use strict';
+
 const NOTES_COLUMN = 6;
 
 let wordList;
@@ -16,7 +18,7 @@ let entries;
 
 chrome.storage.local.get(['wordlist', 'zhuyin'], data => {
     wordList = data.wordlist;
-    showZhuyin = data.zhuyin;
+    showZhuyin = data.zhuyin || globalThis.defaultConfig.zhuyin;
 
     if (wordList) {
         entries = JSON.parse(wordList);
@@ -35,7 +37,7 @@ chrome.storage.local.get(['wordlist', 'zhuyin'], data => {
 
 
 function showListIsEmptyNotice() {
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
         $('#nodata').show();
     } else {
         $('#nodata').hide();
@@ -43,7 +45,7 @@ function showListIsEmptyNotice() {
 }
 
 function disableButtons() {
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
         $('#saveList').prop('disabled', true);
         $('#selectAll').prop('disabled', true);
         $('#deselectAll').prop('disabled', true);
