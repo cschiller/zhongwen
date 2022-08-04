@@ -385,14 +385,7 @@ chrome.runtime.onMessage.addListener(function (message) {
     if (message.type === 'add') {
         chrome.storage.local.get(['wordlist', 'saveToWordList'], data => {
 
-            let wordlistJson = data.wordlist;
-
-            let wordlist;
-            if (wordlistJson) {
-                wordlist = JSON.parse(wordlistJson);
-            } else {
-                wordlist = [];
-            }
+            let wordlist = data.wordlist || [];
 
             let saveToWordList = data.saveToWordList || globalThis.defaultConfig.saveToWordList;
 
@@ -412,7 +405,7 @@ chrome.runtime.onMessage.addListener(function (message) {
                 }
             }
 
-            chrome.storage.local.set({wordlist: JSON.stringify(wordlist)});
+            chrome.storage.local.set({wordlist});
         });
     }
 });

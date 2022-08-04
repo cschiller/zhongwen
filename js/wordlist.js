@@ -16,12 +16,22 @@ let showZhuyin;
 
 let entries;
 
+// migration from manifest v2
+chrome.storage.local.get('wordlist', data => {
+    if (!data.wordlist) {
+        let v2wordlist = localStorage['wordlist'];
+        if (v2wordlist) {
+            chrome.storage.local.set({wordlist: JSON.parse(v2wordlist)}, () => console.log('wordlist migrated'));
+        }
+    }
+});
+
 chrome.storage.local.get(['wordlist', 'zhuyin'], data => {
     wordList = data.wordlist;
     showZhuyin = data.zhuyin || globalThis.defaultConfig.zhuyin;
 
     if (wordList) {
-        entries = JSON.parse(wordList);
+        entries = wordList;
         entries.forEach(e => {
             e.timestamp = e.timestamp || 0;
             e.notes = (e.notes || '<i>Edit</i>');
