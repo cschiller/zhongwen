@@ -55,6 +55,12 @@ let isActivated = false;
 
 let dict;
 
+chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
+    if (autoActivateExtension) {
+        loadDictionary().then(r => dict = r);
+    }
+});
+
 function activateExtension(tabId, showHelp) {
 
     isActivated = true;
@@ -383,9 +389,9 @@ chrome.runtime.onMessage.addListener(function (message) {
 chrome.runtime.onMessage.addListener(function (message) {
 
     if (message.type === 'add') {
-        chrome.storage.local.get(['wordlist', 'saveToWordList'], data => {
+        chrome.storage.local.get(['wordList', 'saveToWordList'], data => {
 
-            let wordlist = data.wordlist || [];
+            let wordList = data.wordList || [];
 
             let saveToWordList = data.saveToWordList || globalThis.defaultConfig.saveToWordList;
 
@@ -398,14 +404,14 @@ chrome.runtime.onMessage.addListener(function (message) {
                 entry.pinyin = message.entries[i].pinyin;
                 entry.definition = message.entries[i].definition;
 
-                wordlist.push(entry);
+                wordList.push(entry);
 
                 if (saveToWordList === 'firstEntryOnly') {
                     break;
                 }
             }
 
-            chrome.storage.local.set({wordlist});
+            chrome.storage.local.set({wordList});
         });
     }
 });

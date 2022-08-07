@@ -17,17 +17,21 @@ let showZhuyin;
 let entries;
 
 // migration from manifest v2
-chrome.storage.local.get('wordlist', data => {
-    if (!data.wordlist) {
+chrome.storage.local.get(['wordList', '_wl_migrated'], data => {
+    if (!data._wl_migrated) {
+
         let v2wordlist = localStorage['wordlist'];
-        if (v2wordlist) {
-            chrome.storage.local.set({wordlist: JSON.parse(v2wordlist)}, () => console.log('wordlist migrated'));
+        let migrated = v2wordlist ? JSON.parse(v2wordlist) : [];
+
+        if (data.wordList) {
+            migrated.push(...data.wordList);
         }
+        chrome.storage.local.set({wordList: migrated, _wl_migrated: true}, () => console.log('wordlist migrated'));
     }
 });
 
-chrome.storage.local.get(['wordlist', 'zhuyin'], data => {
-    wordList = data.wordlist;
+chrome.storage.local.get(['wordList', 'zhuyin'], data => {
+    wordList = data.wordList;
     showZhuyin = data.zhuyin || globalThis.defaultConfig.zhuyin;
 
     if (wordList) {
@@ -147,7 +151,7 @@ $(document).ready(function () {
 
         $('#editNotes').modal('hide');
         invalidateRow().draw();
-        chrome.storage.local.set({wordlist: JSON.stringify(copyEntriesForSaving(entries))});
+        chrome.storage.local.set({wordList: copyEntriesForSaving(entries)});
     });
 
     $('#saveList').click(function () {
@@ -188,7 +192,7 @@ $(document).ready(function () {
 
         entries = table.rows().data().draw(true);
 
-        chrome.storage.local.set({wordlist: JSON.stringify(copyEntriesForSaving(entries))});
+        chrome.storage.local.set({wordList: copyEntriesForSaving(entries)});
 
         showListIsEmptyNotice();
         disableButtons();
