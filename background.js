@@ -51,60 +51,17 @@
 import { ZhongwenDictionary } from './dict.js';
 import './js/config.js';
 
-let isActivated = false;
-
 let dict;
 
-chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
-    if (autoActivateExtension) {
-        loadDictionary().then(r => dict = r);
-    }
-});
-
-function activateExtension(tabId, showHelp) {
-
-    isActivated = true;
-
-    chrome.storage.local.set({autoActivateExtension: true});
-
-    if (!dict) {
-        loadDictionary().then(r => dict = r);
-    }
-
-    chrome.tabs.sendMessage(tabId, {
-        'type': 'enable'
-    }, () => {
-        if (chrome.runtime.lastError) {
-            // ignore
-        }
-    });
-
-    if (showHelp) {
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'showHelp'
-        }, () => {
-            if (chrome.runtime.lastError) {
-                // ignore
-            }
-        });
-    }
-
-    chrome.action.setBadgeBackgroundColor({
-        'color': [255, 0, 0, 255]
-    });
-
-    chrome.action.setBadgeText({
-        'text': 'On'
-    });
+chrome.runtime.onInstalled.addListener(() => {
 
     chrome.contextMenus.create(
         {
             id: 'wordlistMenuItem',
             title: 'Open word list'
         }, () => {
-            if (!chrome.runtime.lastError) {
-
-                chrome.contextMenus.onClicked.addListener(wordlistMenuItemListener);
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError);
             }
         }
     );
@@ -114,13 +71,12 @@ function activateExtension(tabId, showHelp) {
             id: 'helpMenuItem',
             title: 'Show help in new tab'
         }, () => {
-            if (!chrome.runtime.lastError) {
-
-                chrome.contextMenus.onClicked.addListener(helpMenuItemListener);
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError);
             }
         }
     );
-}
+});
 
 function wordlistMenuItemListener({menuItemId}) {
 
@@ -153,7 +109,6 @@ function wordlistMenuItemListener({menuItemId}) {
                 );
             }
         }
-
     });
 }
 
@@ -191,28 +146,48 @@ function helpMenuItemListener({menuItemId}) {
     });
 }
 
-async function loadDictData() {
-    let wordDict = fetch(chrome.runtime.getURL(
-        "data/cedict_ts.u8")).then(r => r.text());
-    let wordIndex = fetch(chrome.runtime.getURL(
-        "data/cedict.idx")).then(r => r.text());
-    let grammarKeywords = fetch(chrome.runtime.getURL(
-        "data/grammarKeywordsMin.json")).then(r => r.json());
-    let vocabKeywords = fetch(chrome.runtime.getURL(
-        "data/vocabularyKeywordsMin.json")).then(r => r.json());
+chrome.contextMenus.onClicked.addListener(wordlistMenuItemListener);
 
-    return Promise.all([wordDict, wordIndex, grammarKeywords, vocabKeywords]);
+chrome.contextMenus.onClicked.addListener(helpMenuItemListener);
+
+function activateExtensionToggle(currentTab) {
+    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
+        autoActivateExtension ? deactivateExtension() : activateExtension(currentTab.id, true);
+    });
 }
 
+function activateExtension(tabId, showHelp) {
 
-async function loadDictionary() {
-    let [wordDict, wordIndex, grammarKeywords, vocabKeywords] = await loadDictData();
-    return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords, vocabKeywords);
+    chrome.storage.local.set({autoActivateExtension: true});
+
+    chrome.tabs.sendMessage(tabId, {
+        'type': 'enable'
+    }, () => {
+        if (chrome.runtime.lastError) {
+            // ignore
+        }
+    });
+
+    if (showHelp) {
+        chrome.tabs.sendMessage(tabId, {
+            'type': 'showHelp'
+        }, () => {
+            if (chrome.runtime.lastError) {
+                // ignore
+            }
+        });
+    }
+
+    chrome.action.setBadgeBackgroundColor({
+        'color': [255, 0, 0, 255]
+    });
+
+    chrome.action.setBadgeText({
+        'text': 'On'
+    });
 }
 
 function deactivateExtension() {
-
-    isActivated = false;
 
     chrome.storage.local.set({autoActivateExtension: false});
 
@@ -244,60 +219,57 @@ function deactivateExtension() {
             }
         }
     );
-
-    chrome.contextMenus.removeAll();
 }
 
-function activateExtensionToggle(currentTab) {
-    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
-        autoActivateExtension ? deactivateExtension() : activateExtension(currentTab.id, true);
-    });
-}
-
-function enableTab(tabId) {
-
-    chrome.tabs.get(tabId, tab => {
-
-        // Internal Chrome URLs don't have a content script.
-        if (!chrome.runtime.lastError && tab.url && !tab.url.startsWith('chrome')) {
-            chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
-                if (autoActivateExtension) {
-                    if (!isActivated) {
-                        activateExtension(tabId, false);
-                    }
-                }
-            });
-
-            if (isActivated) {
-                chrome.tabs.sendMessage(tabId, {
-                    'type': 'enable',
-                }, () => {
-                    if (chrome.runtime.lastError) {
-                        // ignore
-                    }
-                });
-            }
-        }
-    });
-}
+chrome.action.onClicked.addListener(activateExtensionToggle);
 
 function search(text) {
 
     if (!dict) {
-        // dictionary not loaded
-        return;
-    }
+        return loadDictionary().then(d => {
 
-    let entry = dict.wordSearch(text);
+            dict = d;
+
+            return lookup(dict, text);
+
+        });
+    } else {
+        let entry = lookup(dict, text);
+
+        return Promise.resolve(entry);
+    }
+}
+
+async function loadDictionary() {
+    let [wordDict, wordIndex, grammarKeywords, vocabKeywords] = await loadDictData();
+    return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords, vocabKeywords);
+}
+
+async function loadDictData() {
+    let wordDict = fetch(chrome.runtime.getURL(
+        "data/cedict_ts.u8")).then(r => r.text());
+    let wordIndex = fetch(chrome.runtime.getURL(
+        "data/cedict.idx")).then(r => r.text());
+    let grammarKeywords = fetch(chrome.runtime.getURL(
+        "data/grammarKeywordsMin.json")).then(r => r.json());
+    let vocabKeywords = fetch(chrome.runtime.getURL(
+        "data/vocabularyKeywordsMin.json")).then(r => r.json());
+
+    return Promise.all([wordDict, wordIndex, grammarKeywords, vocabKeywords]);
+}
+
+function lookup(dictionary, text) {
+
+    let entry = dictionary.wordSearch(text);
 
     if (entry) {
         for (let i = 0; i < entry.data.length; i++) {
             let word = entry.data[i][1];
-            if (dict.hasGrammarKeyword(word) && (entry.matchLen === word.length)) {
+            if (dictionary.hasGrammarKeyword(word) && (entry.matchLen === word.length)) {
                 // the final index should be the last one with the maximum length
                 entry.grammar = { keyword: word, index: i };
             }
-            if (dict.hasVocabKeyword(word) && (entry.matchLen === word.length)) {
+            if (dictionary.hasVocabKeyword(word) && (entry.matchLen === word.length)) {
                 // the final index should be the last one with the maximum length
                 entry.vocab = { keyword: word, index: i };
             }
@@ -307,7 +279,26 @@ function search(text) {
     return entry;
 }
 
-chrome.action.onClicked.addListener(activateExtensionToggle);
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+
+    if (message.type === 'search') {
+
+        search(message.text).then(response => {
+            sendResponse(response);
+        });
+
+        return true;
+    }
+});
+
+function enableTab(tabId) {
+
+    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
+        if (autoActivateExtension) {
+            activateExtension(tabId, false);
+        }
+    });
+}
 
 chrome.tabs.onActivated.addListener(activeInfo => {
 
@@ -338,18 +329,6 @@ function createTab(url, tabType) {
         });
     });
 }
-
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-
-    if (message.type === 'search') {
-
-        let response = search(message.text);
-
-        sendResponse(response);
-
-        return true;
-    }
-});
 
 chrome.runtime.onMessage.addListener(function (message) {
 
