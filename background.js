@@ -61,7 +61,7 @@ chrome.runtime.onInstalled.addListener(() => {
             title: 'Open word list'
         }, () => {
             if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError);
+                // ignore
             }
         }
     );
@@ -72,11 +72,15 @@ chrome.runtime.onInstalled.addListener(() => {
             title: 'Show help in new tab'
         }, () => {
             if (chrome.runtime.lastError) {
-                console.log(chrome.runtime.lastError);
+                // ignore
             }
         }
     );
 });
+
+chrome.contextMenus.onClicked.addListener(wordlistMenuItemListener);
+
+chrome.contextMenus.onClicked.addListener(helpMenuItemListener);
 
 function wordlistMenuItemListener({menuItemId}) {
 
@@ -146,20 +150,26 @@ function helpMenuItemListener({menuItemId}) {
     });
 }
 
-chrome.contextMenus.onClicked.addListener(wordlistMenuItemListener);
-
-chrome.contextMenus.onClicked.addListener(helpMenuItemListener);
+chrome.action.onClicked.addListener(activateExtensionToggle);
 
 function activateExtensionToggle(currentTab) {
-    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
-        autoActivateExtension ? deactivateExtension() : activateExtension(currentTab.id, true);
+    chrome.storage.local.get('isActive', ({isActive}) => {
+        isActive ? deactivateExtension() : activateExtension(currentTab.id);
     });
 }
 
-function activateExtension(tabId, showHelp) {
+function activateExtension(tabId) {
 
-    chrome.storage.local.set({autoActivateExtension: true});
+    chrome.storage.local.set({isActive: true});
 
+    enableTab(tabId);
+
+    showActiveBadge();
+
+    showHelpMenu(tabId);
+}
+
+function enableTab(tabId) {
     chrome.tabs.sendMessage(tabId, {
         'type': 'enable'
     }, () => {
@@ -167,17 +177,9 @@ function activateExtension(tabId, showHelp) {
             // ignore
         }
     });
+}
 
-    if (showHelp) {
-        chrome.tabs.sendMessage(tabId, {
-            'type': 'showHelp'
-        }, () => {
-            if (chrome.runtime.lastError) {
-                // ignore
-            }
-        });
-    }
-
+function showActiveBadge() {
     chrome.action.setBadgeBackgroundColor({
         'color': [255, 0, 0, 255]
     });
@@ -187,12 +189,28 @@ function activateExtension(tabId, showHelp) {
     });
 }
 
+function showHelpMenu(tabId) {
+    chrome.tabs.sendMessage(tabId, {
+        'type': 'showHelp'
+    }, () => {
+        if (chrome.runtime.lastError) {
+            // ignore
+        }
+    });
+}
+
 function deactivateExtension() {
 
-    chrome.storage.local.set({autoActivateExtension: false});
+    chrome.storage.local.set({isActive: false});
 
     dict = undefined;
 
+    showInactiveBadge();
+
+    disableAllTabs();
+}
+
+function showInactiveBadge() {
     chrome.action.setBadgeBackgroundColor({
         'color': [0, 0, 0, 0]
     });
@@ -200,8 +218,9 @@ function deactivateExtension() {
     chrome.action.setBadgeText({
         'text': ''
     });
+}
 
-    // Send a disable message to all tabs in all windows.
+function disableAllTabs() {
     chrome.windows.getAll(
         { 'populate': true },
         function (windows) {
@@ -221,7 +240,17 @@ function deactivateExtension() {
     );
 }
 
-chrome.action.onClicked.addListener(activateExtensionToggle);
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+
+    if (message.type === 'search') {
+
+        search(message.text).then(response => {
+            sendResponse(response);
+        });
+
+        return true;
+    }
+});
 
 function search(text) {
 
@@ -279,34 +308,13 @@ function lookup(dictionary, text) {
     return entry;
 }
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-
-    if (message.type === 'search') {
-
-        search(message.text).then(response => {
-            sendResponse(response);
-        });
-
-        return true;
-    }
-});
-
-function enableTab(tabId) {
-
-    chrome.storage.local.get('autoActivateExtension', ({autoActivateExtension}) => {
-        if (autoActivateExtension) {
-            activateExtension(tabId, false);
-        }
-    });
-}
-
 chrome.tabs.onActivated.addListener(activeInfo => {
 
     chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
         if (activeInfo.tabId === tabIDs['wordlist']) {
             chrome.tabs.reload(activeInfo.tabId);
         } else if (activeInfo.tabId !== tabIDs['help']) {
-            enableTab(activeInfo.tabId);
+            enableTabIfActive(activeInfo.tabId);
         }
     });
 });
@@ -315,18 +323,19 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
 
     chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
         if (changeInfo.status === 'complete' && tabId !== tabIDs['help'] && tabId !== tabIDs['wordlist']) {
-            enableTab(tabId);
+            enableTabIfActive(tabId);
         }
     });
 });
 
-function createTab(url, tabType) {
 
-    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
-        chrome.tabs.create({url}, tab => {
-            tabIDs[tabType] = tab.id;
-            chrome.storage.session.set({tabIDs});
-        });
+function enableTabIfActive(tabId) {
+
+    chrome.storage.local.get('isActive', ({isActive}) => {
+        if (isActive) {
+            enableTab(tabId);
+            showActiveBadge();
+        }
     });
 }
 
@@ -350,6 +359,16 @@ chrome.runtime.onMessage.addListener(function (message) {
         });
     }
 });
+
+function createTab(url, tabType) {
+
+    chrome.storage.session.get('tabIDs', ({tabIDs = {}}) => {
+        chrome.tabs.create({url}, tab => {
+            tabIDs[tabType] = tab.id;
+            chrome.storage.session.set({tabIDs});
+        });
+    });
+}
 
 chrome.runtime.onMessage.addListener(function (message) {
 
