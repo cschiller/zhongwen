@@ -524,13 +524,16 @@ function triggerSearch() {
 
     let u = rangeNode.data.charCodeAt(selStartOffset);
 
-    // not a Chinese character
-    if (isNaN(u) ||
-        (u !== 0x25CB &&
-        (u < 0x3400 || 0x9FFF < u) &&
-        (u < 0xF900 || 0xFAFF < u) &&
-        (u < 0xFF21 || 0xFF3A < u) &&
-        (u < 0xFF41 || 0xFF5A < u))) {
+    let isChineseCharacter = !isNaN(u) && (
+        u === 0x25CB ||
+        (0x3400 <= u && u <= 0x9FFF) ||
+        (0xF900 <= u && u <= 0xFAFF) ||
+        (0xFF21 <= u && u <= 0xFF3A) ||
+        (0xFF41 <= u && u <= 0xFF5A) ||
+        (0xD800 <= u && u <= 0xDFFF)
+    );
+
+    if (!isChineseCharacter) {
         clearHighlight();
         hidePopup();
         return 3;
