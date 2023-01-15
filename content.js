@@ -290,11 +290,13 @@ function onKeyDown(keyDown) {
 
         case 49: // '1'
             if (keyDown.altKey) {
-                let sel = encodeURIComponent(
-                    window.getSelection().toString());
+
+                // use the simplified character for linedict lookup
+                let simp = savedSearchResults[0][0];
 
                 // https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=%E4%B8%AD%E6%96%87
-                let linedict = 'https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=' + sel;
+                let linedict = 'https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=' +
+                    encodeURIComponent(simp);
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -385,11 +387,12 @@ function onKeyDown(keyDown) {
 
         case 55: // '7'
             if (keyDown.altKey) {
-                let sel = encodeURIComponent(
-                    window.getSelection().toString());
+
+                // use the traditional character for moedict lookup
+                let trad = savedSearchResults[0][1];
 
                 // https://www.moedict.tw/~%E4%B8%AD%E6%96%87
-                let moedict = 'https://www.moedict.tw/~' + sel;
+                let moedict = 'https://www.moedict.tw/' + encodeURIComponent(trad);
 
                 chrome.runtime.sendMessage({
                     type: 'open',
