@@ -1,6 +1,6 @@
 /*
  Zhongwen - A Chinese-English Pop-Up Dictionary
- Copyright (C) 2010-2019 Christian Schiller
+ Copyright (C) 2010-2023 Christian Schiller
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
 
  ---
@@ -279,11 +279,13 @@ function onKeyDown(keyDown) {
 
         case 49: // '1'
             if (keyDown.altKey) {
-                let sel = encodeURIComponent(
-                    window.getSelection().toString());
+
+                // use the simplified character for linedict lookup
+                let simp = savedSearchResults[0][0];
 
                 // https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=%E4%B8%AD%E6%96%87
-                let linedict = 'https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=' + sel;
+                let linedict = 'https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=' +
+                    encodeURIComponent(simp);
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -374,11 +376,12 @@ function onKeyDown(keyDown) {
 
         case 55: // '7'
             if (keyDown.altKey) {
-                let sel = encodeURIComponent(
-                    window.getSelection().toString());
+
+                // use the traditional character for moedict lookup
+                let trad = savedSearchResults[0][1];
 
                 // https://www.moedict.tw/~%E4%B8%AD%E6%96%87
-                let moedict = 'https://www.moedict.tw/~' + sel;
+                let moedict = 'https://www.moedict.tw/' + encodeURIComponent(trad);
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -510,13 +513,16 @@ function triggerSearch() {
 
     let u = rangeNode.data.charCodeAt(selStartOffset);
 
-    // not a Chinese character
-    if (isNaN(u) ||
-        (u !== 0x25CB &&
-        (u < 0x3400 || 0x9FFF < u) &&
-        (u < 0xF900 || 0xFAFF < u) &&
-        (u < 0xFF21 || 0xFF3A < u) &&
-        (u < 0xFF41 || 0xFF5A < u))) {
+    let isChineseCharacter = !isNaN(u) && (
+        u === 0x25CB ||
+        (0x3400 <= u && u <= 0x9FFF) ||
+        (0xF900 <= u && u <= 0xFAFF) ||
+        (0xFF21 <= u && u <= 0xFF3A) ||
+        (0xFF41 <= u && u <= 0xFF5A) ||
+        (0xD800 <= u && u <= 0xDFFF)
+    );
+
+    if (!isChineseCharacter) {
         clearHighlight();
         hidePopup();
         return 3;
@@ -930,7 +936,7 @@ function makeHtml(result, showToneColors) {
         if (config.fontSize === 'small') {
             defClass += '-small';
         }
-        let translation = entry[4].replace(/\//g, '; ');
+        let translation = entry[4].replace(/\//g, ' ◆ ');
         html += '<br><span class="' + defClass + '">' + translation + '</span><br>';
 
         let addFinalBr = false;
