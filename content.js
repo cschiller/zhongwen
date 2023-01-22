@@ -364,7 +364,7 @@ function onKeyDown(keyDown) {
                 let sel = encodeURIComponent(
                     window.getSelection().toString());
 
-                let reverso = 'https://www.reverso.net/text-translation#sl=chi&tl=eng&text=' + sel;
+                let reverso = 'https://context.reverso.net/translation/chinese-english/' + sel;
 
                 chrome.runtime.sendMessage({
                     type: 'open',
@@ -381,7 +381,7 @@ function onKeyDown(keyDown) {
                 let trad = savedSearchResults[0][1];
 
                 // https://www.moedict.tw/~%E4%B8%AD%E6%96%87
-                let moedict = 'https://www.moedict.tw/' + encodeURIComponent(trad);
+                let moedict = 'https://www.moedict.tw/~' + encodeURIComponent(trad);
 
                 chrome.runtime.sendMessage({
                     type: 'open',
