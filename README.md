@@ -12,7 +12,7 @@ by simply hovering over them with the mouse.
 It also contains useful features for learners of the Chinese language.
 
 [![Chrome](https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png)](https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde)
-[![Firefox](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png)](https://addons.mozilla.org/en-US/firefox/addon/zhongwen)
+[![Firefox](https://blog.mozilla.org/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/en-US/firefox/addon/zhongwen)
 
 
 ## Highlights
@@ -212,4 +212,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 ---
 
-*Copyright (C) 2019 Christian Schiller*
+*Copyright (C) 2023 Christian Schiller*
