@@ -558,7 +558,7 @@ function processSearchResult(result) {
         clearHighlight();
         return;
     }
-
+    
     let highlightLength;
     let index = 0;
     for (let i = 0; i < result.matchLen; i++) {
@@ -583,6 +583,12 @@ function processSearchResult(result) {
             return;
         }
         highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
+    }
+    if (config.tts !== 'no') {
+        chrome.runtime.sendMessage({
+            'type': 'tts',
+            'data': result.originalText.substr(0, highlightLength)
+        });
     }
 
     showPopup(makeHtml(result, config.tonecolors !== 'no'), savedTarget, popX, popY, false);

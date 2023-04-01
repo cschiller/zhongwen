@@ -40,7 +40,8 @@
   },
   "permissions": [
     "contextMenus",
-    "tabs"
+    "tabs",
+    "tts"
   ],
   "commands": {
     "_execute_browser_action": {
