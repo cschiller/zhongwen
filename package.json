@@ -18,8 +18,8 @@
   "homepage": "https://github.com/cschiller/zhongwen#readme",
   "devDependencies": {
     "eslint": "^8.10.0",
-    "stylelint": "^14.5.3",
-    "stylelint-config-recommended": "^7.0.0"
+    "stylelint": "^15.6.0",
+    "stylelint-config-recommended": "^12.0.0"
   },
   "stylelint": {
     "extends": "stylelint-config-recommended"
