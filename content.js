@@ -1089,8 +1089,8 @@ let miniHelp = `
     <tr><td><b>m&nbsp;:</b></td><td>&nbsp;Next character</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>a&nbsp;:</b></td><td>&nbsp;Alternate pop-up location</td></tr>
-    <tr><td><b>y&nbsp;:</b></td><td>&nbsp;Move pop-up location down</td></tr>
     <tr><td><b>x&nbsp;:</b></td><td>&nbsp;Move pop-up location up</td></tr>
+    <tr><td><b>y&nbsp;:</b></td><td>&nbsp;Move pop-up location down</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>c&nbsp;:</b></td><td>&nbsp;Copy translation to clipboard</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
