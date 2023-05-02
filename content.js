@@ -1116,6 +1116,8 @@ let miniHelp = `
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     <tr><td><b>s&nbsp;:</b></td><td>&nbsp;Add word to Skritter queue</td></tr>
     <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
+    <tr><td><b>c&nbsp;:</b></td><td>&nbsp;Change background color</td></tr>
+    <tr><td><b>&nbsp;</b></td><td>&nbsp;</td></tr>
     </table>
     Look up selected text in online resources:
     <table style="margin: 10px;" cellspacing=5 cellpadding=5>
