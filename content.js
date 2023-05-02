@@ -80,6 +80,10 @@ let savedSelStartOffset = 0;
 
 let savedSelEndList = [];
 
+let colorIndex = 0;
+
+let backgroundColors = ['black', 'blue', 'lightblue', 'yellow'];
+
 // regular expression for zero-width non-joiner U+200C &zwnj;
 let zwnj = /\u200c/g;
 
@@ -185,6 +189,18 @@ function onKeyDown(keyDown) {
                     selStartIncrement = 0;
                 }
             }
+            break;
+
+        case 79: // 'o'
+            config.css = backgroundColors[colorIndex];
+
+            if(colorIndex === 3){
+                colorIndex = 0;
+            }else{
+                colorIndex++;
+            }
+
+            triggerSearch();
             break;
 
         case 82: // 'r'
