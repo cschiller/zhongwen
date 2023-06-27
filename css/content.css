@@ -240,24 +240,22 @@
 
 
 /*  Sinosplice Tone Colors */
-/* Added by Zoestra */
-/* Based on this article - https://www.sinosplice.com/life/archives/2009/08/11/tone-and-color-in-chinese */
-#zhongwen-window.tonecolor-hanping .tone1 {
+#zhongwen-window.tonecolor-sinosplice .tone1 {
   color: #e68a12;
 }
 
-#zhongwen-window.tonecolor-hanping .tone2 {
+#zhongwen-window.tonecolor-sinosplice .tone2 {
   color: #17c417;
 }
 
-#zhongwen-window.tonecolor-hanping .tone3 {
+#zhongwen-window.tonecolor-sinosplice .tone3 {
   color: #1062d4;
 }
 
-#zhongwen-window.tonecolor-hanping .tone4 {
+#zhongwen-window.tonecolor-sinosplice .tone4 {
   color: #c7102b;
 }
 
-#zhongwen-window.tonecolor-hanping .tone5 {
+#zhongwen-window.tonecolor-sinosplice .tone5 {
   color: #a0a0a0;
 }
