@@ -586,6 +586,15 @@ function processSearchResult(result) {
     }
 
     showPopup(makeHtml(result, config.tonecolors !== 'no'), savedTarget, popX, popY, false);
+
+	//normalize popup pinyin 
+
+	let pinyinClass = 'w-pinyin';
+	if (config.fontSize === 'small') {
+		pinyinClass += '-small';
+	}
+	let pyOutput=document.getElementsByClassName(pinyinClass) ;
+	for (let p of pyOutput){ p.innerHTML=p.innerHTML.normalize()} ;
 }
 
 // modifies selEndList as a side-effect
