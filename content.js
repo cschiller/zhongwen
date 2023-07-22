@@ -994,9 +994,10 @@ function tonify(vowels, tone) {
     let html = '';
     let text = '';
 
-    if (vowels === 'ou') {
-        html = 'o' + tones[tone] + 'u';
-        text = 'o' + utones[tone] + 'u';
+	if (vowels === 'ou' || vowels === "Ou") {
+		let o = vowels[0];
+        html = o + tones[tone] + 'u';
+        text = o + utones[tone] + 'u';
     } else {
         let tonified = false;
         for (let i = 0; i < vowels.length; i++) {
