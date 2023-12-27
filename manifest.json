@@ -46,7 +46,7 @@
     "tabs"
   ],
   "commands": {
-    "_execute_browser_action": {
+    "_execute_action": {
       "description": "Enable/Disable Zhongwen"
     }
   }
