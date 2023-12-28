@@ -283,8 +283,8 @@ function onKeyDown(keyDown) {
                 // use the simplified character for linedict lookup
                 let simp = savedSearchResults[0][0];
 
-                // https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=%E4%B8%AD%E6%96%87
-                let linedict = 'https://dict.naver.com/linedict/zhendict/dict.html#/cnen/search?query=' +
+                // https://english.dict.naver.com/english-chinese-dictionary/#/search?query=%E8%AF%8D%E5%85%B8
+                let linedict = 'https://english.dict.naver.com/english-chinese-dictionary/#/search?query=' +
                     encodeURIComponent(simp);
 
                 chrome.runtime.sendMessage({
