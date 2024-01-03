@@ -586,6 +586,15 @@ function processSearchResult(result) {
     }
 
     showPopup(makeHtml(result, config.tonecolors !== 'no'), savedTarget, popX, popY, false);
+
+	//normalize popup pinyin 
+
+	let pinyinClass = 'w-pinyin';
+	if (config.fontSize === 'small') {
+		pinyinClass += '-small';
+	}
+	let pyOutput=document.getElementsByClassName(pinyinClass) ;
+	for (let p of pyOutput){ p.innerHTML=p.innerHTML.normalize()} ;
 }
 
 // modifies selEndList as a side-effect
@@ -994,9 +1003,10 @@ function tonify(vowels, tone) {
     let html = '';
     let text = '';
 
-    if (vowels === 'ou') {
-        html = 'o' + tones[tone] + 'u';
-        text = 'o' + utones[tone] + 'u';
+	if (vowels === 'ou' || vowels === "Ou") {
+		let o = vowels[0];
+        html = o + tones[tone] + 'u';
+        text = o + utones[tone] + 'u';
     } else {
         let tonified = false;
         for (let i = 0; i < vowels.length; i++) {
