@@ -65,7 +65,8 @@ let zhongwenOptions = window.zhongwenOptions = {
     grammar: localStorage['grammar'] || 'yes',
     vocab: localStorage['vocab'] || 'yes',
     simpTrad: localStorage['simpTrad'] || 'classic',
-    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
+    toneColorScheme: localStorage['toneColorScheme'] || 'standard',
+    customToneColorScheme: JSON.parse(localStorage['customToneColorScheme'] || '{}')
 };
 
 function activateExtension(tabId, showHelp) {
