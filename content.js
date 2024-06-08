@@ -448,6 +448,7 @@ function onMouseMove(mouseMove) {
         rangeNode = range.offsetNode;
         rangeOffset = range.offset;
     }
+    if (!rangeNode) return;
 
     if (mouseMove.target === savedTarget) {
         if (rangeNode === savedRangeNode && rangeOffset === savedRangeOffset) {
@@ -458,6 +459,16 @@ function onMouseMove(mouseMove) {
     if (timer) {
         clearTimeout(timer);
         timer = null;
+    }
+
+    if (rangeNode.parentNode !== mouseMove.target) {
+        // in case of LI > SPAN > rangeNode, mouseMove target is LI
+        // we cannot hover the mouse over the SPAN, so try with depth 2, it works in some cases
+        let edgeCases = rangeNode?.parentNode?.parentNode === mouseMove.target;
+        if (!edgeCases) {
+            rangeNode = null;
+            rangeOffset = -1;
+        }
     }
 
     savedTarget = mouseMove.target;
@@ -571,6 +582,7 @@ function processSearchResult(result) {
         .split("！")[0]
         .split("；")[0]
         .split("：")[0]
+        .split(".")[0]
         .trim();
 
     let rangeNode = savedRangeNode;
