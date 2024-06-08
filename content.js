@@ -80,6 +80,8 @@ let savedSelStartOffset = 0;
 
 let savedSelEndList = [];
 
+let savedOriginalText;
+
 // regular expression for zero-width non-joiner U+200C &zwnj;
 let zwnj = /\u200c/g;
 
@@ -458,16 +460,6 @@ function onMouseMove(mouseMove) {
         timer = null;
     }
 
-    if (rangeNode.data && rangeOffset === rangeNode.data.length) {
-        rangeNode = findNextTextNode(rangeNode.parentNode, rangeNode);
-        rangeOffset = 0;
-    }
-
-    if (!rangeNode || rangeNode.parentNode !== mouseMove.target) {
-        rangeNode = null;
-        rangeOffset = -1;
-    }
-
     savedTarget = mouseMove.target;
     savedRangeNode = rangeNode;
     savedRangeOffset = rangeOffset;
@@ -572,6 +564,7 @@ function processSearchResult(result) {
 
     selStartIncrement = result.matchLen;
     selStartDelta = (selStartOffset - savedRangeOffset);
+    savedOriginalText = result.originalText.split("\n")[0].trim();
 
     let rangeNode = savedRangeNode;
     // don't try to highlight form elements
@@ -793,12 +786,8 @@ function isVisible() {
 }
 
 function getTextForClipboard() {
-    let result = '';
-    for (let i = 0; i < savedSearchResults.length; i++) {
-        result += savedSearchResults[i].slice(0, -1).join('\t');
-        result += '\n';
-    }
-    return result;
+    // NOTE: return the original text instead of translation results
+    return savedOriginalText;
 }
 
 function makeDiv(input) {
