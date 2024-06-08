@@ -564,7 +564,14 @@ function processSearchResult(result) {
 
     selStartIncrement = result.matchLen;
     selStartDelta = (selStartOffset - savedRangeOffset);
-    savedOriginalText = result.originalText.split("\n")[0].trim();
+    savedOriginalText = result.originalText
+        .split("\n")[0]
+        .split("。")[0]
+        .split("？")[0]
+        .split("！")[0]
+        .split("；")[0]
+        .split("：")[0]
+        .trim();
 
     let rangeNode = savedRangeNode;
     // don't try to highlight form elements
