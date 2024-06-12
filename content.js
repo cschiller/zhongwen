@@ -461,11 +461,47 @@ function onMouseMove(mouseMove) {
         timer = null;
     }
 
-    if (rangeNode.parentNode !== mouseMove.target) {
-        // in case of LI > SPAN > rangeNode, mouseMove target is LI
-        // we cannot hover the mouse over the SPAN, so try with depth 2, it works in some cases
-        let edgeCases = rangeNode?.parentNode?.parentNode === mouseMove.target;
-        if (!edgeCases) {
+    let r = document.createRange();
+    r.selectNode(rangeNode);
+    let rects = r.getClientRects();
+    if (rects.length > 0) {
+        let mouseInTheRect = false;
+        for (let i = 0; i < rects.length; i++) {
+            let rect = rects[i];
+            let s = 5; // sensitivity
+            mouseInTheRect =
+                clientX + s >= rect.left && clientY + s >= rect.top &&
+                clientX <= rect.left + rect.width + s && clientY <= rect.top + rect.height + s;
+            if (mouseInTheRect) break;
+        }
+        if (!mouseInTheRect) {
+            // Toggle this code for debugging purpose
+            // if (mouseMove.altKey) {
+            //     for (let i = 0; i < rects.length; i++) {
+            //         var div = document.createElement('div');
+            //         div.style.position = 'fixed';
+            //         div.style.top = rects[i].top + 'px';
+            //         div.style.left = rects[i].left + 'px';
+            //         div.style.width = rects[i].width + 'px';
+            //         div.style.height = rects[i].height + 'px';
+            //         div.style.border = '1px solid ' + ["red", "blue", "green", "yellow", "black"][i];
+            //         div.style.backgroundColor = 'transparent';
+            //         document.body.appendChild(div);
+            //     }
+            //     var div = document.createElement('div');
+            //     div.style.position = 'fixed';
+            //     div.style.top = clientY + 'px';
+            //     div.style.left = clientX + 'px';
+            //     div.style.width = '5px';
+            //     div.style.height = '5px';
+            //     div.style.border = '1px solid orange';
+            //     div.style.backgroundColor = 'transparent';
+            //     document.body.appendChild(div);
+            //     console.log(mouseMove);
+            //     console.log(rects);
+            //     console.log(rangeNode);
+            //     console.log(range);
+            // }
             rangeNode = null;
             rangeOffset = -1;
         }
