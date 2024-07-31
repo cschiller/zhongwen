@@ -865,12 +865,9 @@ function findPreviousTextNode(root, previous) {
 }
 
 function copyToClipboard(data) {
-    chrome.runtime.sendMessage({
-        'type': 'copy',
-        'data': data
+    navigator.clipboard.writeText(data).then(() => {
+        showPopup('Copied to clipboard', null, -1, -1);
     });
-
-    showPopup('Copied to clipboard', null, -1, -1);
 }
 
 function makeHtml(result, showToneColors) {

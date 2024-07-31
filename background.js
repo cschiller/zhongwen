@@ -372,20 +372,6 @@ function createTab(url, tabType) {
 
 chrome.runtime.onMessage.addListener(function (message) {
 
-    if (message.type === 'copy') {
-        let txt = document.createElement('textarea');
-        txt.style.position = "absolute";
-        txt.style.left = "-100%";
-        txt.value = message.data;
-        document.body.appendChild(txt);
-        txt.select();
-        document.execCommand('copy');
-        document.body.removeChild(txt);
-    }
-});
-
-chrome.runtime.onMessage.addListener(function (message) {
-
     if (message.type === 'add') {
         chrome.storage.local.get(['wordList', 'saveToWordList'], data => {
 
