@@ -130,11 +130,6 @@ function onKeyDown(keyDown) {
 
     switch (keyDown.keyCode) {
 
-        case 65: // 'a'
-            altView = (altView + 1) % 3;
-            triggerSearch();
-            break;
-
         case 67: // 'c'
             copyToClipboard(getTextForClipboard());
             break;
