@@ -99,7 +99,6 @@ export class ZhongwenDictionary {
         let maxLen = 0;
 
         const crossReferencePhrases = ['see ', 'variant of '];
-        console.log(`Searching for word: ${word}`);
 
         WHILE:
             while (word.length > 0) {
@@ -135,9 +134,7 @@ export class ZhongwenDictionary {
                     // Check for cross-references and perform additional lookup
                     for (let phrase of crossReferencePhrases) {
                         if (dentry.includes(phrase)) {
-                            console.log(`Found cross-reference phrase: ${phrase}`);
                             let referencedWord = dentry.split(phrase)[1].trim();
-                            console.log(`Referenced word: ${referencedWord}`);
                             let referencedEntry = this.wordSearch(referencedWord, maxTrim);
                             if (referencedEntry) {
                                 entry.data.push(...referencedEntry.data);
