@@ -86,66 +86,73 @@ export class ZhongwenDictionary {
         return this.vocabKeywords[keyword];
     }
 
-    wordSearch(word, max) {
-
+    wordSearch(word, max, processedWords = new Set(), seenEntries = new Set()) {
         let entry = { data: [] };
-
         let dict = this.wordDict;
         let index = this.wordIndex;
-
         let maxTrim = max || 7;
-
         let count = 0;
         let maxLen = 0;
 
         const crossReferencePhrases = ['see ', 'variant of '];
 
+        // Add the current word to the set of processed words
+        processedWords.add(word);
+
         WHILE:
-            while (word.length > 0) {
-
-                let ix = this.cache[word];
+        while (word.length > 0) {
+            let ix = this.cache[word];
+            if (!ix) {
+                ix = ZhongwenDictionary.find(word + ',', index);
                 if (!ix) {
-                    ix = ZhongwenDictionary.find(word + ',', index);
-                    if (!ix) {
-                        this.cache[word] = [];
-                        continue;
-                    }
-                    ix = ix.split(',');
-                    this.cache[word] = ix;
+                    this.cache[word] = [];
+                    continue;
                 }
-
-                for (let j = 1; j < ix.length; ++j) {
-                    let offset = ix[j];
-
-                    let dentry = dict.substring(offset, dict.indexOf('\n', offset));
-
-                    if (count >= maxTrim) {
-                        entry.more = 1;
-                        break WHILE;
-                    }
-
-                    ++count;
-                    if (maxLen === 0) {
-                        maxLen = word.length;
-                    }
-
-                    entry.data.push([dentry, word]);
-
-                    // Check for cross-references and perform additional lookup
-                    for (let phrase of crossReferencePhrases) {
-                        if (dentry.includes(phrase)) {
-                            let referencedWord = dentry.split(phrase)[1].trim();
-                            let referencedEntry = this.wordSearch(referencedWord, maxTrim);
-                            if (referencedEntry) {
-                                entry.data.push(...referencedEntry.data);
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                word = word.substr(0, word.length - 1);
+                ix = ix.split(',');
+                this.cache[word] = ix;
             }
+
+            for (let j = 1; j < ix.length; ++j) {
+                let offset = ix[j];
+                let dentry = dict.substring(offset, dict.indexOf('\n', offset));
+
+                if (count >= maxTrim) {
+                    entry.more = 1;
+                    break WHILE;
+                }
+
+                ++count;
+                if (maxLen === 0) {
+                    maxLen = word.length;
+                }
+
+                // Check for duplicates before adding the entry
+                if (!seenEntries.has(dentry)) {
+                    entry.data.push([dentry, word]);
+                    seenEntries.add(dentry);
+                }
+
+                // Check for cross-references and perform additional lookup
+                for (let phrase of crossReferencePhrases) {
+                    if (dentry.includes(phrase)) {
+                        let referencedWord = dentry.split(phrase)[1].trim();
+
+                        // Skip the referenced word if it has already been processed
+                        if (processedWords.has(referencedWord)) {
+                            continue;
+                        }
+
+                        let referencedEntry = this.wordSearch(referencedWord, maxTrim, processedWords, seenEntries);
+                        if (referencedEntry) {
+                            entry.data.push(...referencedEntry.data);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            word = word.substr(0, word.length - 1);
+        }
 
         if (entry.data.length === 0) {
             return null;
