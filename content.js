@@ -58,6 +58,8 @@ let savedRangeOffset;
 
 let selText;
 
+let selDoc;
+
 let clientX;
 
 let clientY;
@@ -65,6 +67,12 @@ let clientY;
 let selStartDelta;
 
 let selStartIncrement;
+
+let observer;
+
+let iframe;
+
+let ownerDocument;
 
 let popX = 0;
 
@@ -86,11 +94,52 @@ let zwnj = /\u200c/g;
 function enableTab() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('keydown', onKeyDown);
+
+    let iframes = document.getElementsByTagName('iframe');
+    if (iframes) {
+        for (let iframe of iframes) {
+            iframe.contentDocument.addEventListener('mousemove', onMouseMove);
+            iframe.contentDocument.addEventListener('keydown', onKeyDown);
+        }
+
+        observer = new MutationObserver((mutationsList, observer) => {
+            for (let mutation of mutationsList) {
+                if (mutation.addedNodes) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.nodeType === 1 && node.nodeName === 'IFRAME') {
+                            node.addEventListener('load', (event) => {
+                                node.contentDocument
+                                    .addEventListener('mousemove', onMouseMove);
+                                node.contentDocument
+                                    .addEventListener('keydown', onKeyDown);
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
 }
 
 function disableTab() {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('keydown', onKeyDown);
+
+    if (observer) {
+        observer.disconnect();
+
+        document.getElementsByTagName('iframe')
+        .forEach(iframe => {
+            iframe.contentDocument.removeEventListener('mousemove', onMouseMove);
+            iframe.contentDocument.removeEventListener('keydown', onKeyDown);
+        });
+    }
 
     let popup = document.getElementById('zhongwen-window');
     if (popup) {
@@ -397,6 +446,10 @@ function onKeyDown(keyDown) {
 }
 
 function onMouseMove(mouseMove) {
+    ownerDocument = mouseMove.target.ownerDocument;
+
+    iframe = ownerDocument.defaultView.frameElement;
+
     if (mouseMove.target.nodeName === 'TEXTAREA' || mouseMove.target.nodeName === 'INPUT'
         || mouseMove.target.nodeName === 'DIV') {
 
@@ -431,15 +484,15 @@ function onMouseMove(mouseMove) {
     let rangeOffset;
 
     // Handle Chrome and Firefox
-    if (document.caretRangeFromPoint) {
-        range = document.caretRangeFromPoint(mouseMove.clientX, mouseMove.clientY);
+    if (ownerDocument.caretRangeFromPoint) {
+        range = ownerDocument.caretRangeFromPoint(mouseMove.clientX, mouseMove.clientY);
         if (range === null) {
             return;
         }
         rangeNode = range.startContainer;
         rangeOffset = range.startOffset;
-    } else if (document.caretPositionFromPoint) {
-        range = document.caretPositionFromPoint(mouseMove.clientX, mouseMove.clientY);
+    } else if (ownerDocument.caretPositionFromPoint) {
+        range = ownerDocument.caretPositionFromPoint(mouseMove.clientX, mouseMove.clientY);
         if (range === null) {
             return;
         }
@@ -629,6 +682,11 @@ function getTextFromSingleNode(node, selEndList, maxLength) {
 }
 
 function showPopup(html, elem, x, y, looseWidth) {
+    if (iframe) {
+        let rect = iframe.getBoundingClientRect();
+        x += rect.x;
+        y += rect.y;
+    }
 
     if (!x || !y) {
         x = y = 0;
@@ -766,12 +824,13 @@ function highlightMatch(doc, rangeStartNode, rangeStartOffset, matchLen, selEndL
     range.setStart(rangeStartNode, rangeStartOffset);
     range.setEnd(selEnd.node, offset);
 
-    let sel = window.getSelection();
+    let sel = doc.getSelection();
     if (!sel.isCollapsed && selText !== sel.toString())
         return;
     sel.empty();
     sel.addRange(range);
     selText = sel.toString();
+    selDoc = doc;
 }
 
 function clearHighlight() {
@@ -780,11 +839,12 @@ function clearHighlight() {
         return;
     }
 
-    let selection = window.getSelection();
+    let selection = selDoc.getSelection();
     if (selection.isCollapsed || selText === selection.toString()) {
         selection.empty();
     }
     selText = null;
+    selDoc = null;
 }
 
 function isVisible() {
