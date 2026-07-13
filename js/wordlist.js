@@ -17,8 +17,11 @@ let showZhuyin;
 let entries = [];
 
 async function loadWordList() {
-    await chrome.runtime.sendMessage({type: 'migrateLegacyStorage'}).catch(() => undefined);
-    let data = await chrome.storage.local.get(['wordList', 'zhuyin']);
+    let data = await chrome.runtime.sendMessage({type: 'getWordList'});
+
+    if (!data || !data.success) {
+        throw new Error('Unable to load the word list');
+    }
 
     wordList = data.wordList || [];
     showZhuyin = data.zhuyin ?? globalThis.defaultConfig.zhuyin;
@@ -67,25 +70,6 @@ function convert2Zhuyin(pinyin) {
     return zhuyin.join(' ');
 }
 
-function copyEntriesForSaving(entries) {
-    let result = [];
-    for (let i = 0; i < entries.length; i++) {
-        result.push(copyEntryForSaving(entries[i]));
-    }
-    return result;
-}
-
-function copyEntryForSaving(entry) {
-    let result = Object.assign({}, entry);
-    // don't save these atributes
-    delete result.id;
-    delete result.zhuyin;
-    if (result.notes === '<i>Edit</i>') {
-        delete result.notes;
-    }
-    return result;
-}
-
 $(document).ready(async function () {
 
     await loadWordList();
@@ -131,14 +115,23 @@ $(document).ready(async function () {
 
     $('#editNotes').on('shown.bs.modal', () => $('#notes').focus());
 
-    $('#saveNotes').click(() => {
+    $('#saveNotes').click(async () => {
         let entry = entries[$('#rowIndex').val()];
+        let notes = $('#notes').val();
+        let response = await chrome.runtime.sendMessage({
+            type: 'updateWordListEntry',
+            entryId: entry.entryId,
+            notes
+        });
 
-        entry.notes = $('#notes').val() || '<i>Edit</i>';
+        if (!response || !response.success) {
+            return;
+        }
+
+        entry.notes = notes || '<i>Edit</i>';
 
         $('#editNotes').modal('hide');
         invalidateRow().draw();
-        chrome.storage.local.set({wordList: copyEntriesForSaving(entries)});
     });
 
     $('#saveList').click(function () {
@@ -174,12 +167,25 @@ $(document).ready(async function () {
         a.click();
     });
 
-    $('#delete').click(function () {
+    $('#delete').click(async function () {
+        let selected = table.rows('.bg-info').data();
+        let entryIds = [];
+        for (let i = 0; i < selected.length; i++) {
+            entryIds.push(selected[i].entryId);
+        }
+
+        let response = await chrome.runtime.sendMessage({
+            type: 'deleteWordListEntries',
+            entryIds
+        });
+
+        if (!response || !response.success) {
+            return;
+        }
+
         table.rows('.bg-info').remove();
 
         entries = table.rows().data().draw(true);
-
-        chrome.storage.local.set({wordList: copyEntriesForSaving(entries)});
 
         showListIsEmptyNotice();
         disableButtons();

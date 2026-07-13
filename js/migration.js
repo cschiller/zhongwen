@@ -61,12 +61,41 @@ globalThis.mergeMigratedStorage = function (currentStorage, convertedStorage) {
     return updates;
 };
 
-globalThis.appendWordListEntries = function (wordList, entries, saveMode, timestamp = Date.now()) {
+function createWordListEntryId() {
+    if (globalThis.crypto && globalThis.crypto.randomUUID) {
+        return globalThis.crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+globalThis.ensureWordListEntryIds = function (wordList, createId = createWordListEntryId) {
+    let changed = false;
+    let entries = wordList.map(entry => {
+        if (entry.entryId) {
+            return entry;
+        }
+
+        changed = true;
+        return {...entry, entryId: createId()};
+    });
+
+    return {entries, changed};
+};
+
+globalThis.appendWordListEntries = function (
+    wordList,
+    entries,
+    saveMode,
+    timestamp = Date.now(),
+    createId = createWordListEntryId
+) {
     let updated = [...wordList];
     let entriesToSave = saveMode === 'firstEntryOnly' ? entries.slice(0, 1) : entries;
 
     entriesToSave.forEach(entry => {
         updated.push({
+            entryId: createId(),
             timestamp,
             simplified: entry.simplified,
             traditional: entry.traditional,
@@ -76,4 +105,25 @@ globalThis.appendWordListEntries = function (wordList, entries, saveMode, timest
     });
 
     return updated;
+};
+
+globalThis.updateWordListEntryNotes = function (wordList, entryId, notes) {
+    return wordList.map(entry => {
+        if (entry.entryId !== entryId) {
+            return entry;
+        }
+
+        let updated = {...entry};
+        if (notes) {
+            updated.notes = notes;
+        } else {
+            delete updated.notes;
+        }
+        return updated;
+    });
+};
+
+globalThis.deleteWordListEntries = function (wordList, entryIds) {
+    let ids = new Set(entryIds);
+    return wordList.filter(entry => !ids.has(entry.entryId));
 };

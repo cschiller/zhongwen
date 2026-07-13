@@ -62,6 +62,10 @@ let offscreenTaskQueue = Promise.resolve();
 
 let wordListWriteQueue = Promise.resolve();
 
+let activationQueue = Promise.resolve();
+
+let stateTransition = 0;
+
 const OFFSCREEN_DOCUMENT_PATH = 'offscreen.html';
 
 async function ensureOffscreenDocument() {
@@ -156,7 +160,12 @@ async function performLegacyStorageMigration() {
 }
 
 async function restoreActiveState() {
+    let transition = ++stateTransition;
     let {isActive} = await chrome.storage.local.get('isActive');
+
+    if (transition !== stateTransition) {
+        return;
+    }
 
     if (!isActive) {
         showInactiveBadge();
@@ -165,13 +174,22 @@ async function restoreActiveState() {
     }
 
     showActiveBadge();
-    createContextMenus();
+    createContextMenus(transition);
     let tabs = await chrome.tabs.query({});
+
+    if (transition !== stateTransition) {
+        return;
+    }
+
     tabs.forEach(tab => enableTab(tab.id));
 }
 
-function createContextMenus() {
+function createContextMenus(transition = stateTransition) {
     chrome.contextMenus.removeAll(() => {
+        if (transition !== stateTransition) {
+            return;
+        }
+
         chrome.contextMenus.create({
             id: 'wordlistMenuItem',
             title: 'Open word list'
@@ -262,20 +280,26 @@ function helpMenuItemListener({menuItemId}) {
 chrome.action.onClicked.addListener(activateExtensionToggle);
 
 function activateExtensionToggle(currentTab) {
-    chrome.storage.local.get('isActive', ({isActive}) => {
-        isActive ? deactivateExtension() : activateExtension(currentTab.id);
-    });
+    activationQueue = activationQueue.then(async () => {
+        let {isActive} = await chrome.storage.local.get('isActive');
+        return isActive ? deactivateExtension() : activateExtension(currentTab.id);
+    }).catch(error => console.error('Unable to change Zhongwen activation state', error));
 }
 
-function activateExtension(tabId) {
+async function activateExtension(tabId) {
+    let transition = ++stateTransition;
 
-    chrome.storage.local.set({isActive: true});
+    await chrome.storage.local.set({isActive: true});
+
+    if (transition !== stateTransition) {
+        return;
+    }
 
     enableTab(tabId);
 
     showActiveBadge();
 
-    createContextMenus();
+    createContextMenus(transition);
 
     showHelpMenu(tabId);
 }
@@ -310,9 +334,10 @@ function showHelpMenu(tabId) {
     });
 }
 
-function deactivateExtension() {
+async function deactivateExtension() {
+    ++stateTransition;
 
-    chrome.storage.local.set({isActive: false});
+    await chrome.storage.local.set({isActive: false});
 
     dict = undefined;
 
@@ -448,9 +473,10 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
 
 
 function enableTabIfActive(tabId) {
+    let transition = stateTransition;
 
     chrome.storage.local.get('isActive', ({isActive}) => {
-        if (isActive) {
+        if (isActive && transition === stateTransition) {
             enableTab(tabId);
             showActiveBadge();
         }
@@ -498,19 +524,89 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
         return true;
     }
+
+    if (message.type === 'getWordList') {
+        getWordList().then(data => {
+            sendResponse({success: true, ...data});
+        }).catch(() => {
+            sendResponse({success: false});
+        });
+
+        return true;
+    }
+
+    if (message.type === 'updateWordListEntry') {
+        updateWordListEntry(message.entryId, message.notes).then(() => {
+            sendResponse({success: true});
+        }).catch(() => {
+            sendResponse({success: false});
+        });
+
+        return true;
+    }
+
+    if (message.type === 'deleteWordListEntries') {
+        deleteWordListEntries(message.entryIds).then(() => {
+            sendResponse({success: true});
+        }).catch(() => {
+            sendResponse({success: false});
+        });
+
+        return true;
+    }
 });
 
+function queueWordListOperation(operation) {
+    let task = wordListWriteQueue.then(async () => {
+        await migrateLegacyStorage().catch(() => false);
+        return operation();
+    });
+    wordListWriteQueue = task.catch(() => undefined);
+    return task;
+}
+
+async function readWordListWithIds() {
+    let data = await chrome.storage.local.get(['wordList', 'saveToWordList', 'zhuyin']);
+    let normalized = globalThis.ensureWordListEntryIds(data.wordList || []);
+
+    if (normalized.changed) {
+        await chrome.storage.local.set({wordList: normalized.entries});
+    }
+
+    return {...data, wordList: normalized.entries};
+}
+
+function getWordList() {
+    return queueWordListOperation(async () => {
+        let data = await readWordListWithIds();
+        return {wordList: data.wordList, zhuyin: data.zhuyin};
+    });
+}
+
 function addWordListEntries(entries) {
-    let operation = wordListWriteQueue.then(async () => {
-        let data = await chrome.storage.local.get(['wordList', 'saveToWordList']);
-        let wordList = data.wordList || [];
+    return queueWordListOperation(async () => {
+        let data = await readWordListWithIds();
+        let wordList = data.wordList;
         let saveMode = data.saveToWordList || globalThis.defaultConfig.saveToWordList;
         let updatedWordList = globalThis.appendWordListEntries(wordList, entries, saveMode);
         await chrome.storage.local.set({wordList: updatedWordList});
     });
+}
 
-    wordListWriteQueue = operation.catch(() => undefined);
-    return operation;
+function updateWordListEntry(entryId, notes) {
+    return queueWordListOperation(async () => {
+        let data = await readWordListWithIds();
+        let updatedWordList = globalThis.updateWordListEntryNotes(data.wordList, entryId, notes);
+        await chrome.storage.local.set({wordList: updatedWordList});
+    });
+}
+
+function deleteWordListEntries(entryIds) {
+    return queueWordListOperation(async () => {
+        let data = await readWordListWithIds();
+        let updatedWordList = globalThis.deleteWordListEntries(data.wordList, entryIds);
+        await chrome.storage.local.set({wordList: updatedWordList});
+    });
 }
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {

@@ -36,6 +36,18 @@ test('stored configuration accepts only known configuration keys', () => {
     assert.equal(config.wordList, undefined);
 });
 
+test('release metadata is consistent and declares the Chromium API floor', () => {
+    let manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
+    let packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+    let packageLock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8'));
+
+    assert.equal(manifest.version, '6.4.0');
+    assert.equal(manifest.minimum_chrome_version, '109');
+    assert.equal(packageJson.version, manifest.version);
+    assert.equal(packageLock.version, manifest.version);
+    assert.equal(packageLock.packages[''].version, manifest.version);
+});
+
 test('legacy MV2 settings and word list convert to typed MV3 storage', () => {
     let helpers = loadHelpers('js/migration.js');
     let wordList = [{simplified: '中文', traditional: '中文'}];
@@ -108,12 +120,15 @@ test('word-list helpers preserve prior entries and honor the save mode', () => {
         {simplified: '文', traditional: '文', pinyin: 'wén', definition: 'writing'}
     ];
 
-    let firstOnly = helpers.appendWordListEntries(existing, incoming, 'firstEntryOnly', 123);
-    let allEntries = helpers.appendWordListEntries(existing, incoming, 'allEntries', 456);
+    let ids = ['first-id', 'all-id-1', 'all-id-2'];
+    let createId = () => ids.shift();
+    let firstOnly = helpers.appendWordListEntries(existing, incoming, 'firstEntryOnly', 123, createId);
+    let allEntries = helpers.appendWordListEntries(existing, incoming, 'allEntries', 456, createId);
 
     assert.equal(existing.length, 1);
     assert.equal(firstOnly.length, 2);
     assert.deepEqual(JSON.parse(JSON.stringify(firstOnly[1])), {
+        entryId: 'first-id',
         timestamp: 123,
         simplified: '中',
         traditional: '中',
@@ -121,7 +136,31 @@ test('word-list helpers preserve prior entries and honor the save mode', () => {
         definition: 'middle'
     });
     assert.equal(allEntries.length, 3);
+    assert.equal(allEntries[1].entryId, 'all-id-1');
+    assert.equal(allEntries[2].entryId, 'all-id-2');
     assert.equal(allEntries[2].timestamp, 456);
+});
+
+test('word-list mutations use stable entry IDs', () => {
+    let helpers = loadHelpers('js/migration.js');
+    let ids = ['old-id', 'new-id'];
+    let normalized = helpers.ensureWordListEntryIds(
+        [{simplified: '旧'}, {entryId: 'kept-id', simplified: '中'}],
+        () => ids.shift()
+    );
+
+    assert.equal(normalized.changed, true);
+    assert.equal(normalized.entries[0].entryId, 'old-id');
+    assert.equal(normalized.entries[1].entryId, 'kept-id');
+
+    let updated = helpers.updateWordListEntryNotes(normalized.entries, 'old-id', 'reviewed');
+    assert.equal(updated[0].notes, 'reviewed');
+    assert.equal(updated[1].notes, undefined);
+
+    let deleted = helpers.deleteWordListEntries(updated, ['kept-id']);
+    assert.deepEqual(JSON.parse(JSON.stringify(deleted)), [
+        {simplified: '旧', entryId: 'old-id', notes: 'reviewed'}
+    ]);
 });
 
 test('the default word-list mode preserves the MV2 all-entries behavior', () => {
@@ -131,7 +170,9 @@ test('the default word-list mode preserves the MV2 all-entries behavior', () => 
         {simplified: '文', traditional: '文', pinyin: 'wén', definition: 'writing'}
     ];
 
-    let saved = helpers.appendWordListEntries([], incoming, helpers.defaultConfig.saveToWordList, 123);
+    let saved = helpers.appendWordListEntries(
+        [], incoming, helpers.defaultConfig.saveToWordList, 123, () => 'entry-id'
+    );
     assert.equal(helpers.defaultConfig.saveToWordList, 'allEntries');
     assert.equal(saved.length, 2);
 });
