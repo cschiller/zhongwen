@@ -97,12 +97,15 @@ let savedSelStartOffset = 0;
 
 let savedSelEndList = [];
 
+let searchSequence = 0;
+
 function enableTab() {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('keydown', onKeyDown);
 }
 
 function disableTab() {
+    searchSequence++;
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('keydown', onKeyDown);
 
@@ -452,6 +455,9 @@ function onMouseMove(mouseMove) {
     if (document.caretRangeFromPoint) {
         range = document.caretRangeFromPoint(mouseMove.clientX, mouseMove.clientY);
         if (range === null) {
+            searchSequence++;
+            clearTimeout(timer);
+            timer = null;
             return;
         }
         rangeNode = range.startContainer;
@@ -459,6 +465,9 @@ function onMouseMove(mouseMove) {
     } else if (document.caretPositionFromPoint) {
         range = document.caretPositionFromPoint(mouseMove.clientX, mouseMove.clientY);
         if (range === null) {
+            searchSequence++;
+            clearTimeout(timer);
+            timer = null;
             return;
         }
         rangeNode = range.offsetNode;
@@ -470,6 +479,8 @@ function onMouseMove(mouseMove) {
             return;
         }
     }
+
+    searchSequence++;
 
     if (timer) {
         clearTimeout(timer);
@@ -511,6 +522,7 @@ function onMouseMove(mouseMove) {
 }
 
 function triggerSearch() {
+    let requestSequence = ++searchSequence;
 
     let rangeNode = savedRangeNode;
     let selStartOffset = savedRangeOffset + selStartDelta;
@@ -558,13 +570,17 @@ function triggerSearch() {
             'text': text,
             'originalText': originalText
         },
-        processSearchResult
+        result => processSearchResult(result, requestSequence)
     );
 
     return 0;
 }
 
-function processSearchResult(result) {
+function processSearchResult(result, requestSequence) {
+
+    if (requestSequence !== searchSequence) {
+        return;
+    }
 
     let selStartOffset = savedSelStartOffset;
     let selEndList = savedSelEndList;
@@ -876,16 +892,34 @@ function findPreviousTextNode(root, previous) {
 }
 
 function copyToClipboard(data) {
-    chrome.runtime.sendMessage({
-        type: 'copy',
-        data
-    }, response => {
-        if (chrome.runtime.lastError || !response || !response.success) {
-            showPopup('Unable to copy to clipboard', null, -1, -1);
-        } else {
-            showPopup('Copied to clipboard', null, -1, -1);
-        }
-    });
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(data)
+            .then(showCopySuccess)
+            .catch(() => copyToClipboardWithDocument(data));
+    } else {
+        copyToClipboardWithDocument(data);
+    }
+}
+
+function copyToClipboardWithDocument(data) {
+    let textarea = document.createElement('textarea');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.value = data;
+    document.body.appendChild(textarea);
+    textarea.select();
+    let success = document.execCommand('copy');
+    textarea.remove();
+
+    if (success) {
+        showCopySuccess();
+    } else {
+        showPopup('Unable to copy to clipboard', null, -1, -1);
+    }
+}
+
+function showCopySuccess() {
+    showPopup('Copied to clipboard', null, -1, -1);
 }
 
 function makeHtml(result, showToneColors) {

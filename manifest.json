@@ -42,7 +42,6 @@
     "open_in_tab": true
   },
   "permissions": [
-    "clipboardWrite",
     "contextMenus",
     "offscreen",
     "storage",

@@ -71,6 +71,28 @@ test('legacy MV2 settings and word list convert to typed MV3 storage', () => {
     });
 });
 
+test('legacy and current word lists merge once without overwriting current settings', () => {
+    let helpers = loadHelpers('js/migration.js');
+    let oldEntry = {simplified: '旧'};
+    let newEntry = {simplified: '新'};
+    let updates = helpers.mergeMigratedStorage(
+        {wordList: [newEntry], background: 'black'},
+        {wordList: [oldEntry], background: 'blue', isActive: true}
+    );
+
+    assert.deepEqual(JSON.parse(JSON.stringify(updates.wordList)), [oldEntry, newEntry]);
+    assert.equal(updates.background, undefined);
+    assert.equal(updates.isActive, true);
+    assert.equal(updates._localStorageMigrated, true);
+    assert.equal(updates._wl_migrated, true);
+
+    let alreadyMigrated = helpers.mergeMigratedStorage(
+        {wordList: [oldEntry, newEntry], _wl_migrated: true},
+        {wordList: [oldEntry]}
+    );
+    assert.equal(alreadyMigrated.wordList, undefined);
+});
+
 test('malformed legacy word-list data is not overwritten', () => {
     let helpers = loadHelpers('js/migration.js');
     let migrated = helpers.convertLegacyStorage({wordlist: '{not json'});
@@ -102,6 +124,18 @@ test('word-list helpers preserve prior entries and honor the save mode', () => {
     assert.equal(allEntries[2].timestamp, 456);
 });
 
+test('the default word-list mode preserves the MV2 all-entries behavior', () => {
+    let helpers = loadHelpers('js/config.js', 'js/migration.js');
+    let incoming = [
+        {simplified: '中', traditional: '中', pinyin: 'zhōng', definition: 'middle'},
+        {simplified: '文', traditional: '文', pinyin: 'wén', definition: 'writing'}
+    ];
+
+    let saved = helpers.appendWordListEntries([], incoming, helpers.defaultConfig.saveToWordList, 123);
+    assert.equal(helpers.defaultConfig.saveToWordList, 'allEntries');
+    assert.equal(saved.length, 2);
+});
+
 test('Google Docs separators are removed for lookup and retained for highlighting', async () => {
     let helpers = loadHelpers('js/text.js');
     let originalText = '中\u200c文';
@@ -122,6 +156,27 @@ test('Google Docs separators are removed for lookup and retained for highlightin
     let result = dictionary.wordSearch(normalizedText);
     assert.equal(result.matchLen, 2);
     assert.equal(result.data[0][1], '中文');
+});
+
+test('stale asynchronous search responses are ignored', () => {
+    let context = loadHelpers('js/config.js', 'js/text.js');
+    context.chrome = {
+        runtime: {onMessage: {addListener() {}}},
+        storage: {
+            local: {get(keys, callback) { callback({}); }},
+            onChanged: {addListener() {}}
+        }
+    };
+
+    let contentSource = fs.readFileSync(path.join(root, 'content.js'), 'utf8');
+    vm.runInContext(contentSource, context, {filename: 'content.js'});
+    vm.runInContext(`
+        searchSequence = 2;
+        showPopup = () => { globalThis.popupShown = true; };
+        processSearchResult({matchLen: 1, originalText: '中'}, 1);
+    `, context);
+
+    assert.equal(context.popupShown, undefined);
 });
 
 test('Zhuyin conversion accepts precomposed accented Pinyin', () => {

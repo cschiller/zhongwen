@@ -42,6 +42,25 @@ globalThis.convertLegacyStorage = function (legacyStorage) {
     return migrated;
 };
 
+globalThis.mergeMigratedStorage = function (currentStorage, convertedStorage) {
+    let updates = {
+        _localStorageMigrated: true,
+        _wl_migrated: true
+    };
+
+    Object.entries(convertedStorage).forEach(([key, value]) => {
+        if (key === 'wordList' && currentStorage.wordList !== undefined) {
+            if (!currentStorage._wl_migrated) {
+                updates.wordList = [...value, ...currentStorage.wordList];
+            }
+        } else if (currentStorage[key] === undefined) {
+            updates[key] = value;
+        }
+    });
+
+    return updates;
+};
+
 globalThis.appendWordListEntries = function (wordList, entries, saveMode, timestamp = Date.now()) {
     let updated = [...wordList];
     let entriesToSave = saveMode === 'firstEntryOnly' ? entries.slice(0, 1) : entries;

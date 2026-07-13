@@ -5,7 +5,7 @@ globalThis.defaultConfig = {
     fontSize: 'small',
     grammar: true,
     skritterTLD: 'com',
-    saveToWordList: 'firstEntryOnly',
+    saveToWordList: 'allEntries',
     simpTrad: 'classic',
     toneColors: true,
     toneColorScheme: 'standard',

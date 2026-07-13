@@ -66,20 +66,28 @@ const OFFSCREEN_DOCUMENT_PATH = 'offscreen.html';
 
 async function ensureOffscreenDocument() {
     let offscreenUrl = chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH);
-    let contexts = await chrome.runtime.getContexts({
-        contextTypes: ['OFFSCREEN_DOCUMENT'],
-        documentUrls: [offscreenUrl]
-    });
+    let hasDocument;
 
-    if (contexts.length > 0) {
+    if (chrome.runtime.getContexts) {
+        let contexts = await chrome.runtime.getContexts({
+            contextTypes: ['OFFSCREEN_DOCUMENT'],
+            documentUrls: [offscreenUrl]
+        });
+        hasDocument = contexts.length > 0;
+    } else {
+        let matchedClients = await globalThis.clients.matchAll();
+        hasDocument = matchedClients.some(client => client.url === offscreenUrl);
+    }
+
+    if (hasDocument) {
         return;
     }
 
     if (!creatingOffscreenDocument) {
         creatingOffscreenDocument = chrome.offscreen.createDocument({
             url: OFFSCREEN_DOCUMENT_PATH,
-            reasons: ['CLIPBOARD', 'LOCAL_STORAGE'],
-            justification: 'Migrate extension settings and support the copy shortcut'
+            reasons: ['LOCAL_STORAGE'],
+            justification: 'Migrate extension settings from Manifest V2 storage'
         }).finally(() => {
             creatingOffscreenDocument = undefined;
         });
@@ -119,6 +127,7 @@ async function performLegacyStorageMigration() {
         ...globalThis.configKeys,
         'isActive',
         'wordList',
+        '_wl_migrated',
         '_localStorageMigrated'
     ];
     let migrationState = await chrome.storage.local.get('_localStorageMigrated');
@@ -140,16 +149,7 @@ async function performLegacyStorageMigration() {
         return false;
     }
 
-    let updates = {
-        _localStorageMigrated: true,
-        _wl_migrated: true
-    };
-
-    Object.entries(convertedStorage).forEach(([key, value]) => {
-        if (currentStorage[key] === undefined) {
-            updates[key] = value;
-        }
-    });
+    let updates = globalThis.mergeMigratedStorage(currentStorage, convertedStorage);
 
     await chrome.storage.local.set(updates);
     return true;
@@ -160,38 +160,32 @@ async function restoreActiveState() {
 
     if (!isActive) {
         showInactiveBadge();
+        removeContextMenus();
         return;
     }
 
     showActiveBadge();
+    createContextMenus();
     let tabs = await chrome.tabs.query({});
     tabs.forEach(tab => enableTab(tab.id));
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-
-    chrome.contextMenus.create(
-        {
+function createContextMenus() {
+    chrome.contextMenus.removeAll(() => {
+        chrome.contextMenus.create({
             id: 'wordlistMenuItem',
             title: 'Open word list'
-        }, () => {
-            if (chrome.runtime.lastError) {
-                // ignore
-            }
-        }
-    );
-
-    chrome.contextMenus.create(
-        {
+        });
+        chrome.contextMenus.create({
             id: 'helpMenuItem',
             title: 'Show help in new tab'
-        }, () => {
-            if (chrome.runtime.lastError) {
-                // ignore
-            }
-        }
-    );
-});
+        });
+    });
+}
+
+function removeContextMenus() {
+    chrome.contextMenus.removeAll();
+}
 
 chrome.contextMenus.onClicked.addListener(wordlistMenuItemListener);
 
@@ -281,6 +275,8 @@ function activateExtension(tabId) {
 
     showActiveBadge();
 
+    createContextMenus();
+
     showHelpMenu(tabId);
 }
 
@@ -321,6 +317,8 @@ function deactivateExtension() {
     dict = undefined;
 
     showInactiveBadge();
+
+    removeContextMenus();
 
     disableAllTabs();
 }
@@ -516,15 +514,6 @@ function addWordListEntries(entries) {
 }
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.type === 'copy' && message.target !== 'offscreen') {
-        runOffscreenTask({type: 'copy', data: message.data}, true).then(response => {
-            sendResponse(response || {success: false});
-        }).catch(() => {
-            sendResponse({success: false});
-        });
-        return true;
-    }
-
     if (message.type === 'migrateLegacyStorage' && message.target !== 'offscreen') {
         migrateLegacyStorage().then(migrated => {
             sendResponse({success: true, migrated});
