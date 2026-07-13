@@ -48,7 +48,21 @@
 
 'use strict';
 
-let config;
+let config = globalThis.defaultConfig;
+
+chrome.storage.local.get(null, storedConfig => {
+    if (storedConfig) {
+        Object.entries(storedConfig).forEach(e => config[e[0]] = e[1]);
+    }
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+
+    if (areaName !== 'local') return;
+
+    // format: {"background":{"newValue":"lightblue","oldValue":"blue"}, "toneColors":{"newValue":false,"oldValue":true}}
+    Object.entries(changes).forEach(e => config[e[0]] = e[1].newValue);
+});
 
 let savedTarget;
 
@@ -79,9 +93,6 @@ let savedSearchResults = [];
 let savedSelStartOffset = 0;
 
 let savedSelEndList = [];
-
-// regular expression for zero-width non-joiner U+200C &zwnj;
-let zwnj = /\u200c/g;
 
 function enableTab() {
     document.addEventListener('mousemove', onMouseMove);
@@ -155,7 +166,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 71: // 'g'
-            if (config.grammar !== 'no' && savedSearchResults.grammar) {
+            if (config.grammar && savedSearchResults.grammar) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
                 // https://resources.allsetlearning.com/chinese/grammar/%E4%B8%AA
@@ -251,7 +262,7 @@ function onKeyDown(keyDown) {
             break;
 
         case 86: // 'v'
-            if (config.vocab !== 'no' && savedSearchResults.vocab) {
+            if (config.vocab && savedSearchResults.vocab) {
                 let sel = encodeURIComponent(window.getSelection().toString());
 
                 // https://resources.allsetlearning.com/chinese/vocabulary/%E4%B8%AA
@@ -529,18 +540,14 @@ function triggerSearch() {
     }
 
     let selEndList = [];
-    let originalText = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
-
-    // Workaround for Google Docs: remove zero-width non-joiner &zwnj;
-    let text = originalText.replace(zwnj, '');
+    let text = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
 
     savedSelStartOffset = selStartOffset;
     savedSelEndList = selEndList;
 
     chrome.runtime.sendMessage({
             'type': 'search',
-            'text': text,
-            'originalText': originalText
+            'text': text
         },
         processSearchResult
     );
@@ -559,17 +566,6 @@ function processSearchResult(result) {
         return;
     }
 
-    let highlightLength;
-    let index = 0;
-    for (let i = 0; i < result.matchLen; i++) {
-        // Google Docs workaround: determine the correct highlight length
-        while (result.originalText[index] === '\u200c') {
-            index++;
-        }
-        index++;
-    }
-    highlightLength = index;
-
     selStartIncrement = result.matchLen;
     selStartDelta = (selStartOffset - savedRangeOffset);
 
@@ -582,10 +578,10 @@ function processSearchResult(result) {
             hidePopup();
             return;
         }
-        highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
+        highlightMatch(doc, rangeNode, selStartOffset, result.matchLen, selEndList);
     }
 
-    showPopup(makeHtml(result, config.tonecolors !== 'no'), savedTarget, popX, popY, false);
+    showPopup(makeHtml(result, config.toneColors), savedTarget, popX, popY, false);
 }
 
 // modifies selEndList as a side-effect
@@ -645,7 +641,7 @@ function showPopup(html, elem, x, y, looseWidth) {
     popup.style.width = 'auto';
     popup.style.height = 'auto';
     popup.style.maxWidth = (looseWidth ? '' : '600px');
-    popup.className = `background-${config.css} tonecolor-${config.toneColorScheme}`;
+    popup.className = `background-${config.background} tonecolor-${config.toneColorScheme}`;
 
     $(popup).html(html);
 
@@ -869,12 +865,9 @@ function findPreviousTextNode(root, previous) {
 }
 
 function copyToClipboard(data) {
-    chrome.runtime.sendMessage({
-        'type': 'copy',
-        'data': data
+    navigator.clipboard.writeText(data).then(() => {
+        showPopup('Copied to clipboard', null, -1, -1);
     });
-
-    showPopup('Copied to clipboard', null, -1, -1);
 }
 
 function makeHtml(result, showToneColors) {
@@ -926,7 +919,7 @@ function makeHtml(result, showToneColors) {
 
         // Zhuyin
 
-        if (config.zhuyin === 'yes') {
+        if (config.zhuyin) {
             html += '<br>' + p[2];
         }
 
@@ -942,13 +935,13 @@ function makeHtml(result, showToneColors) {
         let addFinalBr = false;
 
         // Grammar
-        if (config.grammar !== 'no' && result.grammar && result.grammar.index === i) {
+        if (config.grammar && result.grammar && result.grammar.index === i) {
             html += '<br><span class="grammar">Press "g" for grammar and usage notes.</span><br>';
             addFinalBr = true;
         }
 
         // Vocab
-        if (config.vocab !== 'no' && result.vocab && result.vocab.index === i) {
+        if (config.vocab && result.vocab && result.vocab.index === i) {
             html += '<br><span class="vocab">Press "v" for vocabulary notes.</span><br>';
             addFinalBr = true;
         }
@@ -1121,7 +1114,6 @@ chrome.runtime.onMessage.addListener(
         switch (request.type) {
             case 'enable':
                 enableTab();
-                config = request.config;
                 break;
             case 'disable':
                 disableTab();

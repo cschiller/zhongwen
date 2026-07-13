@@ -1,34 +1,57 @@
 /*
  Zhongwen - A Chinese-English Pop-Up Dictionary
- Copyright (C) 2010-2019 Christian Schiller
+ Copyright (C) 2022 Christian Schiller
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
  */
 
 /* global globalThis */
 
-let wordList = localStorage['wordlist'];
-
-let showZhuyin = localStorage['zhuyin'] === 'yes';
+'use strict';
 
 const NOTES_COLUMN = 6;
 
+let wordList;
+
+let showZhuyin;
+
 let entries;
-if (wordList) {
-    entries = JSON.parse(wordList);
-    entries.forEach(e => {
-        e.timestamp = e.timestamp || 0;
-        e.notes = (e.notes || '<i>Edit</i>');
-        e.zhuyin = convert2Zhuyin(e.pinyin);
-    });
-    // show new entries first
-    entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
-    entries.forEach((e, i) => e.id = i);
-} else {
-    entries = [];
-}
+
+// migration from manifest v2
+chrome.storage.local.get(['wordList', '_wl_migrated'], data => {
+    if (!data._wl_migrated) {
+
+        let v2wordlist = localStorage['wordlist'];
+        let migrated = v2wordlist ? JSON.parse(v2wordlist) : [];
+
+        if (data.wordList) {
+            migrated.push(...data.wordList);
+        }
+        chrome.storage.local.set({wordList: migrated, _wl_migrated: true}, () => console.log('wordlist migrated'));
+    }
+});
+
+chrome.storage.local.get(['wordList', 'zhuyin'], data => {
+    wordList = data.wordList;
+    showZhuyin = data.zhuyin || globalThis.defaultConfig.zhuyin;
+
+    if (wordList) {
+        entries = wordList;
+        entries.forEach(e => {
+            e.timestamp = e.timestamp || 0;
+            e.notes = (e.notes || '<i>Edit</i>');
+            e.zhuyin = convert2Zhuyin(e.pinyin);
+        });
+        // show new entries first
+        entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
+        entries.forEach((e, i) => e.id = i);
+    } else {
+        entries = [];
+    }
+});
+
 
 function showListIsEmptyNotice() {
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
         $('#nodata').show();
     } else {
         $('#nodata').hide();
@@ -36,7 +59,7 @@ function showListIsEmptyNotice() {
 }
 
 function disableButtons() {
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
         $('#saveList').prop('disabled', true);
         $('#selectAll').prop('disabled', true);
         $('#deselectAll').prop('disabled', true);
@@ -128,7 +151,7 @@ $(document).ready(function () {
 
         $('#editNotes').modal('hide');
         invalidateRow().draw();
-        localStorage['wordlist'] = JSON.stringify(copyEntriesForSaving(entries));
+        chrome.storage.local.set({wordList: copyEntriesForSaving(entries)});
     });
 
     $('#saveList').click(function () {
@@ -169,7 +192,7 @@ $(document).ready(function () {
 
         entries = table.rows().data().draw(true);
 
-        localStorage['wordlist'] = JSON.stringify(copyEntriesForSaving(entries));
+        chrome.storage.local.set({wordList: copyEntriesForSaving(entries)});
 
         showListIsEmptyNotice();
         disableButtons();
