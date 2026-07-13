@@ -225,4 +225,6 @@ test('Zhuyin conversion accepts precomposed accented Pinyin', () => {
 
     assert.equal(helpers.accentedPinyin2Zhuyin('zhōng'), 'ㄓㄨㄥ');
     assert.equal(helpers.accentedPinyin2Zhuyin('wén'), 'ㄨㄣˊ');
+    assert.equal(helpers.accentedPinyin2Zhuyin('lǜ'), 'ㄌㄩˋ');
+    assert.equal(helpers.accentedPinyin2Zhuyin('nǚ'), 'ㄋㄩˇ');
 });

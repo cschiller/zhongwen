@@ -54,6 +54,10 @@ import './js/migration.js';
 
 let dict;
 
+let dictionaryPromise;
+
+let dictionaryGeneration = 0;
+
 let creatingOffscreenDocument;
 
 let migrationPromise;
@@ -281,6 +285,7 @@ chrome.action.onClicked.addListener(activateExtensionToggle);
 
 function activateExtensionToggle(currentTab) {
     activationQueue = activationQueue.then(async () => {
+        await migrateLegacyStorage().catch(() => false);
         let {isActive} = await chrome.storage.local.get('isActive');
         return isActive ? deactivateExtension() : activateExtension(currentTab.id);
     }).catch(error => console.error('Unable to change Zhongwen activation state', error));
@@ -335,17 +340,19 @@ function showHelpMenu(tabId) {
 }
 
 async function deactivateExtension() {
-    ++stateTransition;
+    let transition = ++stateTransition;
 
     await chrome.storage.local.set({isActive: false});
 
     dict = undefined;
+    dictionaryPromise = undefined;
+    ++dictionaryGeneration;
 
     showInactiveBadge();
 
     removeContextMenus();
 
-    disableAllTabs();
+    await disableAllTabs(transition);
 }
 
 function showInactiveBadge() {
@@ -358,24 +365,32 @@ function showInactiveBadge() {
     });
 }
 
-function disableAllTabs() {
-    chrome.windows.getAll(
-        { 'populate': true },
-        function (windows) {
-            for (let i = 0; i < windows.length; ++i) {
-                let tabs = windows[i].tabs;
-                for (let j = 0; j < tabs.length; ++j) {
-                    chrome.tabs.sendMessage(tabs[j].id, {
-                        'type': 'disable'
-                    }, () => {
-                        if (chrome.runtime.lastError) {
-                            // ignore
-                        }
-                    });
+function disableAllTabs(transition = stateTransition) {
+    return new Promise(resolve => {
+        chrome.windows.getAll(
+            { 'populate': true },
+            function (windows) {
+                if (transition !== stateTransition) {
+                    resolve();
+                    return;
                 }
+
+                for (let i = 0; i < windows.length; ++i) {
+                    let tabs = windows[i].tabs;
+                    for (let j = 0; j < tabs.length; ++j) {
+                        chrome.tabs.sendMessage(tabs[j].id, {
+                            'type': 'disable'
+                        }, () => {
+                            if (chrome.runtime.lastError) {
+                                // ignore
+                            }
+                        });
+                    }
+                }
+                resolve();
             }
-        }
-    );
+        );
+    });
 }
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -398,13 +413,22 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 function search(text) {
 
     if (!dict) {
-        return loadDictionary().then(d => {
+        if (!dictionaryPromise) {
+            let generation = dictionaryGeneration;
+            let pending = loadDictionary().then(dictionary => {
+                if (generation === dictionaryGeneration) {
+                    dict = dictionary;
+                }
+                return dictionary;
+            }).finally(() => {
+                if (dictionaryPromise === pending) {
+                    dictionaryPromise = undefined;
+                }
+            });
+            dictionaryPromise = pending;
+        }
 
-            dict = d;
-
-            return lookup(dict, text);
-
-        });
+        return dictionaryPromise.then(dictionary => lookup(dictionary, text));
     } else {
         let entry = lookup(dict, text);
 
@@ -536,8 +560,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 
     if (message.type === 'updateWordListEntry') {
-        updateWordListEntry(message.entryId, message.notes).then(() => {
-            sendResponse({success: true});
+        updateWordListEntry(message.entryId, message.notes).then(updated => {
+            sendResponse({success: updated});
         }).catch(() => {
             sendResponse({success: false});
         });
@@ -596,8 +620,14 @@ function addWordListEntries(entries) {
 function updateWordListEntry(entryId, notes) {
     return queueWordListOperation(async () => {
         let data = await readWordListWithIds();
+
+        if (!data.wordList.some(entry => entry.entryId === entryId)) {
+            return false;
+        }
+
         let updatedWordList = globalThis.updateWordListEntryNotes(data.wordList, entryId, notes);
         await chrome.storage.local.set({wordList: updatedWordList});
+        return true;
     });
 }
 
@@ -621,5 +651,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 });
 
 migrateLegacyStorage()
+    .catch(error => console.error('Unable to migrate legacy Zhongwen settings', error))
     .then(restoreActiveState)
-    .catch(error => console.error('Unable to migrate legacy Zhongwen settings', error));
+    .catch(error => console.error('Unable to restore Zhongwen activation state', error));

@@ -457,5 +457,6 @@ globalThis.accentedPinyin2Zhuyin = function (syllable) {
             break;
         }
     }
+    key = key.replace(/u\u0308/g, 'u:');
     return zhuyinMap[key] + zhuyinTones[tone];
 };
