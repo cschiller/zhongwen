@@ -26,7 +26,9 @@
     "extends": "stylelint-config-recommended"
   },
   "scripts": {
-    "lint": "eslint --fix *.js js/options.js js/wordlist.js js/zhuyin.js",
-    "csslint": "stylelint css/content.css css/wordlist.css"
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint *.js js/config.js js/migration.js js/offscreen.js js/options.js js/text.js js/wordlist.js js/zhuyin.js tests/*.test.js",
+    "csslint": "stylelint css/content.css css/wordlist.css",
+    "check": "npm test && npm run lint && npm run csslint"
   }
 }

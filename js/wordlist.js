@@ -14,40 +14,25 @@ let wordList;
 
 let showZhuyin;
 
-let entries;
+let entries = [];
 
-// migration from manifest v2
-chrome.storage.local.get(['wordList', '_wl_migrated'], data => {
-    if (!data._wl_migrated) {
+async function loadWordList() {
+    await chrome.runtime.sendMessage({type: 'migrateLegacyStorage'}).catch(() => undefined);
+    let data = await chrome.storage.local.get(['wordList', 'zhuyin']);
 
-        let v2wordlist = localStorage['wordlist'];
-        let migrated = v2wordlist ? JSON.parse(v2wordlist) : [];
+    wordList = data.wordList || [];
+    showZhuyin = data.zhuyin ?? globalThis.defaultConfig.zhuyin;
+    entries = wordList;
 
-        if (data.wordList) {
-            migrated.push(...data.wordList);
-        }
-        chrome.storage.local.set({wordList: migrated, _wl_migrated: true}, () => console.log('wordlist migrated'));
-    }
-});
-
-chrome.storage.local.get(['wordList', 'zhuyin'], data => {
-    wordList = data.wordList;
-    showZhuyin = data.zhuyin || globalThis.defaultConfig.zhuyin;
-
-    if (wordList) {
-        entries = wordList;
-        entries.forEach(e => {
-            e.timestamp = e.timestamp || 0;
-            e.notes = (e.notes || '<i>Edit</i>');
-            e.zhuyin = convert2Zhuyin(e.pinyin);
-        });
-        // show new entries first
-        entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
-        entries.forEach((e, i) => e.id = i);
-    } else {
-        entries = [];
-    }
-});
+    entries.forEach(e => {
+        e.timestamp = e.timestamp || 0;
+        e.notes = (e.notes || '<i>Edit</i>');
+        e.zhuyin = convert2Zhuyin(e.pinyin);
+    });
+    // show new entries first
+    entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
+    entries.forEach((e, i) => e.id = i);
+}
 
 
 function showListIsEmptyNotice() {
@@ -101,7 +86,9 @@ function copyEntryForSaving(entry) {
     return result;
 }
 
-$(document).ready(function () {
+$(document).ready(async function () {
+
+    await loadWordList();
 
     showListIsEmptyNotice();
     disableButtons();

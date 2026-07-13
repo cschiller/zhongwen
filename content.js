@@ -48,20 +48,23 @@
 
 'use strict';
 
-let config = globalThis.defaultConfig;
+let config = {...globalThis.defaultConfig};
 
-chrome.storage.local.get(null, storedConfig => {
-    if (storedConfig) {
-        Object.entries(storedConfig).forEach(e => config[e[0]] = e[1]);
-    }
+chrome.storage.local.get(globalThis.configKeys, storedConfig => {
+    globalThis.applyStoredConfig(config, storedConfig);
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
 
     if (areaName !== 'local') return;
 
-    // format: {"background":{"newValue":"lightblue","oldValue":"blue"}, "toneColors":{"newValue":false,"oldValue":true}}
-    Object.entries(changes).forEach(e => config[e[0]] = e[1].newValue);
+    globalThis.configKeys.forEach(key => {
+        if (changes[key]) {
+            config[key] = changes[key].newValue === undefined
+                ? globalThis.defaultConfig[key]
+                : changes[key].newValue;
+        }
+    });
 });
 
 let savedTarget;
@@ -214,9 +217,13 @@ function onKeyDown(keyDown) {
             chrome.runtime.sendMessage({
                 'type': 'add',
                 'entries': entries
+            }, response => {
+                if (chrome.runtime.lastError || !response || !response.success) {
+                    showPopup('Unable to add word to the word list.', null, -1, -1);
+                } else {
+                    showPopup('Added to word list.<p>Press Alt+W to open word list.', null, -1, -1);
+                }
             });
-
-            showPopup('Added to word list.<p>Press Alt+W to open word list.', null, -1, -1);
         }
             break;
 
@@ -540,14 +547,16 @@ function triggerSearch() {
     }
 
     let selEndList = [];
-    let text = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
+    let originalText = getText(rangeNode, selStartOffset, selEndList, 30 /*maxlength*/);
+    let text = globalThis.normalizeSearchText(originalText);
 
     savedSelStartOffset = selStartOffset;
     savedSelEndList = selEndList;
 
     chrome.runtime.sendMessage({
             'type': 'search',
-            'text': text
+            'text': text,
+            'originalText': originalText
         },
         processSearchResult
     );
@@ -566,7 +575,9 @@ function processSearchResult(result) {
         return;
     }
 
-    selStartIncrement = result.matchLen;
+    let highlightLength = globalThis.getHighlightLength(result.originalText, result.matchLen);
+
+    selStartIncrement = highlightLength;
     selStartDelta = (selStartOffset - savedRangeOffset);
 
     let rangeNode = savedRangeNode;
@@ -578,7 +589,7 @@ function processSearchResult(result) {
             hidePopup();
             return;
         }
-        highlightMatch(doc, rangeNode, selStartOffset, result.matchLen, selEndList);
+        highlightMatch(doc, rangeNode, selStartOffset, highlightLength, selEndList);
     }
 
     showPopup(makeHtml(result, config.toneColors), savedTarget, popX, popY, false);
@@ -865,8 +876,15 @@ function findPreviousTextNode(root, previous) {
 }
 
 function copyToClipboard(data) {
-    navigator.clipboard.writeText(data).then(() => {
-        showPopup('Copied to clipboard', null, -1, -1);
+    chrome.runtime.sendMessage({
+        type: 'copy',
+        data
+    }, response => {
+        if (chrome.runtime.lastError || !response || !response.success) {
+            showPopup('Unable to copy to clipboard', null, -1, -1);
+        } else {
+            showPopup('Copied to clipboard', null, -1, -1);
+        }
     });
 }
 

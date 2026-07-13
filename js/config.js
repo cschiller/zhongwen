@@ -12,3 +12,14 @@ globalThis.defaultConfig = {
     vocab: true,
     zhuyin: false
 };
+
+globalThis.configKeys = Object.freeze(Object.keys(globalThis.defaultConfig));
+
+globalThis.applyStoredConfig = function (config, storedConfig) {
+    globalThis.configKeys.forEach(key => {
+        if (storedConfig[key] !== undefined) {
+            config[key] = storedConfig[key];
+        }
+    });
+    return config;
+};

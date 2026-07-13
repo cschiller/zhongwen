@@ -50,8 +50,123 @@
 
 import { ZhongwenDictionary } from './dict.js';
 import './js/config.js';
+import './js/migration.js';
 
 let dict;
+
+let creatingOffscreenDocument;
+
+let migrationPromise;
+
+let offscreenTaskQueue = Promise.resolve();
+
+let wordListWriteQueue = Promise.resolve();
+
+const OFFSCREEN_DOCUMENT_PATH = 'offscreen.html';
+
+async function ensureOffscreenDocument() {
+    let offscreenUrl = chrome.runtime.getURL(OFFSCREEN_DOCUMENT_PATH);
+    let contexts = await chrome.runtime.getContexts({
+        contextTypes: ['OFFSCREEN_DOCUMENT'],
+        documentUrls: [offscreenUrl]
+    });
+
+    if (contexts.length > 0) {
+        return;
+    }
+
+    if (!creatingOffscreenDocument) {
+        creatingOffscreenDocument = chrome.offscreen.createDocument({
+            url: OFFSCREEN_DOCUMENT_PATH,
+            reasons: ['CLIPBOARD', 'LOCAL_STORAGE'],
+            justification: 'Migrate extension settings and support the copy shortcut'
+        }).finally(() => {
+            creatingOffscreenDocument = undefined;
+        });
+    }
+
+    await creatingOffscreenDocument;
+}
+
+function runOffscreenTask(message, closeAfter = false) {
+    let task = offscreenTaskQueue.then(async () => {
+        await ensureOffscreenDocument();
+        try {
+            return await chrome.runtime.sendMessage({...message, target: 'offscreen'});
+        } finally {
+            if (closeAfter) {
+                await chrome.offscreen.closeDocument().catch(() => undefined);
+            }
+        }
+    });
+
+    offscreenTaskQueue = task.catch(() => undefined);
+    return task;
+}
+
+function migrateLegacyStorage() {
+    if (!migrationPromise) {
+        migrationPromise = performLegacyStorageMigration().catch(error => {
+            migrationPromise = undefined;
+            throw error;
+        });
+    }
+    return migrationPromise;
+}
+
+async function performLegacyStorageMigration() {
+    let currentKeys = [
+        ...globalThis.configKeys,
+        'isActive',
+        'wordList',
+        '_localStorageMigrated'
+    ];
+    let migrationState = await chrome.storage.local.get('_localStorageMigrated');
+
+    if (migrationState._localStorageMigrated) {
+        return false;
+    }
+
+    if (!chrome.offscreen) {
+        return false;
+    }
+
+    let response = await runOffscreenTask({type: 'readLegacyStorage'}, true);
+    let legacyStorage = response ? response.legacyStorage : {};
+    let convertedStorage = globalThis.convertLegacyStorage(legacyStorage);
+    let currentStorage = await chrome.storage.local.get(currentKeys);
+
+    if (currentStorage._localStorageMigrated) {
+        return false;
+    }
+
+    let updates = {
+        _localStorageMigrated: true,
+        _wl_migrated: true
+    };
+
+    Object.entries(convertedStorage).forEach(([key, value]) => {
+        if (currentStorage[key] === undefined) {
+            updates[key] = value;
+        }
+    });
+
+    await chrome.storage.local.set(updates);
+    return true;
+}
+
+async function restoreActiveState() {
+    let {isActive} = await chrome.storage.local.get('isActive');
+
+    if (!isActive) {
+        showInactiveBadge();
+        return;
+    }
+
+    showActiveBadge();
+    let tabs = await chrome.tabs.query({});
+    tabs.forEach(tab => enableTab(tab.id));
+}
 
 chrome.runtime.onInstalled.addListener(() => {
 
@@ -245,7 +360,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type === 'search') {
 
         search(message.text).then(response => {
+            if (response) {
+                response.originalText = message.originalText || message.text;
+            }
             sendResponse(response);
+        }).catch(() => {
+            sendResponse(undefined);
         });
 
         return true;
@@ -369,32 +489,52 @@ function createTab(url, tabType) {
     });
 }
 
-chrome.runtime.onMessage.addListener(function (message) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.type === 'add') {
-        chrome.storage.local.get(['wordList', 'saveToWordList'], data => {
-
-            let wordList = data.wordList || [];
-
-            let saveToWordList = data.saveToWordList || globalThis.defaultConfig.saveToWordList;
-
-            for (let i in message.entries) {
-
-                let entry = {};
-                entry.timestamp = Date.now();
-                entry.simplified = message.entries[i].simplified;
-                entry.traditional = message.entries[i].traditional;
-                entry.pinyin = message.entries[i].pinyin;
-                entry.definition = message.entries[i].definition;
-
-                wordList.push(entry);
-
-                if (saveToWordList === 'firstEntryOnly') {
-                    break;
-                }
-            }
-
-            chrome.storage.local.set({wordList});
+        addWordListEntries(message.entries).then(() => {
+            sendResponse({success: true});
+        }).catch(() => {
+            sendResponse({success: false});
         });
+
+        return true;
     }
 });
+
+function addWordListEntries(entries) {
+    let operation = wordListWriteQueue.then(async () => {
+        let data = await chrome.storage.local.get(['wordList', 'saveToWordList']);
+        let wordList = data.wordList || [];
+        let saveMode = data.saveToWordList || globalThis.defaultConfig.saveToWordList;
+        let updatedWordList = globalThis.appendWordListEntries(wordList, entries, saveMode);
+        await chrome.storage.local.set({wordList: updatedWordList});
+    });
+
+    wordListWriteQueue = operation.catch(() => undefined);
+    return operation;
+}
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if (message.type === 'copy' && message.target !== 'offscreen') {
+        runOffscreenTask({type: 'copy', data: message.data}, true).then(response => {
+            sendResponse(response || {success: false});
+        }).catch(() => {
+            sendResponse({success: false});
+        });
+        return true;
+    }
+
+    if (message.type === 'migrateLegacyStorage' && message.target !== 'offscreen') {
+        migrateLegacyStorage().then(migrated => {
+            sendResponse({success: true, migrated});
+        }).catch(() => {
+            sendResponse({success: false});
+        });
+        return true;
+    }
+});
+
+migrateLegacyStorage()
+    .then(restoreActiveState)
+    .catch(error => console.error('Unable to migrate legacy Zhongwen settings', error));

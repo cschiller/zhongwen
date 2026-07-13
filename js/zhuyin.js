@@ -443,7 +443,7 @@ globalThis.numericPinyin2Zhuyin = function (syllable) {
 };
 
 globalThis.accentedPinyin2Zhuyin = function (syllable) {
-    let lowerCased = syllable.toLowerCase();
+    let lowerCased = syllable.toLowerCase().normalize('NFD');
     let key = lowerCased;
     let tone = 5;
     for (let i = 1; i <= 4; i++) {

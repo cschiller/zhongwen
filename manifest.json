@@ -26,6 +26,7 @@
       ],
       "js": [
         "js/config.js",
+        "js/text.js",
         "js/jquery-3.3.1.min.js",
         "js/zhuyin.js",
         "content.js"
@@ -41,7 +42,9 @@
     "open_in_tab": true
   },
   "permissions": [
+    "clipboardWrite",
     "contextMenus",
+    "offscreen",
     "storage",
     "tabs"
   ],

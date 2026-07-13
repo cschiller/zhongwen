@@ -8,15 +8,16 @@
 
 'use strict';
 
-let config = globalThis.defaultConfig;
+let config = {...globalThis.defaultConfig};
 
-chrome.storage.local.get(null, storedConfig => {
-    if (storedConfig) {
-        Object.entries(storedConfig).forEach(e => config[e[0]] = e[1]);
-    }
+initializeOptions();
 
+async function initializeOptions() {
+    await chrome.runtime.sendMessage({type: 'migrateLegacyStorage'}).catch(() => undefined);
+    let storedConfig = await chrome.storage.local.get(globalThis.configKeys);
+    globalThis.applyStoredConfig(config, storedConfig);
     loadVals();
-});
+}
 
 function loadVals() {
 
@@ -101,4 +102,3 @@ window.addEventListener('load', () => {
             () => setOption('skritterTLD', input.getAttribute('value')));
     });
 });
-
