@@ -11,17 +11,19 @@ contributions from the following people:
 
 * Lenoard Lausen (https://github.com/leezu)
 
+* Eason Su (https://github.com/yicheng-eason-su)
+
 Furthermore, Zhongwen would not be possible without the work of all the editors
 who put together, and constantly improve and update, the
 CC-CEDICT dictionary: https://www.mdbg.net/chinese/dictionary?page=cedict
 
-This project derives the following files after the Cantonese CC-Canto dictionary, 
-an open source project by Pleco, published at https://cccanto.org/download.html and 
-distributed under a Creative Commons Attribution-ShareAlike 3.0 license 
+This project derives the following files after the Cantonese CC-Canto dictionary,
+an open source project by Pleco, published at https://cccanto.org/download.html and
+distributed under a Creative Commons Attribution-ShareAlike 3.0 license
 (https://creativecommons.org/licenses/by-sa/3.0/):
-- data/cedict-jyutping.idx
+* data/cedict-jyutping.idx
 
-Readings for single characters are sourced from the Unihan Database, 
+Readings for single characters are sourced from the Unihan Database,
 part of the Unicode Character Database: https://www.unicode.org/charts/unihan.html
 Copyright (c) 1991-present Unicode, Inc., used under the Unicode Terms of Use
 (https://www.unicode.org/terms_of_use.html).
