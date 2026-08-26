@@ -34,6 +34,8 @@ function loadVals() {
 
     document.querySelector('#zhuyin').checked = config.zhuyin;
 
+    document.querySelector('#jyutping').checked = config.jyutping;
+
     document.querySelector('#grammar').checked = config.grammar;
 
     document.querySelector('#vocab').checked = config.vocab;
@@ -84,6 +86,9 @@ window.addEventListener('load', () => {
 
     document.querySelector('#zhuyin').addEventListener('change',
         (event) => setOption('zhuyin', event.target.checked));
+
+    document.querySelector('#jyutping').addEventListener('change',
+        (event) => setOption('jyutping', event.target.checked));
 
     document.querySelector('#grammar').addEventListener('change',
         (event) => setOption('grammar', event.target.checked));

@@ -46,14 +46,36 @@
 
 'use strict';
 
+// Width the offsets in cedict-jyutping.idx are zero-padded to, so that their
+// lexicographic order matches their numeric order and find() can binary-search
+// them. Must stay in sync with OFFSET_WIDTH in build_jyutping_data.py.
+const JYUTPING_OFFSET_WIDTH = 8;
+
 export class ZhongwenDictionary {
 
-    constructor(wordDict, wordIndex, grammarKeywords, vocabKeywords) {
+    constructor(wordDict, wordIndex, grammarKeywords, vocabKeywords, jyutpingIndex) {
         this.wordDict = wordDict;
         this.wordIndex = wordIndex;
         this.grammarKeywords = grammarKeywords;
         this.vocabKeywords = vocabKeywords;
         this.cache = {};
+        this.jyutpingIndex = jyutpingIndex || null;
+    }
+
+    /**
+     * The Jyutping dictionary uses the same indexing as cedict,
+     * offset used directly with no second parse
+     */
+    static findJyutping(offset, index) {
+
+        if (!index) {
+            return null;
+        }
+
+        let key = String(offset).padStart(JYUTPING_OFFSET_WIDTH, '0');
+        let row = ZhongwenDictionary.find(key + '\t', index);
+
+        return row ? row.substring(JYUTPING_OFFSET_WIDTH + 1) : null;
     }
 
     static find(needle, haystack) {
@@ -127,7 +149,10 @@ export class ZhongwenDictionary {
                         maxLen = word.length;
                     }
 
-                    entry.data.push([dentry, word]);
+                    let jyutping = ZhongwenDictionary.findJyutping(
+                        offset, this.jyutpingIndex);
+
+                    entry.data.push([dentry, word, jyutping]);
                 }
 
                 word = word.substr(0, word.length - 1);

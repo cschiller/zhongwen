@@ -923,6 +923,12 @@ function makeHtml(result, showToneColors) {
             html += '<br>' + p[2];
         }
 
+        // Jyutping
+
+        if (config.jyutping && result.data[i][2]) {
+            html += '<br>' + jyutpingHtml(result.data[i][2]);
+        }
+
         // Definition
 
         let defClass = 'w-def';
@@ -1011,6 +1017,98 @@ function tonify(vowels, tone) {
     }
 
     return [html, text];
+}
+
+/*
+ Follows on Chui's Visual Fonts (visual-fonts.com) for the six Cantonese tones,
+ */
+const jyutpingContours = {
+    1: [5, 5],   // high flat
+    2: [2, 5],   // high rising
+    3: [3, 3],   // mid flat
+    4: [2, 1],   // low falling
+    5: [2, 3],   // low rising
+    6: [2, 2]    // low flat
+};
+
+/*
+ Encode Jyutping marks as SVG paths on a 10x10 grid.
+ */
+const jyutpingMarks = {
+    flat: 'M 1 5 L 9 5',
+    rising: 'M 1 8.4 Q 5.6 8.2 9 1.8',
+    falling: 'M 1 1.8 Q 5.6 2 9 8.4'
+};
+
+// Drawn as inline SVG for consistent rendering.
+function jyutpingToneMark(tone) {
+
+    let contour = jyutpingContours[tone];
+    if (!contour) {
+        return '';
+    }
+
+    let path;
+    if (contour[1] === contour[0]) {
+        path = jyutpingMarks.flat;
+    } else if (contour[1] > contour[0]) {
+        path = jyutpingMarks.rising;
+    } else {
+        path = jyutpingMarks.falling;
+    }
+
+    // Sizing for the Jyutping mark
+    return '<svg class="w-jyutping-mark" viewBox="0 0 10 10"'
+        + ' width="10" height="10" aria-hidden="true">'
+        + '<path d="' + path + '" fill="none" stroke="currentColor"'
+        + ' stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'
+        + '</svg>';
+}
+
+function jyutpingHtml(jyutping) {
+
+    let jyutpingClass = 'w-jyutping';
+    if (config.fontSize === 'small') {
+        jyutpingClass += '-small';
+    }
+
+    let html = '';
+    // Readings are space separated, some have multiple (gaa3/ gaa4).
+    let syllables = jyutping.split(/\s+/).filter(s => s.length > 0);
+
+    for (let i = 0; i < syllables.length; ++i) {
+
+        if (i > 0) {
+            html += '&nbsp;';
+        }
+
+        let syllable = syllables[i];
+        let m = syllable.match(/^(.*?)([1-6])(\/?)$/);
+
+        if (!m) {
+            // Not a tone-bearing syllable (a stray '/' separator, say).
+            html += '<span class="' + jyutpingClass + '">'
+                + escapeHtml(syllable) + '</span>';
+            continue;
+        }
+
+        let tone = m[2];
+
+        html += '<span class="' + jyutpingClass + ' jyutping-tone' + tone + '">'
+            + escapeHtml(m[1])
+            + '<span class="w-jyutping-tone w-jyutping-pitch' + tone + '">'
+            + jyutpingToneMark(tone) + tone + '</span>'
+            + escapeHtml(m[3])
+            + '</span>';
+    }
+
+    return html;
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function pinyinAndZhuyin(syllables, showToneColors, pinyinClass) {

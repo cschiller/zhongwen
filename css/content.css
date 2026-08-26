@@ -89,6 +89,15 @@
   color: #7070e0;
 }
 
+/*
+ Explicitly set pinyin color for yellow background. Jyutping is not listed here:
+ it is coloured by its own Cantonese tone, further down.
+ */
+#zhongwen-window.background-yellow .w-pinyin,
+#zhongwen-window.background-yellow .w-pinyin-small {
+  color: #000000;
+}
+
 #zhongwen-window.background-yellow .grammar {
   color: #00008b;
 }
@@ -236,4 +245,150 @@
 
 #zhongwen-window.tonecolor-hanping .tone5 {
   color: #a0a0a0;
+}
+
+
+/*
+ Jyutping Tone Colors (Pleco scheme). The whole syllable is coloured by its
+ Cantonese tone — letters, mark and digit alike.
+ */
+#zhongwen-window .w-jyutping.jyutping-tone1,
+#zhongwen-window .w-jyutping-small.jyutping-tone1 {
+  color: #3d95f0;   /* high flat   — light blue */
+}
+
+#zhongwen-window .w-jyutping.jyutping-tone2,
+#zhongwen-window .w-jyutping-small.jyutping-tone2 {
+  color: #46b846;   /* high rising — light green */
+}
+
+#zhongwen-window .w-jyutping.jyutping-tone3,
+#zhongwen-window .w-jyutping-small.jyutping-tone3 {
+  color: #2b6cd4;   /* mid flat    — medium blue */
+}
+
+#zhongwen-window .w-jyutping.jyutping-tone4,
+#zhongwen-window .w-jyutping-small.jyutping-tone4 {
+  color: #d43a92;   /* low falling — magenta */
+}
+
+#zhongwen-window .w-jyutping.jyutping-tone5,
+#zhongwen-window .w-jyutping-small.jyutping-tone5 {
+  color: #1f8a1f;   /* low rising  — medium green */
+}
+
+#zhongwen-window .w-jyutping.jyutping-tone6,
+#zhongwen-window .w-jyutping-small.jyutping-tone6 {
+  color: #6a2c9c;   /* low flat    — dark purple */
+}
+
+/*
+ Jyutping Tone Colors - Dark Backgrounds (Pleco scheme).
+ */
+#zhongwen-window.background-blue .w-jyutping.jyutping-tone1,
+#zhongwen-window.background-blue .w-jyutping-small.jyutping-tone1,
+#zhongwen-window.background-black .w-jyutping.jyutping-tone1,
+#zhongwen-window.background-black .w-jyutping-small.jyutping-tone1 {
+  color: #cfe6ff;   /* high flat   — light blue */
+}
+
+#zhongwen-window.background-blue .w-jyutping.jyutping-tone2,
+#zhongwen-window.background-blue .w-jyutping-small.jyutping-tone2,
+#zhongwen-window.background-black .w-jyutping.jyutping-tone2,
+#zhongwen-window.background-black .w-jyutping-small.jyutping-tone2 {
+  color: #8ded91;   /* high rising — light green */
+}
+
+#zhongwen-window.background-blue .w-jyutping.jyutping-tone3,
+#zhongwen-window.background-blue .w-jyutping-small.jyutping-tone3,
+#zhongwen-window.background-black .w-jyutping.jyutping-tone3,
+#zhongwen-window.background-black .w-jyutping-small.jyutping-tone3 {
+  color: #93bdf0;   /* mid flat    — medium blue */
+}
+
+#zhongwen-window.background-blue .w-jyutping.jyutping-tone4,
+#zhongwen-window.background-blue .w-jyutping-small.jyutping-tone4,
+#zhongwen-window.background-black .w-jyutping.jyutping-tone4,
+#zhongwen-window.background-black .w-jyutping-small.jyutping-tone4 {
+  color: #f3b2d6;   /* low falling — magenta */
+}
+
+#zhongwen-window.background-blue .w-jyutping.jyutping-tone5,
+#zhongwen-window.background-blue .w-jyutping-small.jyutping-tone5,
+#zhongwen-window.background-black .w-jyutping.jyutping-tone5,
+#zhongwen-window.background-black .w-jyutping-small.jyutping-tone5 {
+  color: #4ecf55;   /* low rising  — medium green */
+}
+
+#zhongwen-window.background-blue .w-jyutping.jyutping-tone6,
+#zhongwen-window.background-blue .w-jyutping-small.jyutping-tone6,
+#zhongwen-window.background-black .w-jyutping.jyutping-tone6,
+#zhongwen-window.background-black .w-jyutping-small.jyutping-tone6 {
+  color: #c9a0ec;   /* low flat    — purple */
+}
+
+#zhongwen-window .w-jyutping,
+#zhongwen-window .w-jyutping-small {
+  font-family: Helvetica, Arial, sans-serif;
+  white-space: nowrap;
+}
+
+#zhongwen-window .w-jyutping {
+  font-size: 16px;
+}
+
+#zhongwen-window .w-jyutping-small {
+  font-size: 12px;
+}
+
+/*
+ Jyutping marking and numbers
+ */
+#zhongwen-window .w-jyutping-tone {
+  font-size: 0.7em;
+  font-weight: bold;
+  position: relative;
+  padding-left: 0.08em;
+  white-space: nowrap;
+}
+
+#zhongwen-window .w-jyutping-pitch1 {
+  bottom: 0.66em;
+}
+
+#zhongwen-window .w-jyutping-pitch2 {
+  bottom: 0.54em;
+}
+
+#zhongwen-window .w-jyutping-pitch3 {
+  bottom: 0.40em;
+}
+
+#zhongwen-window .w-jyutping-pitch4 {
+  bottom: -0.20em;
+}
+
+#zhongwen-window .w-jyutping-pitch5 {
+  bottom: -0.04em;
+}
+
+#zhongwen-window .w-jyutping-pitch6 {
+  bottom: -0.12em;
+}
+
+#zhongwen-window .w-jyutping-mark {
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.02em;
+  vertical-align: -0.08em;
+}
+
+/*
+ Match jyutping text, tone mark, and number color
+ */
+#zhongwen-window .w-jyutping .w-jyutping-tone,
+#zhongwen-window .w-jyutping-small .w-jyutping-tone,
+#zhongwen-window .w-jyutping-tone .w-jyutping-mark,
+#zhongwen-window .w-jyutping-tone .w-jyutping-mark * {
+  color: inherit;
 }

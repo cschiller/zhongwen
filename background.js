@@ -270,11 +270,17 @@ function search(text) {
 }
 
 async function loadDictionary() {
-    let [wordDict, wordIndex, grammarKeywords, vocabKeywords] = await loadDictData();
-    return new ZhongwenDictionary(wordDict, wordIndex, grammarKeywords, vocabKeywords);
+
+    let { jyutping } = await chrome.storage.local.get('jyutping');
+
+    let [wordDict, wordIndex, grammarKeywords, vocabKeywords, jyutpingIndex] =
+        await loadDictData(jyutping);
+
+    return new ZhongwenDictionary(
+        wordDict, wordIndex, grammarKeywords, vocabKeywords, jyutpingIndex);
 }
 
-async function loadDictData() {
+async function loadDictData(withJyutping) {
     let wordDict = fetch(chrome.runtime.getURL(
         "data/cedict_ts.u8")).then(r => r.text());
     let wordIndex = fetch(chrome.runtime.getURL(
@@ -284,8 +290,23 @@ async function loadDictData() {
     let vocabKeywords = fetch(chrome.runtime.getURL(
         "data/vocabularyKeywordsMin.json")).then(r => r.json());
 
-    return Promise.all([wordDict, wordIndex, grammarKeywords, vocabKeywords]);
+    // Only fetch when Jyutping Option is enabled
+    let jyutpingIndex = withJyutping
+        ? fetch(chrome.runtime.getURL(
+            "data/cedict-jyutping.idx")).then(r => r.text())
+        : Promise.resolve(null);
+
+    return Promise.all(
+        [wordDict, wordIndex, grammarKeywords, vocabKeywords, jyutpingIndex]);
 }
+
+// When the Jyutping setting is changed in options, discard dict and reload
+// on next search with only the selected sources.
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.jyutping) {
+        dict = undefined;
+    }
+});
 
 function lookup(dictionary, text) {
 

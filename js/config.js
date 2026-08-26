@@ -10,5 +10,6 @@ globalThis.defaultConfig = {
     toneColors: true,
     toneColorScheme: 'standard',
     vocab: true,
-    zhuyin: false
+    zhuyin: false,
+    jyutping: false
 };
