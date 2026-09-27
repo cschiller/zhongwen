@@ -212,4 +212,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 ---
 
-*Copyright (C) 2025 Christian Schiller*
+*Copyright (C) 2026 Christian Schiller*
