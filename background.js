@@ -350,6 +350,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
                 entry.pinyin = request.entries[i].pinyin;
                 entry.definition = request.entries[i].definition;
 
+                // Check if entry already exists
+                if (wordlist.some(e =>
+                    e.simplified === entry.simplified &&
+                    e.traditional === entry.traditional &&
+                    e.pinyin === entry.pinyin &&
+                    e.definition === entry.definition)) {
+                    continue;
+                }
+
                 wordlist.push(entry);
 
                 if (saveFirstEntryOnly) {
