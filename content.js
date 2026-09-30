@@ -922,7 +922,9 @@ function makeHtml(result, showToneColors) {
             pinyinClass += '-small';
         }
         let p = pinyinAndZhuyin(entry[3], showToneColors, pinyinClass);
-        html += p[0];
+        if (config.pinyin !== 'no') {
+            html += p[0];
+        }
 
         // Zhuyin
 
