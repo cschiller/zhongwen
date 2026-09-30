@@ -1,20 +1,32 @@
 /*
  Zhongwen - A Chinese-English Pop-Up Dictionary
- Copyright (C) 2010-2019 Christian Schiller
+ Copyright (C) 2022 Christian Schiller
  https://chrome.google.com/extensions/detail/kkmlkkjojmombglmlpbpapmhcaljjkde
  */
 
 /* global globalThis */
 
-let wordList = localStorage['wordlist'];
-
-let showZhuyin = localStorage['zhuyin'] === 'yes';
+'use strict';
 
 const NOTES_COLUMN = 6;
 
-let entries;
-if (wordList) {
-    entries = JSON.parse(wordList);
+let wordList;
+
+let showZhuyin;
+
+let entries = [];
+
+async function loadWordList() {
+    let data = await chrome.runtime.sendMessage({type: 'getWordList'});
+
+    if (!data || !data.success) {
+        throw new Error('Unable to load the word list');
+    }
+
+    wordList = data.wordList || [];
+    showZhuyin = data.zhuyin ?? globalThis.defaultConfig.zhuyin;
+    entries = wordList;
+
     entries.forEach(e => {
         e.timestamp = e.timestamp || 0;
         e.notes = (e.notes || '<i>Edit</i>');
@@ -23,12 +35,11 @@ if (wordList) {
     // show new entries first
     entries.sort((e1, e2) => e2.timestamp - e1.timestamp);
     entries.forEach((e, i) => e.id = i);
-} else {
-    entries = [];
 }
 
+
 function showListIsEmptyNotice() {
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
         $('#nodata').show();
     } else {
         $('#nodata').hide();
@@ -36,7 +47,7 @@ function showListIsEmptyNotice() {
 }
 
 function disableButtons() {
-    if (entries.length === 0) {
+    if (!entries || entries.length === 0) {
         $('#saveList').prop('disabled', true);
         $('#selectAll').prop('disabled', true);
         $('#deselectAll').prop('disabled', true);
@@ -59,26 +70,9 @@ function convert2Zhuyin(pinyin) {
     return zhuyin.join(' ');
 }
 
-function copyEntriesForSaving(entries) {
-    let result = [];
-    for (let i = 0; i < entries.length; i++) {
-        result.push(copyEntryForSaving(entries[i]));
-    }
-    return result;
-}
+$(document).ready(async function () {
 
-function copyEntryForSaving(entry) {
-    let result = Object.assign({}, entry);
-    // don't save these atributes
-    delete result.id;
-    delete result.zhuyin;
-    if (result.notes === '<i>Edit</i>') {
-        delete result.notes;
-    }
-    return result;
-}
-
-$(document).ready(function () {
+    await loadWordList();
 
     showListIsEmptyNotice();
     disableButtons();
@@ -121,14 +115,23 @@ $(document).ready(function () {
 
     $('#editNotes').on('shown.bs.modal', () => $('#notes').focus());
 
-    $('#saveNotes').click(() => {
+    $('#saveNotes').click(async () => {
         let entry = entries[$('#rowIndex').val()];
+        let notes = $('#notes').val();
+        let response = await chrome.runtime.sendMessage({
+            type: 'updateWordListEntry',
+            entryId: entry.entryId,
+            notes
+        });
 
-        entry.notes = $('#notes').val() || '<i>Edit</i>';
+        if (!response || !response.success) {
+            return;
+        }
+
+        entry.notes = notes || '<i>Edit</i>';
 
         $('#editNotes').modal('hide');
         invalidateRow().draw();
-        localStorage['wordlist'] = JSON.stringify(copyEntriesForSaving(entries));
     });
 
     $('#saveList').click(function () {
@@ -164,12 +167,25 @@ $(document).ready(function () {
         a.click();
     });
 
-    $('#delete').click(function () {
+    $('#delete').click(async function () {
+        let selected = table.rows('.bg-info').data();
+        let entryIds = [];
+        for (let i = 0; i < selected.length; i++) {
+            entryIds.push(selected[i].entryId);
+        }
+
+        let response = await chrome.runtime.sendMessage({
+            type: 'deleteWordListEntries',
+            entryIds
+        });
+
+        if (!response || !response.success) {
+            return;
+        }
+
         table.rows('.bg-info').remove();
 
         entries = table.rows().data().draw(true);
-
-        localStorage['wordlist'] = JSON.stringify(copyEntriesForSaving(entries));
 
         showListIsEmptyNotice();
         disableButtons();

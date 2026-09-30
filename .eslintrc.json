@@ -11,9 +11,18 @@
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2020,
         "sourceType": "module"
     },
+    "overrides": [
+        {
+            "files": ["tests/*.js"],
+            "env": {
+                "browser": false,
+                "node": true
+            }
+        }
+    ],
     "rules": {
         "semi": "warn",
         "eqeqeq": 1

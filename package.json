@@ -1,6 +1,6 @@
 {
   "name": "zhongwen",
-  "version": "5.15.0",
+  "version": "6.4.0",
   "description": "Chinese Pop-Up Dictionary",
   "repository": {
     "type": "git",
@@ -19,13 +19,16 @@
   "devDependencies": {
     "eslint": "^8.10.0",
     "stylelint": "^14.5.3",
-    "stylelint-config-recommended": "^7.0.0"
+    "stylelint-config-recommended": "^7.0.0",
+    "@types/chrome": "^0.0.193"
   },
   "stylelint": {
     "extends": "stylelint-config-recommended"
   },
   "scripts": {
-    "lint": "eslint --fix *.js js/options.js js/wordlist.js js/zhuyin.js",
-    "csslint": "stylelint css/content.css css/wordlist.css"
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint *.js js/config.js js/migration.js js/offscreen.js js/options.js js/text.js js/wordlist.js js/zhuyin.js tests/*.test.js",
+    "csslint": "stylelint css/content.css css/wordlist.css",
+    "check": "npm test && npm run lint && npm run csslint"
   }
 }
