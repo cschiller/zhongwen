@@ -65,7 +65,8 @@ let zhongwenOptions = window.zhongwenOptions = {
     grammar: localStorage['grammar'] || 'yes',
     vocab: localStorage['vocab'] || 'yes',
     simpTrad: localStorage['simpTrad'] || 'classic',
-    toneColorScheme: localStorage['toneColorScheme'] || 'standard'
+    toneColorScheme: localStorage['toneColorScheme'] || 'standard',
+    tts: localStorage['tts'] || 'yes',
 };
 
 function activateExtension(tabId, showHelp) {
@@ -359,6 +360,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, callback) {
             localStorage['wordlist'] = JSON.stringify(wordlist);
 
             tabID = tabIDs['wordlist'];
+        }
+            break;
+        case 'tts': {
+            chrome.tts.speak(request.data, {'lang': 'zh-CN', 'rate': 1.0});
         }
             break;
     }

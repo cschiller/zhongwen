@@ -39,6 +39,9 @@ function loadVals() {
 
     const skritterTLD = localStorage['skritterTLD'] || 'com';
     document.querySelector(`input[name="skritterTLD"][value="${skritterTLD}"]`).checked = true;
+
+    const tts = localStorage['tts'] || 'yes';
+    document.querySelector('#tts').checked = tts !== 'no';
 }
 
 function setPopupColor(popupColor) {
@@ -105,6 +108,9 @@ window.addEventListener('load', () => {
         input.addEventListener('change',
             () => setOption('skritterTLD', input.getAttribute('value')));
     });
+
+    document.querySelector('#tts').addEventListener('change',
+        (event) => setBooleanOption('tts', event.target.checked));
 });
 
 loadVals();
