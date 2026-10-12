@@ -237,3 +237,25 @@
 #zhongwen-window.tonecolor-hanping .tone5 {
   color: #a0a0a0;
 }
+
+
+/*  Sinosplice Tone Colors */
+#zhongwen-window.tonecolor-sinosplice .tone1 {
+  color: #e68a12;
+}
+
+#zhongwen-window.tonecolor-sinosplice .tone2 {
+  color: #17c417;
+}
+
+#zhongwen-window.tonecolor-sinosplice .tone3 {
+  color: #1062d4;
+}
+
+#zhongwen-window.tonecolor-sinosplice .tone4 {
+  color: #c7102b;
+}
+
+#zhongwen-window.tonecolor-sinosplice .tone5 {
+  color: #a0a0a0;
+}
